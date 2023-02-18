@@ -6,6 +6,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"strings"
 )
 
 type pgConfig struct {
@@ -36,4 +37,8 @@ func NewClient(ctx context.Context, cfg *pgConfig) *pgxpool.Pool {
 	}
 
 	return pool
+}
+
+func FormatQuery(q string) string {
+	return strings.ReplaceAll(strings.ReplaceAll(q, "\t", ""), "\n", "")
 }

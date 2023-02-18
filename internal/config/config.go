@@ -2,6 +2,7 @@ package config
 
 import (
 	"github.com/ilyakaznacheev/cleanenv"
+
 	"log"
 	"path"
 	"sync"
@@ -11,14 +12,14 @@ type Config struct {
 	Listen struct {
 		Port   string `yaml:"port"`
 		BindIp string `yaml:"bind_ip"`
-	}
-	PostgresQLStorage struct {
+	} `yaml:"listen"`
+	PostgresStorage struct {
 		Username string `yaml:"username"`
 		Password string `yaml:"password"`
 		Host     string `yaml:"host"`
 		Port     string `yaml:"port"`
 		Database string `yaml:"database"`
-	}
+	} `yaml:"postgresql_storage"`
 }
 
 var instance *Config

@@ -1,0 +1,148 @@
+package user
+
+import (
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
+	user "github.com/romanchechyotkin/car_booking-service/internal/user/model"
+	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
+
+	"context"
+	"fmt"
+	"log"
+)
+
+type Storage interface {
+	CreateUser(ctx context.Context, user *user.CreateUserDto) error
+	GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error)
+	GetOneUserById(ctx context.Context, id string) (user.GetUsersDto, error)
+	UpdateUser(ctx context.Context) error
+	DeleteUserById(ctx context.Context, id string) error
+}
+
+type Repository struct {
+	client *pgxpool.Pool
+}
+
+func NewRepository(client *pgxpool.Pool) *Repository {
+	return &Repository{
+		client: client,
+	}
+}
+
+func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
+	query := `
+		INSERT INTO public.users (email, password, full_name, telephone_number) 
+		VALUES ($1, $2, $3, $4)
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	_, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			log.Println(newErr)
+			return newErr
+		}
+		return err
+	}
+
+	return nil
+}
+
+func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error) {
+	query := `
+		SELECT id, email, full_name, telephone_number, is_premium, city, rating
+		FROM public.users
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	rows, err := r.client.Query(ctx, query)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			log.Println(newErr)
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	defer rows.Close()
+
+	users := make([]user.GetUsersDto, 0)
+	for rows.Next() {
+		var u user.GetUsersDto
+
+		err = rows.Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		users = append(users, u)
+	}
+
+	err = rows.Err()
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	return users, nil
+}
+
+func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error) {
+	query := `
+		SELECT id, email, full_name, telephone_number, is_premium, city, rating 
+		FROM public.users
+		WHERE id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+	if err != nil {
+		log.Println(err)
+		return u, err
+	}
+
+	return u, nil
+}
+
+func (r *Repository) UpdateUser(ctx context.Context, user *user.UpdateUserDto) error {
+	query := `
+		UPDATE public.users
+		SET email = $1,
+		    password = $2,
+		    full_name = $3,
+		    city = $4
+		WHERE id = $5
+	`
+
+	exec, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.City, user.Id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	rowsAffected := exec.RowsAffected()
+	log.Printf("rows affected: %d", rowsAffected)
+	return nil
+}
+
+func (r *Repository) DeleteUserById(ctx context.Context, id string) error {
+	query := `
+		DELETE FROM public.users
+		WHERE id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+
+	rowsAffected := exec.RowsAffected()
+	log.Printf("after delete rows affected: %d", rowsAffected)
+
+	return nil
+}

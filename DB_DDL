@@ -1,0 +1,21 @@
+--- users table init
+CREATE TABLE public.users (
+    id UUID DEFAULT gen_random_uuid(),
+    email TEXT UNIQUE NOT NULL,
+    password TEXT NOT NULL,
+    full_name TEXT NOT NULL,
+    telephone_number TEXT NOT NULL UNIQUE,
+    is_premium BOOLEAN DEFAULT FALSE,
+    city TEXT,
+    rating DECIMAL(3, 2) DEFAULT 0
+);
+
+COMMENT ON COLUMN public.users.id IS 'user unique id';
+COMMENT ON COLUMN public.users.email IS 'user unique email';
+COMMENT ON COLUMN public.users.password IS 'user password';
+COMMENT ON COLUMN public.users.full_name IS 'user full name';
+COMMENT ON COLUMN public.users.telephone_number IS 'user unique phone number';
+COMMENT ON COLUMN public.users.is_premium IS 'premium unlocks some premium features';
+COMMENT ON COLUMN public.users.city IS 'user location';
+COMMENT ON COLUMN public.users.rating IS 'user rating which created by other users rates';
+

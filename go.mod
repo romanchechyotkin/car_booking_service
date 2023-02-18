@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/ilyakaznacheev/cleanenv v1.4.2
 	github.com/jackc/pgx/v5 v5.3.0
+	github.com/julienschmidt/httprouter v1.3.0
 )
 
 require (
