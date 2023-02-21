@@ -48,3 +48,7 @@ func main() {
 	log.Printf("server running http://localhost:%s/", cfg.Listen.Port)
 	log.Fatal(server.ListenAndServe())
 }
+
+func Print(str string) string {
+	return fmt.Sprintf("string = %s", str)
+}
