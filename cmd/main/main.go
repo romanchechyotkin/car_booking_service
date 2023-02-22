@@ -25,6 +25,7 @@ func main() {
 	log.Println("router init")
 	router := httprouter.New()
 
+	log.Println("swagger init")
 	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently))
 	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
 
