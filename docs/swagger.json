@@ -1,0 +1,10 @@
+{
+    "swagger": "2.0",
+    "info": {
+        "title": "Car Booking Service API",
+        "contact": {},
+        "version": "1.0"
+    },
+    "host": "localhost:5000",
+    "paths": {}
+}

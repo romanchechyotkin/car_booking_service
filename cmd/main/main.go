@@ -2,10 +2,12 @@ package main
 
 import (
 	"github.com/julienschmidt/httprouter"
+	_ "github.com/romanchechyotkin/car_booking-service/docs"
 	"github.com/romanchechyotkin/car_booking-service/internal/config"
 	user2 "github.com/romanchechyotkin/car_booking-service/internal/user"
 	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
+	httpSwagger "github.com/swaggo/http-swagger"
 
 	"context"
 	"fmt"
@@ -14,11 +16,17 @@ import (
 	"time"
 )
 
+// @title           Car Booking Service API
+// @version         1.0
+// @host      localhost:5000
 func main() {
 	ctx := context.Background()
 
 	log.Println("router init")
 	router := httprouter.New()
+
+	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently))
+	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
 
 	log.Println("config init")
 	cfg := config.GetConfig()
@@ -47,8 +55,4 @@ func main() {
 
 	log.Printf("server running http://localhost:%s/", cfg.Listen.Port)
 	log.Fatal(server.ListenAndServe())
-}
-
-func Print(str string) string {
-	return fmt.Sprintf("string = %s", str)
 }

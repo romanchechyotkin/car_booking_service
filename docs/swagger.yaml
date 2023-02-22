@@ -1,0 +1,7 @@
+host: localhost:5000
+info:
+  contact: {}
+  title: Car Booking Service API
+  version: "1.0"
+paths: {}
+swagger: "2.0"
