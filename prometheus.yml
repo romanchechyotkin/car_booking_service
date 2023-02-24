@@ -1,0 +1,23 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+  external_labels:
+    monitor: 'codelab-monitor'
+
+scrape_configs:
+  - job_name: 'prometheus'
+
+    scrape_timeout: 15s
+    scrape_interval: 15s
+
+    static_configs:
+      - targets: ['localhost:9090']
+
+  - job_name: 'car_booking_service'
+
+    scrape_timeout: 15s
+    scrape_interval: 15s
+
+    static_configs:
+      - targets: ['localhost:5001']

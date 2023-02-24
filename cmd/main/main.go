@@ -7,6 +7,7 @@ import (
 	user2 "github.com/romanchechyotkin/car_booking-service/internal/user"
 	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
+	"github.com/romanchechyotkin/car_booking-service/pkg/metrics"
 	httpSwagger "github.com/swaggo/http-swagger"
 
 	"context"
@@ -44,6 +45,10 @@ func main() {
 	repository := user.NewRepository(pgClient)
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
+
+	go func() {
+		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
+	}()
 
 	log.Println("http server init")
 	port := fmt.Sprintf(":%s", cfg.Listen.Port)

@@ -9,6 +9,7 @@ import (
 	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
 	"log"
 	"net/http"
+	"time"
 )
 
 type handler struct {
@@ -28,13 +29,19 @@ func (h *handler) Register(router *httprouter.Router) {
 }
 
 func (h *handler) GetALlUsers(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		observeRequest(time.Since(start), status)
+	}()
+
 	users, err := h.repository.GetAllUsers(context.Background())
 	if err != nil {
 		log.Println(err)
 	}
 
 	marshal, err := json.Marshal(users)
-	w.WriteHeader(http.StatusOK)
+	w.WriteHeader(status)
 	w.Write(marshal)
 }
 
