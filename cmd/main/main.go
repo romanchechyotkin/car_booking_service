@@ -1,14 +1,16 @@
 package main
 
 import (
-	"github.com/julienschmidt/httprouter"
-	_ "github.com/romanchechyotkin/car_booking-service/docs"
-	"github.com/romanchechyotkin/car_booking-service/internal/config"
-	user2 "github.com/romanchechyotkin/car_booking-service/internal/user"
-	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
-	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
-	"github.com/romanchechyotkin/car_booking-service/pkg/metrics"
-	httpSwagger "github.com/swaggo/http-swagger"
+	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/internal/config"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
+	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
+
+	_ "github.com/romanchechyotkin/car_booking_service/docs"
+	user2 "github.com/romanchechyotkin/car_booking_service/internal/user"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 
 	"context"
 	"fmt"
@@ -23,12 +25,11 @@ import (
 func main() {
 	ctx := context.Background()
 
-	log.Println("router init")
-	router := httprouter.New()
+	log.Println("gin init")
+	router := gin.Default()
 
 	log.Println("swagger init")
-	router.Handler(http.MethodGet, "/swagger", http.RedirectHandler("/swagger/index.html", http.StatusMovedPermanently))
-	router.Handler(http.MethodGet, "/swagger/*any", httpSwagger.WrapHandler)
+	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	log.Println("config init")
 	cfg := config.GetConfig()

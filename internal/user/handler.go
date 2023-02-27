@@ -1,12 +1,21 @@
 package user
 
 import (
+<<<<<<< HEAD
 	"context"
 	"encoding/json"
 	"fmt"
 	"github.com/julienschmidt/httprouter"
 	user2 "github.com/romanchechyotkin/car_booking-service/internal/user/model"
 	"log"
+=======
+	"github.com/gin-gonic/gin"
+
+	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
+	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
+
+>>>>>>> gin
 	"net/http"
 	"time"
 )
@@ -19,31 +28,40 @@ func NewHandler(service *Service) *handler {
 	return &handler{service: service}
 }
 
-func (h *handler) Register(router *httprouter.Router) {
+func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	router.Handle(http.MethodPost, "/users", h.CreateUser)
+<<<<<<< HEAD
 	//router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
 	//router.Handle(http.MethodPatch, "/users", h.UpdateUser)
 	//router.Handle(http.MethodDelete, "/users/:id", h.DeleteUserById)
+=======
+	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
+	router.Handle(http.MethodPatch, "/users/:id", h.UpdateUser)
+	router.Handle(http.MethodDelete, "/users/:id", h.DeleteUserById)
+>>>>>>> gin
 }
 
-func (h *handler) GetALlUsers(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
+func (h *handler) GetALlUsers(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
 	defer func() {
-		observeRequest(time.Since(start), status)
+		user3.GetAllUsersObserveRequest(time.Since(start), status)
 	}()
 
+<<<<<<< HEAD
 	users, err := h.service.FindAll()
+=======
+	users, err := h.repository.GetAllUsers(ctx)
+>>>>>>> gin
 	if err != nil {
-		log.Println(err)
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
 	}
-
-	marshal, err := json.Marshal(users)
-	w.WriteHeader(status)
-	w.Write(marshal)
+	ctx.JSON(http.StatusOK, gin.H{"users": users})
 }
 
+<<<<<<< HEAD
 //	func (h *handler) GetOneUserById(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 //		id := params.ByName("id")
 //
@@ -71,16 +89,51 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params http
 	fmt.Printf("user: %s, %s, %s, %s", u.Email, u.Password, u.FullName, u.TelephoneNumber)
 
 	err = h.service.CreateUser(context.Background(), &u)
+=======
+func (h *handler) GetOneUserById(ctx *gin.Context) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		user3.GetOneUserByIdObserveRequest(time.Since(start), status)
+	}()
+
+	id := ctx.Param("id")
+	userById, err := h.repository.GetOneUserById(ctx, id)
 	if err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		fmt.Fprintf(w, "{error: %v}", err)
-	} else {
-		marshal, _ := json.Marshal(u)
-		w.WriteHeader(http.StatusCreated)
-		w.Write(marshal)
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
 	}
+
+	ctx.JSON(http.StatusOK, gin.H{"user": userById})
 }
 
+func (h *handler) CreateUser(ctx *gin.Context) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		user3.CreateUserObserveRequest(time.Since(start), status)
+	}()
+
+	var cu user2.CreateUserDto
+	err := ctx.ShouldBindJSON(&cu)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.repository.CreateUser(ctx, &cu)
+>>>>>>> gin
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusCreated, gin.H{
+		"message": "created",
+	})
+}
+
+<<<<<<< HEAD
 //func (h *handler) UpdateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 //	defer r.Body.Close()
 //
@@ -110,3 +163,47 @@ func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params http
 //	w.WriteHeader(http.StatusNoContent)
 //	fmt.Fprintf(w, "deleted")
 //}
+=======
+func (h *handler) UpdateUser(ctx *gin.Context) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		user3.UpdateUserObserveRequest(time.Since(start), status)
+	}()
+
+	id := ctx.Param("id")
+	var uu user2.UpdateUserDto
+	err := ctx.ShouldBindJSON(&uu)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = h.repository.UpdateUser(ctx, id, &uu)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "updated",
+	})
+}
+
+func (h *handler) DeleteUserById(ctx *gin.Context) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		user3.DeleteUserObserveRequest(time.Since(start), status)
+	}()
+
+	id := ctx.Param("id")
+	err := h.repository.DeleteUserById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{"message": "successfully deleted"})
+}
+>>>>>>> gin
