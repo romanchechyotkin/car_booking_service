@@ -1,9 +1,9 @@
 package user
 
 type CreateUserDto struct {
-	Email           string `json:"email,omitempty"`
-	Password        string `json:"password,omitempty"`
-	FullName        string `json:"full_name,omitempty"`
+	Email           string `json:"email"`
+	Password        string `json:"password"`
+	FullName        string `json:"full_name"`
 	TelephoneNumber string `json:"telephone_number"`
 }
 
