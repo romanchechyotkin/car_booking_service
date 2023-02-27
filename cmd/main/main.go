@@ -2,13 +2,13 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/car_booking-service/internal/config"
-	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
-	"github.com/romanchechyotkin/car_booking-service/pkg/metrics"
+	"github.com/romanchechyotkin/car_booking_service/internal/config"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
+	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 
-	_ "github.com/romanchechyotkin/car_booking-service/docs"
-	user2 "github.com/romanchechyotkin/car_booking-service/internal/user"
-	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
+	_ "github.com/romanchechyotkin/car_booking_service/docs"
+	user2 "github.com/romanchechyotkin/car_booking_service/internal/user"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 

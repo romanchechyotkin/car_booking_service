@@ -2,13 +2,13 @@ package user
 
 import (
 	"github.com/gin-gonic/gin"
-	"time"
 
-	user3 "github.com/romanchechyotkin/car_booking-service/internal/user/metrics"
-	user2 "github.com/romanchechyotkin/car_booking-service/internal/user/model"
-	user "github.com/romanchechyotkin/car_booking-service/internal/user/storage"
+	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
+	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 
 	"net/http"
+	"time"
 )
 
 type handler struct {

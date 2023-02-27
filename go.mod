@@ -1,4 +1,4 @@
-module github.com/romanchechyotkin/car_booking-service
+module github.com/romanchechyotkin/car_booking_service
 
 go 1.19
 

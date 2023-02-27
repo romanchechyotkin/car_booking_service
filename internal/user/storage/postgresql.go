@@ -3,9 +3,9 @@ package user
 import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 
-	user "github.com/romanchechyotkin/car_booking-service/internal/user/model"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 
 	"context"
 	"fmt"
