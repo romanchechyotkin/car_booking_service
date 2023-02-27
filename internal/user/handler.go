@@ -61,12 +61,11 @@ func (h *handler) GetALlUsers(w http.ResponseWriter, r *http.Request, params htt
 func (h *handler) CreateUser(w http.ResponseWriter, r *http.Request, params httprouter.Params) {
 	defer r.Body.Close()
 
-	fmt.Println(r.Body)
-
 	var u user2.CreateUserDto
 	err := json.NewDecoder(r.Body).Decode(&u)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 
 	fmt.Printf("user: %s, %s, %s, %s", u.Email, u.Password, u.FullName, u.TelephoneNumber)
