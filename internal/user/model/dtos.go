@@ -1,17 +1,10 @@
 package user
 
 type CreateUserDto struct {
-<<<<<<< HEAD
-	Email           string `json:"email"`
-	Password        string `json:"password"`
-	FullName        string `json:"full_name"`
-	TelephoneNumber string `json:"telephone_number"`
-=======
 	Email           string `json:"email" binding:"required,email"`
 	Password        string `json:"password" binding:"required"`
 	FullName        string `json:"full_name" binding:"required"`
 	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
->>>>>>> gin
 }
 
 type GetUsersDto struct {

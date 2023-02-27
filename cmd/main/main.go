@@ -44,8 +44,7 @@ func main() {
 	)
 	pgClient := postgresql.NewClient(ctx, pgConfig)
 	repository := user.NewRepository(pgClient)
-	storage := user2.NewService(repository)
-	handler := user2.NewHandler(storage)
+	handler := user2.NewHandler(repository)
 	handler.Register(router)
 
 	go func() {
