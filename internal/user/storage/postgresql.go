@@ -3,8 +3,9 @@ package user
 import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	user "github.com/romanchechyotkin/car_booking-service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking-service/pkg/client/postgresql"
+
+	user "github.com/romanchechyotkin/car_booking-service/internal/user/model"
 
 	"context"
 	"fmt"
@@ -107,7 +108,7 @@ func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetU
 	return u, nil
 }
 
-func (r *Repository) UpdateUser(ctx context.Context, user *user.UpdateUserDto) error {
+func (r *Repository) UpdateUser(ctx context.Context, id string, user *user.UpdateUserDto) error {
 	query := `
 		UPDATE public.users
 		SET email = $1,
@@ -117,7 +118,7 @@ func (r *Repository) UpdateUser(ctx context.Context, user *user.UpdateUserDto) e
 		WHERE id = $5
 	`
 
-	exec, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.City, user.Id)
+	exec, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.City, id)
 	if err != nil {
 		log.Println(err)
 		return err

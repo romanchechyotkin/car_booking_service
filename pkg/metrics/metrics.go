@@ -6,7 +6,6 @@ import (
 )
 
 func ListenMetrics(address string) error {
-	//use separated ServeMux to prevent handling on the global Mux
 	mux := http.NewServeMux()
 	mux.Handle("/metrics", promhttp.Handler())
 
