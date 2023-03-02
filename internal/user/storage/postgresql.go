@@ -93,15 +93,32 @@ func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error
 
 func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error) {
 	query := `
-		SELECT id, email, full_name, telephone_number, is_premium, city, rating 
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
 		FROM public.users
 		WHERE id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
 	if err != nil {
 		log.Println(err)
+		return u, err
+	}
+
+	return u, nil
+}
+
+func (r *Repository) GetOneUserByEmail(ctx context.Context, email string) (u user.GetUsersDto, err error) {
+	query := `
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
+		FROM public.users
+		WHERE email = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+	if err != nil {
+		log.Printf("err: %v", err)
 		return u, err
 	}
 

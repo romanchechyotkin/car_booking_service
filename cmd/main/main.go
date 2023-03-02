@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/internal/auth"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
@@ -18,6 +19,9 @@ import (
 	"net/http"
 	"time"
 )
+
+// TODO: registration and login endpoints
+// auth service
 
 // @title           Car Booking Service API
 // @version         1.0
@@ -46,6 +50,10 @@ func main() {
 	repository := user.NewRepository(pgClient)
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
+
+	authService := auth.NewService(repository)
+	authH := auth.NewHandler(authService)
+	authH.Register(router)
 
 	go func() {
 		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
