@@ -2,14 +2,15 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
-	"log"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 
 	"fmt"
+	"log"
 )
 
 type service struct {
@@ -47,19 +48,24 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 	return nil
 }
 
-func (s *service) Login(ctx *gin.Context, dto auth.LoginDto) (err error) {
+func (s *service) Login(ctx *gin.Context, dto auth.LoginDto) (u user2.GetUsersDto, token string, err error) {
 	u, userErr := s.repository.GetOneUserByEmail(ctx, dto.Email)
 	if userErr != nil {
-		return fmt.Errorf("user not found")
+		return u, "", fmt.Errorf("user not found")
 	}
 
 	hashedPassword := checkPasswordHash(dto.Password, u.Password)
 	if !hashedPassword {
-		return fmt.Errorf("wrong password")
+		return u, "", fmt.Errorf("wrong password")
+	}
+
+	token, err = jwt.GenerateAccessToken(u)
+	if err != nil {
+		return u, "", err
 	}
 
 	log.Printf("user %s logined", u.Email)
-	return nil
+	return u, token, nil
 }
 
 func hashPassword(password string) (string, error) {

@@ -1,7 +1,9 @@
 package user
 
 import (
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
@@ -25,6 +27,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
 	router.Handle(http.MethodPatch, "/users/:id", h.UpdateUser)
 	router.Handle(http.MethodDelete, "/users/:id", h.DeleteUserById)
+	router.Handle(http.MethodGet, "/users/me", h.GetMySelf)
 }
 
 func (h *handler) GetALlUsers(ctx *gin.Context) {
@@ -125,4 +128,35 @@ func (h *handler) DeleteUserById(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{"message": "successfully deleted"})
+}
+
+func (h *handler) GetMySelf(ctx *gin.Context) {
+	start := time.Now()
+	status := http.StatusOK
+	defer func() {
+		user3.GetMySelfObserveRequest(time.Since(start), status)
+	}()
+
+	cookie, err := ctx.Cookie("access_token")
+	token, err := jwt.ParseAccessToken(cookie)
+	fmt.Println(token)
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	fmt.Println(id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	userById, err := h.repository.GetOneUserById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, userById)
 }
