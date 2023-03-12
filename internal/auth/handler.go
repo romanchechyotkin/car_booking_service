@@ -13,6 +13,7 @@ import (
 
 var WrongEnteredPasswordError = errors.New("wrong entered password")
 var EmptyFullNameError = errors.New("empty full name")
+var WrongTelephoneNumberError = errors.New("wrong belarusian telephone number")
 
 type handler struct {
 	service *service
@@ -40,6 +41,12 @@ func (h *handler) Registration(ctx *gin.Context) {
 	}
 
 	err = ValidateForEmptyPasswordAndFullName(body.Password, body.FullName)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = ValidateBelarusTelephoneNumber(body.TelephoneNumber)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -93,6 +100,26 @@ func ValidateForEmptyPasswordAndFullName(password, fullName string) error {
 
 	if len(fullName) == 0 {
 		return EmptyFullNameError
+	}
+
+	return nil
+}
+
+func ValidateBelarusTelephoneNumber(telephoneNumber string) error {
+	if len(telephoneNumber) != 13 {
+		return WrongTelephoneNumberError
+	}
+
+	if telephoneNumber[:4] != "+375" {
+		return WrongTelephoneNumberError
+
+	}
+
+	codes := "24 25 29 33 44"
+	code := telephoneNumber[4:6]
+
+	if !strings.Contains(codes, code) {
+		return WrongTelephoneNumberError
 	}
 
 	return nil

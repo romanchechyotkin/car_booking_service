@@ -1,10 +1,8 @@
 package auth
 
 import (
-	"github.com/stretchr/testify/require"
-
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
-
+	"github.com/stretchr/testify/require"
 	"testing"
 )
 
@@ -54,5 +52,4 @@ func TestValidationForEmptyPasswordAndFullName(t *testing.T) {
 			require.EqualError(t, tCase.expErr, err.Error())
 		})
 	}
-
 }
