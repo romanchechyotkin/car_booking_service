@@ -31,13 +31,13 @@ func GenerateAccessToken(u user.GetUsersDto) (token string, err error) {
 	return token, err
 }
 
-func ParseAccessToken(cookie string) (jwt.Claims, error) {
-	token, err := jwt.ParseWithClaims(cookie, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
+func ParseAccessToken(token string) (jwt.Claims, error) {
+	claims, err := jwt.ParseWithClaims(token, &UserClaims{}, func(token *jwt.Token) (interface{}, error) {
 		return []byte("secret"), nil
 	})
 	if err != nil {
 		return nil, err
 	}
 
-	return token.Claims, err
+	return claims.Claims, err
 }

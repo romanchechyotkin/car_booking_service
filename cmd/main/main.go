@@ -20,8 +20,7 @@ import (
 	"time"
 )
 
-// TODO: registration and login endpoints
-// auth service
+// TODO: http tests, swagger docs, add secret to config file, refactor code, add Makefile
 
 // @title           Car Booking Service API
 // @version         1.0

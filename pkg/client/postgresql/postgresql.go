@@ -32,6 +32,7 @@ func NewClient(ctx context.Context, cfg *pgConfig) *pgxpool.Pool {
 
 	log.Println("postgresql client init")
 	pool, err := pgxpool.New(ctx, connString)
+	err = pool.Ping(ctx)
 	if err != nil {
 		log.Fatal("cannot to connect to postgres")
 	}

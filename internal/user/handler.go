@@ -1,9 +1,9 @@
 package user
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"strings"
 
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
@@ -22,12 +22,12 @@ func NewHandler(repository *user.Repository) *handler {
 }
 
 func (h *handler) Register(router *gin.Engine) {
-	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
+	router.Handle(http.MethodGet, "/users", jwt.Middleware(h.GetALlUsers))
 	router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
-	router.Handle(http.MethodPatch, "/users/:id", h.UpdateUser)
-	router.Handle(http.MethodDelete, "/users/:id", h.DeleteUserById)
-	router.Handle(http.MethodGet, "/users/me", h.GetMySelf)
+	router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
+	router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
+	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
 }
 
 func (h *handler) GetALlUsers(ctx *gin.Context) {
@@ -94,9 +94,23 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 		user3.UpdateUserObserveRequest(time.Since(start), status)
 	}()
 
-	id := ctx.Param("id")
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
 	var uu user2.UpdateUserDto
-	err := ctx.ShouldBindJSON(&uu)
+	err = ctx.ShouldBindJSON(&uu)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -113,15 +127,29 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 	})
 }
 
-func (h *handler) DeleteUserById(ctx *gin.Context) {
+func (h *handler) DeleteUser(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
 	defer func() {
 		user3.DeleteUserObserveRequest(time.Since(start), status)
 	}()
 
-	id := ctx.Param("id")
-	err := h.repository.DeleteUserById(ctx, id)
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	err = h.repository.DeleteUserById(ctx, id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
 		return
@@ -137,16 +165,16 @@ func (h *handler) GetMySelf(ctx *gin.Context) {
 		user3.GetMySelfObserveRequest(time.Since(start), status)
 	}()
 
-	cookie, err := ctx.Cookie("access_token")
-	token, err := jwt.ParseAccessToken(cookie)
-	fmt.Println(token)
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
 	if err != nil {
 		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
 		return
 	}
 
 	id, err := token.GetIssuer()
-	fmt.Println(id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		return

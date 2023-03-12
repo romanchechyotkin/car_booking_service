@@ -1,12 +1,18 @@
 package auth
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
+	"strings"
+
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 
 	"fmt"
 	"net/http"
 )
+
+var WrongEnteredPasswordError = errors.New("wrong entered password")
+var EmptyFullNameError = errors.New("empty full name")
 
 type handler struct {
 	service *service
@@ -29,7 +35,13 @@ func (h *handler) Registration(ctx *gin.Context) {
 	var body auth.RegistrationDto
 	err := ctx.ShouldBindJSON(&body)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": fmt.Errorf("wrong entered data").Error()})
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = ValidateForEmptyPasswordAndFullName(body.Password, body.FullName)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
@@ -69,4 +81,19 @@ func (h *handler) Logout(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "log out",
 	})
+}
+
+func ValidateForEmptyPasswordAndFullName(password, fullName string) error {
+	if strings.Contains(password, " ") {
+		return WrongEnteredPasswordError
+	}
+
+	password = strings.Trim(password, " ")
+	fullName = strings.Trim(fullName, " ")
+
+	if len(fullName) == 0 {
+		return EmptyFullNameError
+	}
+
+	return nil
 }
