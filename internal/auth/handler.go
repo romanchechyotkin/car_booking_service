@@ -1,14 +1,14 @@
 package auth
 
 import (
-	"errors"
 	"github.com/gin-gonic/gin"
-	"strings"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 
+	"errors"
 	"fmt"
 	"net/http"
+	"strings"
 )
 
 var WrongEnteredPasswordError = errors.New("wrong entered password")

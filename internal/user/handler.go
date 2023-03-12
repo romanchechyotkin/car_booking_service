@@ -3,13 +3,13 @@ package user
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
-	"strings"
 
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 
 	"net/http"
+	"strings"
 	"time"
 )
 

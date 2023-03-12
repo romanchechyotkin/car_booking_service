@@ -1,9 +1,11 @@
 package jwt
 
 import (
-	"fmt"
 	"github.com/golang-jwt/jwt/v5"
+
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+
+	"fmt"
 	"time"
 )
 
