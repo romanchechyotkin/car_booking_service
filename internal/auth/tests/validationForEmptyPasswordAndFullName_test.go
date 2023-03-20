@@ -1,4 +1,4 @@
-package auth
+package tests
 
 import (
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"

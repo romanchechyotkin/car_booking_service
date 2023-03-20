@@ -22,7 +22,7 @@ func NewHandler(repository *user.Repository) *handler {
 }
 
 func (h *handler) Register(router *gin.Engine) {
-	router.Handle(http.MethodGet, "/users", jwt.Middleware(h.GetALlUsers))
+	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
 	router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
