@@ -3,6 +3,8 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
+	"github.com/romanchechyotkin/car_booking_service/internal/car"
+	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
@@ -53,6 +55,10 @@ func main() {
 	authService := auth.NewService(repository)
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
+
+	carRepository := car2.NewRepository(pgClient)
+	carHandler := car.NewHandler(carRepository)
+	carHandler.Register(router)
 
 	go func() {
 		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))

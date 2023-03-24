@@ -1,6 +1,6 @@
 package car
 
-type Car struct {
+type Auto struct {
 	Id          string  `json:"id"`
 	Brand       string  `json:"brand"`
 	Model       string  `json:"model"`

@@ -4,11 +4,13 @@ import (
 	"errors"
 	"github.com/gin-gonic/gin"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage"
 	"net/http"
+	"strings"
 )
 
 var (
+	EmptyString                       = errors.New("empty string")
 	WrongCarNumbersLen                = errors.New("invalid car numbers length")
 	WrongSymbolCarNumbers             = errors.New("no - ")
 	WrongNumbersPartCarNumbers        = errors.New("invalid car numbers in numbers part")
@@ -16,18 +18,22 @@ var (
 	WrongRegionEnteredCarNumbers      = errors.New("invalid car numbers region")
 )
 
-type handler struct{}
+type handler struct {
+	repository *car2.Repository
+}
 
-func NewHandler() *handler {
-	return &handler{}
+func NewHandler(repository *car2.Repository) *handler {
+	return &handler{
+		repository: repository,
+	}
 }
 
 func (h *handler) Register(router *gin.Engine) {
-	router.POST("/cars", jwt.Middleware(h.CreateCar))
+	router.POST("/cars", h.CreateCar)
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
-	var dto car.CreateAutoDto
+	var dto car.CreateCarDto
 
 	err := ctx.ShouldBindJSON(&dto)
 	if err != nil {
@@ -45,7 +51,26 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, "ok")
+	brand, model, err := ValidateForEmptyStrings(dto.Brand, dto.Model)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	dto.Brand = brand
+	dto.Model = model
+
+	err = h.repository.CreateCar(ctx, &dto)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, dto)
 }
 
 func ValidateCarNumbers(numbers string) error {
@@ -74,4 +99,20 @@ func ValidateCarNumbers(numbers string) error {
 	}
 
 	return nil
+}
+
+// TODO: write test
+
+func ValidateForEmptyStrings(brand, model string) (string, string, error) {
+	brandTrim := strings.Trim(brand, " ")
+	if len(brandTrim) == 0 {
+		return "", "", EmptyString
+	}
+
+	modelTrim := strings.Trim(model, " ")
+	if len(modelTrim) == 0 {
+		return "", "", EmptyString
+	}
+
+	return brandTrim, modelTrim, nil
 }
