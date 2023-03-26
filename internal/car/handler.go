@@ -101,8 +101,6 @@ func ValidateCarNumbers(numbers string) error {
 	return nil
 }
 
-// TODO: write test
-
 func ValidateForEmptyStrings(brand, model string) (string, string, error) {
 	brandTrim := strings.Trim(brand, " ")
 	if len(brandTrim) == 0 {
