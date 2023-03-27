@@ -3,8 +3,10 @@ package car
 import (
 	"errors"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage"
+	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
+	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"net/http"
 	"strings"
 )
@@ -19,14 +21,18 @@ var (
 )
 
 type handler struct {
-	repository *car2.Repository
+	carRepository   *car2.Repository
+	imageRepository *images_storage.Repository
 }
 
-func NewHandler(repository *car2.Repository) *handler {
+func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *handler {
 	return &handler{
-		repository: repository,
+		carRepository:   carRep,
+		imageRepository: imgRep,
 	}
 }
+
+// TODO: finish create car route with jwt auth (which user car)
 
 func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars", h.CreateCar)
@@ -35,7 +41,7 @@ func (h *handler) Register(router *gin.Engine) {
 func (h *handler) CreateCar(ctx *gin.Context) {
 	var dto car.CreateCarDto
 
-	err := ctx.ShouldBindJSON(&dto)
+	err := ctx.ShouldBind(&dto)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -62,12 +68,42 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 	dto.Brand = brand
 	dto.Model = model
 
-	err = h.repository.CreateCar(ctx, &dto)
+	form, err := ctx.MultipartForm()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.carRepository.CreateCar(ctx, &dto)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
+	}
+
+	files := form.File["image"]
+	for _, file := range files {
+		name := uuid.NewString()
+		file.Filename = name
+
+		err = ctx.SaveUploadedFile(file, "static/"+file.Filename)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
+
+		err = h.imageRepository.SaveImageToDB(ctx, file.Filename, dto.Id)
+		if err != nil {
+			ctx.JSON(http.StatusInternalServerError, gin.H{
+				"error": err.Error(),
+			})
+			return
+		}
 	}
 
 	ctx.JSON(http.StatusOK, dto)

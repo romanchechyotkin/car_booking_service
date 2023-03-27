@@ -1,9 +1,9 @@
 package car
 
 type CreateCarDto struct {
-	Id          string  `json:"id" binding:"required"`
-	Brand       string  `json:"brand" binding:"required"`
-	Model       string  `json:"model" binding:"required"`
-	PricePerDay float64 `json:"price" binding:"required"`
-	Year        int     `json:"year" binding:"required"`
+	Id          string  `form:"id" json:"id"`
+	Brand       string  `form:"brand" json:"brand"`
+	Model       string  `form:"model" json:"model"`
+	PricePerDay float64 `form:"price" json:"price"`
+	Year        int     `form:"year" json:"year"`
 }

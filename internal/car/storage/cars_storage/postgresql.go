@@ -1,4 +1,4 @@
-package car
+package cars_storage
 
 import (
 	"github.com/jackc/pgx/v5/pgconn"

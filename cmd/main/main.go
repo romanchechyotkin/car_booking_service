@@ -4,7 +4,8 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
-	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage"
+	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
+	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
@@ -32,6 +33,7 @@ func main() {
 
 	log.Println("gin init")
 	router := gin.Default()
+	router.Static("/static", "./static")
 
 	log.Println("swagger init")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
@@ -57,7 +59,8 @@ func main() {
 	authH.Register(router)
 
 	carRepository := car2.NewRepository(pgClient)
-	carHandler := car.NewHandler(carRepository)
+	imgRep := images_storage.NewRepository(pgClient)
+	carHandler := car.NewHandler(carRepository, imgRep)
 	carHandler.Register(router)
 
 	go func() {

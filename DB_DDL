@@ -19,3 +19,22 @@ COMMENT ON COLUMN public.users.is_premium IS 'premium unlocks some premium featu
 COMMENT ON COLUMN public.users.city IS 'user location';
 COMMENT ON COLUMN public.users.rating IS 'user rating which created by other users rates';
 
+
+--- cars table init
+CREATE TABLE cars (
+  id varchar(8) UNIQUE PRIMARY KEY,
+  brand TEXT,
+  model TEXT,
+  year numeric(4,0),
+  price_per_day numeric(10, 2),
+  is_available boolean default true,
+  rating float default 0.0
+);
+
+
+--- car_images table init
+CREATE TABLE car_images (
+    id SERIAL PRIMARY KEY,
+    url TEXT,
+    car_id VARCHAR REFERENCES public.cars(id)
+);
