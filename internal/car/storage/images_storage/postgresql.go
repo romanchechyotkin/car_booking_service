@@ -3,6 +3,7 @@ package images_storage
 import (
 	"context"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"log"
 )
 
@@ -20,7 +21,7 @@ func (r *Repository) SaveImageToDB(ctx context.Context, url, carId string) error
 		VALUES ($1, $2)
 	`
 
-	log.Println(query)
+	log.Println(postgresql.FormatQuery(query))
 	_, err := r.client.Exec(ctx, query, url, carId)
 	if err != nil {
 		return err
