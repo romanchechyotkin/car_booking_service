@@ -7,6 +7,7 @@ import (
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"net/http"
 	"strings"
 )
@@ -35,13 +36,14 @@ func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *han
 // TODO: finish create car route with jwt auth (which user car)
 
 func (h *handler) Register(router *gin.Engine) {
-	router.POST("/cars", h.CreateCar)
+	router.POST("/cars", jwt.Middleware(h.CreateCar))
+	//router.POST("/cars", h.CreateCar)
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
-	var dto car.CreateCarDto
+	var formDto car.CreateCarFormDto
 
-	err := ctx.ShouldBind(&dto)
+	err := ctx.ShouldBind(&formDto)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -49,7 +51,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	err = ValidateCarNumbers(dto.Id)
+	err = ValidateCarNumbers(formDto.Id)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -57,7 +59,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	brand, model, err := ValidateForEmptyStrings(dto.Brand, dto.Model)
+	brand, model, err := ValidateForEmptyStrings(formDto.Brand, formDto.Model)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -65,8 +67,8 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	dto.Brand = brand
-	dto.Model = model
+	formDto.Brand = brand
+	formDto.Model = model
 
 	form, err := ctx.MultipartForm()
 	if err != nil {
@@ -76,7 +78,22 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	err = h.carRepository.CreateCar(ctx, &dto)
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	err = h.carRepository.CreateCar(ctx, &formDto, id)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -97,7 +114,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 			return
 		}
 
-		err = h.imageRepository.SaveImageToDB(ctx, file.Filename, dto.Id)
+		err = h.imageRepository.SaveImageToDB(ctx, file.Filename, formDto.Id)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -106,7 +123,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, dto)
+	ctx.JSON(http.StatusOK, formDto)
 }
 
 func ValidateCarNumbers(numbers string) error {

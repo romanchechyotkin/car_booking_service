@@ -1,6 +1,6 @@
 package car
 
-type CreateCarDto struct {
+type CreateCarFormDto struct {
 	Id          string  `form:"id" json:"id"`
 	Brand       string  `form:"brand" json:"brand"`
 	Model       string  `form:"model" json:"model"`

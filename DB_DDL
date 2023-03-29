@@ -1,6 +1,6 @@
 --- users table init
 CREATE TABLE public.users (
-    id UUID DEFAULT gen_random_uuid(),
+    id UUID DEFAULT gen_random_uuid() primary key,
     email TEXT UNIQUE NOT NULL,
     password TEXT NOT NULL,
     full_name TEXT NOT NULL,
@@ -37,4 +37,11 @@ CREATE TABLE car_images (
     id SERIAL PRIMARY KEY,
     url TEXT,
     car_id VARCHAR REFERENCES public.cars(id)
+);
+
+
+--- cars_users table init
+CREATE TABLE public.cars_users (
+    car_id varchar(8) REFERENCES public.cars(id),
+    user_id uuid REFERENCES public.users(id)
 );

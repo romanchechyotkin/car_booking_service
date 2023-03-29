@@ -21,6 +21,8 @@ func NewHandler(repository *user.Repository) *handler {
 	return &handler{repository: repository}
 }
 
+// TODO add validators
+
 func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	router.Handle(http.MethodPost, "/users", h.CreateUser)

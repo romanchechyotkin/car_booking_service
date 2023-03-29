@@ -4,9 +4,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 
 	"context"
 	"fmt"
@@ -14,7 +13,7 @@ import (
 )
 
 type Storage interface {
-	CreateCar(ctx context.Context, car *car.CreateCarDto) error
+	CreateCar(ctx context.Context, car *car.CreateCarFormDto, id string) error
 }
 
 type Repository struct {
@@ -27,20 +26,43 @@ func NewRepository(client *pgxpool.Pool) *Repository {
 	}
 }
 
-func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarDto) error {
-	query := `
+func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, userId string) error {
+	conn, err := r.client.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+
+	carsQuery := `
 		INSERT INTO public.cars (id, brand, model, year, price_per_day) 
 		VALUES ($1, $2, $3, $4, $5)
 	`
 
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	_, err := r.client.Exec(ctx, query, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay)
+	carsUsersQuery := `
+		INSERT INTO public.cars_users (car_id, user_id) 
+		VALUES ($1, $2)
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(carsQuery))
+	row, _ := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay)
+	fmt.Println(row.RowsAffected())
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(carsUsersQuery))
+	row, _ = tx.Exec(ctx, carsUsersQuery, car.Id, userId)
+	fmt.Println(row.RowsAffected())
+
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-			log.Println(newErr)
-			return newErr
-		}
 		return err
 	}
 

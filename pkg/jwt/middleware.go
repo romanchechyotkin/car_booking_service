@@ -1,8 +1,8 @@
 package jwt
 
 import (
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -33,7 +33,7 @@ func Middleware(h gin.HandlerFunc) gin.HandlerFunc {
 		}
 
 		token, err := ParseAccessToken(headers[1])
-		fmt.Println(token)
+		log.Println(token)
 		if err != nil {
 			ctx.AbortWithStatusJSON(http.StatusUnauthorized, gin.H{
 				"error": "midlleware unauthorized",
