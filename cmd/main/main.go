@@ -1,8 +1,10 @@
 package main
 
 import (
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
+	"github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
@@ -54,7 +56,19 @@ func main() {
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
 
-	authService := auth.NewService(repository)
+	kafkaConfig := &kafka.ConfigMap{
+		"bootstrap.servers": "localhost:9092",
+		"client.id":         "emails",
+		"acks":              "all",
+	}
+	producer, err := kafka.NewProducer(kafkaConfig)
+	if err != nil {
+		log.Fatalf("failed to connect to kafka %v", err)
+	}
+	defer producer.Close()
+
+	placer := emailproducer.NewEmailPlacer(producer, "emails")
+	authService := auth.NewService(repository, placer)
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
@@ -67,6 +81,10 @@ func main() {
 		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
 	}()
 
+	router.GET("/health", func(ctx *gin.Context) {
+		ctx.String(http.StatusOK, "health")
+	})
+
 	log.Println("http server init")
 	port := fmt.Sprintf(":%s", cfg.Listen.Port)
 	server := http.Server{
@@ -76,6 +94,6 @@ func main() {
 		WriteTimeout: 15 * time.Second,
 	}
 
-	log.Printf("server running http://localhost:%s/", cfg.Listen.Port)
+	log.Printf("server running http://localhost:%s/health", cfg.Listen.Port)
 	log.Fatal(server.ListenAndServe())
 }

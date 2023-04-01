@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 
@@ -15,11 +16,13 @@ import (
 
 type service struct {
 	repository *user.Repository
+	placer     *emailproducer.EmailPlacer
 }
 
-func NewService(rep *user.Repository) *service {
+func NewService(rep *user.Repository, placer *emailproducer.EmailPlacer) *service {
 	return &service{
 		repository: rep,
+		placer:     placer,
 	}
 }
 
@@ -42,6 +45,11 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 	createErr := s.repository.CreateUser(ctx, &cu)
 	if createErr != nil {
 		return fmt.Errorf("telephone number is used")
+	}
+
+	err := s.placer.PlaceOrder(cu.Email, "registration")
+	if err != nil {
+		log.Printf("error due kafka %v\n", err)
 	}
 
 	log.Printf("user %s registrated", cu.Email)

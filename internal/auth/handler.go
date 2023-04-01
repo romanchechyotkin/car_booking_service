@@ -25,6 +25,8 @@ func NewHandler(s *service) *handler {
 	}
 }
 
+// TODO: refresh token
+
 func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodPost, "/auth/registration", h.Registration)
 	router.Handle(http.MethodPost, "/auth/login", h.Login)
