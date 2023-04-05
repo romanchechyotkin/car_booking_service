@@ -1,6 +1,7 @@
 package cars_storage
 
 import (
+	"errors"
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
@@ -57,6 +58,9 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsQuery))
 	row, _ := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay)
 	fmt.Println(row.RowsAffected())
+	if row.RowsAffected() == 0 {
+		return errors.New("wrong cars numbers")
+	}
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsUsersQuery))
 	row, _ = tx.Exec(ctx, carsUsersQuery, car.Id, userId)
