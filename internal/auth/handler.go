@@ -2,6 +2,7 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 
@@ -25,13 +26,11 @@ func NewHandler(s *service) *handler {
 	}
 }
 
-// TODO: refresh token
-
 func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodPost, "/auth/registration", h.Registration)
 	router.Handle(http.MethodPost, "/auth/login", h.Login)
 	router.Handle(http.MethodGet, "/auth/logout", h.Logout)
-	//router.Handle(http.MethodGet, "/auth/refresh", h.RefreshToken)
+	router.Handle(http.MethodGet, "/auth/refresh", h.RefreshToken)
 }
 
 func (h *handler) Registration(ctx *gin.Context) {
@@ -77,11 +76,84 @@ func (h *handler) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("access_token", token, 30, "/", "localhost", false, true)
+	refreshToken, err := jwt.GenerateRefreshToken(user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	ctx.SetCookie("refresh_token", refreshToken, 24*60*60*1000, "/", "localhost", false, true) // 1 day
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"access_token": token,
-		"user":         user,
+		"access_token":  token,
+		"refresh_token": refreshToken,
+		"user":          user,
+	})
+}
+
+func (h *handler) RefreshToken(ctx *gin.Context) {
+	refreshToken, err := ctx.Cookie("refresh_token")
+	if err != nil {
+		fmt.Println("cookie")
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
+		return
+	}
+
+	if refreshToken == "" {
+		fmt.Println("empty")
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
+		return
+	}
+
+	token, err := jwt.ParseRefreshTokenToken(refreshToken)
+	if err != nil {
+		fmt.Println("hz")
+		ctx.JSON(http.StatusUnauthorized, gin.H{
+			"error": "unauthorized",
+		})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	u, err := h.service.repository.GetOneUserById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	generateAccessToken, err := jwt.GenerateAccessToken(u)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	generateRefreshToken, err := jwt.GenerateRefreshToken(u.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	ctx.SetCookie("refresh_token", generateRefreshToken, 24*60*60*1000, "/", "localhost", false, true)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"access_token": generateAccessToken,
 	})
 }
 

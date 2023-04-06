@@ -33,8 +33,6 @@ func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *han
 	}
 }
 
-// TODO: finish create car route with jwt auth (which user car)
-
 func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars", jwt.Middleware(h.CreateCar))
 	//router.POST("/cars", h.CreateCar)

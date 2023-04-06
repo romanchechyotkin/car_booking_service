@@ -25,7 +25,7 @@ import (
 	"time"
 )
 
-// TODO: http tests, swagger docs, add secret to config file, refactor code, add Makefile
+// TODO: http tests, swagger docs, add secret to config file, refactor code
 
 // @title           Car Booking Service API
 // @version         1.0

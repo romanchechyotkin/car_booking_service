@@ -44,7 +44,7 @@ func (h *handler) GetALlUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	ctx.JSON(http.StatusOK, gin.H{"users": users})
+	ctx.JSON(http.StatusOK, users)
 }
 
 func (h *handler) GetOneUserById(ctx *gin.Context) {
