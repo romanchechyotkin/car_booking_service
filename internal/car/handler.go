@@ -35,7 +35,6 @@ func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *han
 
 func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars", jwt.Middleware(h.CreateCar))
-	//router.POST("/cars", h.CreateCar)
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
