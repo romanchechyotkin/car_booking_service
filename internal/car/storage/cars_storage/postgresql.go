@@ -1,6 +1,5 @@
 package cars_storage
 
-import "C"
 import (
 	"context"
 	"errors"
