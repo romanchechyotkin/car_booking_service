@@ -1,20 +1,19 @@
 package cars_storage
 
+import "C"
 import (
+	"context"
 	"errors"
-	"github.com/jackc/pgx/v5/pgconn"
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-
-	"context"
-	"fmt"
 	"log"
 )
 
 type Storage interface {
 	CreateCar(ctx context.Context, car *car.CreateCarFormDto, id string) error
+	GetCar(ctx context.Context, id string) (c *car.Car, err error)
 }
 
 type Repository struct {
@@ -73,137 +72,46 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	return nil
 }
 
-func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
-	query := `
-		INSERT INTO public.users (email, password, full_name, telephone_number) 
-		VALUES ($1, $2, $3, $4)
+func (r *Repository) GetCar(ctx context.Context, id string) (c car.Car, err error) {
+	carQuery := `
+		SELECT id, brand, model, price_per_day, year, is_available, rating
+		FROM public.cars
+		WHERE id = $1
 	`
 
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	_, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber)
+	log.Printf("SQL query: %s", postgresql.FormatQuery(carQuery))
+	err = r.client.QueryRow(ctx, carQuery, id).Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-			log.Println(newErr)
-			return newErr
-		}
-		return err
+		log.Println(err)
+		return c, err
 	}
 
-	return nil
-}
-
-func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error) {
-	query := `
-		SELECT id, email, full_name, telephone_number, is_premium, city, rating
-		FROM public.users
+	imagesQuery := `
+		SELECT url FROM car_images WHERE car_id = $1
 	`
 
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	rows, err := r.client.Query(ctx, query)
+	log.Printf("SQL query: %s", postgresql.FormatQuery(imagesQuery))
+	rows, err := r.client.Query(ctx, imagesQuery, c.Id)
 	if err != nil {
-		if pgErr, ok := err.(*pgconn.PgError); ok {
-			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
-			log.Println(newErr)
-			return nil, nil
-		}
-		return nil, err
+		log.Println(err)
+		return c, err
 	}
-
 	defer rows.Close()
 
-	users := make([]user.GetUsersDto, 0)
+	images := make([]string, 0)
 	for rows.Next() {
-		var u user.GetUsersDto
+		var i car.Image
 
-		err = rows.Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+		err = rows.Scan(&i.Url)
 		if err != nil {
 			log.Println(err)
-			return nil, err
+			return c, err
 		}
 
-		users = append(users, u)
+		images = append(images, i.Url)
 	}
 
-	err = rows.Err()
-	if err != nil {
-		log.Println(err)
-		return nil, err
-	}
+	c.Images = images
 
-	return users, nil
-}
-
-func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error) {
-	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
-		FROM public.users
-		WHERE id = $1
-	`
-
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
-	if err != nil {
-		log.Println(err)
-		return u, err
-	}
-
-	return u, nil
-}
-
-func (r *Repository) GetOneUserByEmail(ctx context.Context, email string) (u user.GetUsersDto, err error) {
-	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
-		FROM public.users
-		WHERE email = $1
-	`
-
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
-	if err != nil {
-		log.Printf("err: %v", err)
-		return u, err
-	}
-
-	return u, nil
-}
-
-func (r *Repository) UpdateUser(ctx context.Context, id string, user *user.UpdateUserDto) error {
-	query := `
-		UPDATE public.users
-		SET email = $1,
-		    password = $2,
-		    full_name = $3,
-		    city = $4
-		WHERE id = $5
-	`
-
-	exec, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.City, id)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	rowsAffected := exec.RowsAffected()
-	log.Printf("rows affected: %d", rowsAffected)
-	return nil
-}
-
-func (r *Repository) DeleteUserById(ctx context.Context, id string) error {
-	query := `
-		DELETE FROM public.users
-		WHERE id = $1
-	`
-
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	exec, err := r.client.Exec(ctx, query, id)
-	if err != nil {
-		log.Println(err)
-		return err
-	}
-
-	rowsAffected := exec.RowsAffected()
-	log.Printf("after delete rows affected: %d", rowsAffected)
-
-	return nil
+	return c, nil
 }

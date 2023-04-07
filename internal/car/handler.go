@@ -35,6 +35,7 @@ func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *han
 
 func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars", jwt.Middleware(h.CreateCar))
+	router.GET("/cars/:id", h.GetCar)
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
@@ -121,6 +122,20 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, formDto)
+}
+
+func (h *handler) GetCar(ctx *gin.Context) {
+	id := ctx.Param("id")
+
+	c, err := h.carRepository.GetCar(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "car not found",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, c)
 }
 
 func ValidateCarNumbers(numbers string) error {
