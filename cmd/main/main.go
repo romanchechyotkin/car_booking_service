@@ -26,6 +26,7 @@ import (
 )
 
 // TODO: http tests, swagger docs, add secret to config file, refactor code
+// TODO: IP feature (new device)
 
 // @title           Car Booking Service API
 // @version         1.0

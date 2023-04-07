@@ -3,6 +3,7 @@ module github.com/romanchechyotkin/car_booking_service
 go 1.19
 
 require (
+	github.com/confluentinc/confluent-kafka-go/v2 v2.0.2
 	github.com/gin-gonic/gin v1.9.0
 	github.com/golang-jwt/jwt/v5 v5.0.0-rc.1
 	github.com/google/uuid v1.3.0
@@ -23,7 +24,6 @@ require (
 	github.com/bytedance/sonic v1.8.2 // indirect
 	github.com/cespare/xxhash/v2 v2.1.2 // indirect
 	github.com/chenzhuoyu/base64x v0.0.0-20221115062448-fe3a3abad311 // indirect
-	github.com/confluentinc/confluent-kafka-go/v2 v2.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/gin-contrib/sse v0.1.0 // indirect
 	github.com/go-openapi/jsonpointer v0.19.6 // indirect

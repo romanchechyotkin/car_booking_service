@@ -30,7 +30,7 @@ func GetConfig() *Config {
 		log.Println("parsing config")
 
 		instance = &Config{}
-		err := cleanenv.ReadConfig(path.Base("config.yml"), instance)
+		err := cleanenv.ReadConfig(path.Join("/home", "chechyotka", "projects", "golang_projects", "car_booking_service", "monorepo", "config.yml"), instance)
 		if err != nil {
 			helpText, _ := cleanenv.GetDescription(instance, nil)
 			log.Println(helpText)

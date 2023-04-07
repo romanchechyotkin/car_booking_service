@@ -20,7 +20,7 @@ func NewEmailPlacer(p *kafka.Producer, topic string) *EmailPlacer {
 	}
 }
 
-func (ep *EmailPlacer) PlaceOrder(email, emailType string) error {
+func (ep *EmailPlacer) SendEmail(email, emailType string) error {
 	format := fmt.Sprintf("%s %s", email, emailType)
 	payload := []byte(format)
 

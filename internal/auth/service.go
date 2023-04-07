@@ -47,7 +47,7 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		return fmt.Errorf("telephone number is used")
 	}
 
-	err := s.placer.PlaceOrder(cu.Email, "registration")
+	err := s.placer.SendEmail(cu.Email, "registration")
 	if err != nil {
 		log.Printf("error due kafka %v\n", err)
 	}
