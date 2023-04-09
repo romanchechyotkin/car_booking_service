@@ -3,7 +3,6 @@ package car
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
@@ -226,7 +225,6 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	price := c.PricePerDay * days
 
 	carOwner, err := h.carRepository.GetCarOwner(ctx, carId)
-	fmt.Println(carOwner)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
