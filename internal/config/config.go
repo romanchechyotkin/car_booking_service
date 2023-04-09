@@ -20,6 +20,11 @@ type Config struct {
 		Port     string `yaml:"port"`
 		Database string `yaml:"database"`
 	} `yaml:"postgresql_storage"`
+	Kafka struct {
+		Port         string `yaml:"port"`
+		EmailTopic   string `yaml:"email_topic"`
+		PaymentTopic string `yaml:"payment_topic"`
+	} `yaml:"kafka"`
 }
 
 var instance *Config

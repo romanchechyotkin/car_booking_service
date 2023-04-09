@@ -1,14 +1,17 @@
 package car
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
+	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -30,12 +33,14 @@ const (
 type handler struct {
 	carRepository   *car2.Repository
 	imageRepository *images_storage.Repository
+	paymentPlacer   *paymentproducer.PaymentPlacer
 }
 
-func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *handler {
+func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
+		paymentPlacer:   pp,
 	}
 }
 
@@ -236,6 +241,17 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		StartDate:  rtd.StartDate,
 		EndDate:    rtd.EndDate,
 		TotalPrice: price,
+	}
+
+	marshal, _ := json.Marshal(&reservation)
+	log.Printf("payload: %s goes to kafka", string(marshal))
+
+	err = h.paymentPlacer.SendPayment(marshal)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{

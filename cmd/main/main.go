@@ -6,6 +6,7 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
+	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
@@ -59,8 +60,8 @@ func main() {
 	handler.Register(router)
 
 	kafkaConfig := &kafka.ConfigMap{
-		"bootstrap.servers": "localhost:9092",
-		"client.id":         "emails",
+		"bootstrap.servers": cfg.Kafka.Port,
+		"client.id":         "client",
 		"acks":              "all",
 	}
 	producer, err := kafka.NewProducer(kafkaConfig)
@@ -69,14 +70,15 @@ func main() {
 	}
 	defer producer.Close()
 
-	placer := emailproducer.NewEmailPlacer(producer, "emails")
-	authService := auth.NewService(repository, placer)
+	emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
+	authService := auth.NewService(repository, emailPlacer)
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
-	carHandler := car.NewHandler(carRepository, imgRep)
+	paymentPlacer := paymentproducer.NewPaymentPlacer(producer, cfg.Kafka.PaymentTopic)
+	carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer)
 	carHandler.Register(router)
 
 	go func() {
