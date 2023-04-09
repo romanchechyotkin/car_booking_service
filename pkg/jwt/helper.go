@@ -17,7 +17,7 @@ func GenerateAccessToken(u user.GetUsersDto) (token string, err error) {
 	uc := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    u.Id,
-			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Second * 30)),
+			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
 		},
 		Email: u.Email,
 	}

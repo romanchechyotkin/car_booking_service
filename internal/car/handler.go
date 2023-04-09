@@ -2,6 +2,7 @@ package car
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
@@ -10,6 +11,7 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"net/http"
 	"strings"
+	"time"
 )
 
 var (
@@ -19,6 +21,10 @@ var (
 	WrongNumbersPartCarNumbers        = errors.New("invalid car numbers in numbers part")
 	WrongLettersPartEnteredCarNumbers = errors.New("invalid car numbers in letters part")
 	WrongRegionEnteredCarNumbers      = errors.New("invalid car numbers region")
+)
+
+const (
+	DDMMYYYY = "02.01.2006"
 )
 
 type handler struct {
@@ -35,7 +41,9 @@ func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository) *han
 
 func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars", jwt.Middleware(h.CreateCar))
+	router.GET("/cars", h.GetAllCars)
 	router.GET("/cars/:id", h.GetCar)
+	router.POST("/cars/:id/rent", jwt.Middleware(h.RentCar))
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
@@ -124,6 +132,18 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, formDto)
 }
 
+func (h *handler) GetAllCars(ctx *gin.Context) {
+	cars, err := h.carRepository.GetAllCars(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, cars)
+}
+
 func (h *handler) GetCar(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -136,6 +156,91 @@ func (h *handler) GetCar(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, c)
+}
+
+func (h *handler) RentCar(ctx *gin.Context) {
+	carId := ctx.Param("id")
+
+	c, err := h.carRepository.GetCar(ctx, carId)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"error": "no such car",
+		})
+		return
+	}
+
+	if c.IsAvailable == false {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "car is not available",
+		})
+		return
+	}
+
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	customerId, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	var rtd car.ReservationTimeDto
+	err = ctx.ShouldBindJSON(&rtd)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	startDate, err := time.Parse(DDMMYYYY, rtd.StartDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+	endDate, err := time.Parse(DDMMYYYY, rtd.EndDate)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	sub := endDate.Sub(startDate)
+	days := sub.Hours() / 24
+
+	price := c.PricePerDay * days
+
+	carOwner, err := h.carRepository.GetCarOwner(ctx, carId)
+	fmt.Println(carOwner)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	var reservation = car.ReservationDto{
+		Car:        c,
+		CustomerId: customerId,
+		CarOwnerId: carOwner,
+		StartDate:  rtd.StartDate,
+		EndDate:    rtd.EndDate,
+		TotalPrice: price,
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"reservation": reservation,
+	})
 }
 
 func ValidateCarNumbers(numbers string) error {
