@@ -245,12 +245,10 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	log.Printf("payload: %s goes to kafka", string(marshal))
 
 	err = h.paymentPlacer.SendPayment(marshal)
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
-			"error": "server error",
-		})
-		return
-	}
+	log.Println(err)
+
+	err = h.carRepository.ChangeIsAvailable(ctx, c.Id)
+	log.Printf("error due change availability %v", err)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"reservation": reservation,

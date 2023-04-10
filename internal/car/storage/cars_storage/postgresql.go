@@ -15,6 +15,7 @@ type Storage interface {
 	GetAllCars(ctx context.Context) error
 	GetCar(ctx context.Context, id string) (c *car.Car, err error)
 	GetCarOwner(ctx context.Context, id string)
+	ChangeIsAvailable(ctx context.Context, id string) error
 }
 
 type Repository struct {
@@ -186,4 +187,20 @@ func (r *Repository) GetCarOwner(ctx context.Context, id string) (userId string,
 	}
 
 	return userId, nil
+}
+
+func (r *Repository) ChangeIsAvailable(ctx context.Context, id string) error {
+	query := `
+		UPDATE public.cars
+		SET is_available = false
+		WHERE id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, id)
+	if err != nil {
+		return err
+	}
+	log.Printf("%d", exec.RowsAffected())
+	return nil
 }
