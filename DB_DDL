@@ -45,3 +45,14 @@ CREATE TABLE public.cars_users (
     car_id varchar(8) REFERENCES public.cars(id),
     user_id uuid REFERENCES public.users(id)
 );
+
+--- reservations table init
+CREATE TABLE reservations (
+    id SERIAL PRIMARY KEY,
+    customer_id uuid references users(id),
+    seller_id uuid references users(id),
+    car_id varchar(8) references cars(id),
+    start_date timestamp,
+    end_date timestamp,
+    total_price numeric(10, 2)
+);

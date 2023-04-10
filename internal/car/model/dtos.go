@@ -12,17 +12,3 @@ type GetCarDto struct {
 	Car    Car    `json:"car"`
 	UserId string `json:"user_id"`
 }
-
-type ReservationTimeDto struct {
-	StartDate string `json:"start_date"`
-	EndDate   string `json:"end_date"`
-}
-
-type ReservationDto struct {
-	CustomerId string  `json:"customer_id"`
-	Car        Car     `json:"car"`
-	CarOwnerId string  `json:"car_owner_id"`
-	StartDate  string  `json:"start_date"`
-	EndDate    string  `json:"end_date"`
-	TotalPrice float64 `json:"total_price"`
-}

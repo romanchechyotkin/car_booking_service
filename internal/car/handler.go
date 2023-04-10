@@ -9,6 +9,8 @@ import (
 	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
+	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
+	res2 "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"log"
 	"net/http"
@@ -33,13 +35,15 @@ type handler struct {
 	carRepository   *car2.Repository
 	imageRepository *images_storage.Repository
 	paymentPlacer   *paymentproducer.PaymentPlacer
+	reservationRep  *res2.Repository
 }
 
-func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer) *handler {
+func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer, resRep *res2.Repository) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
 		paymentPlacer:   pp,
+		reservationRep:  resRep,
 	}
 }
 
@@ -195,7 +199,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	var rtd car.ReservationTimeDto
+	var rtd reservation.TimeDto
 	err = ctx.ShouldBindJSON(&rtd)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
@@ -232,13 +236,21 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	var reservation = car.ReservationDto{
+	var reservation = reservation.Dto{
 		Car:        c,
 		CustomerId: customerId,
 		CarOwnerId: carOwner,
 		StartDate:  rtd.StartDate,
 		EndDate:    rtd.EndDate,
 		TotalPrice: price,
+	}
+
+	err = h.reservationRep.CreateReservation(ctx, reservation)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
 	}
 
 	marshal, _ := json.Marshal(&reservation)

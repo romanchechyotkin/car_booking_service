@@ -10,6 +10,7 @@ import (
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
+	reservation "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 
@@ -77,8 +78,9 @@ func main() {
 
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
+	reservationRep := reservation.NewRepository(pgClient)
 	paymentPlacer := paymentproducer.NewPaymentPlacer(producer, cfg.Kafka.PaymentTopic)
-	carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer)
+	carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer, reservationRep)
 	carHandler.Register(router)
 
 	go func() {
