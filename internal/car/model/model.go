@@ -6,7 +6,7 @@ type Car struct {
 	Model       string   `json:"model"`
 	PricePerDay float64  `json:"pricePerDay"`
 	Year        int      `json:"year"`
-	IsAvailable bool     `json:"isAvailable"`
+	IsAvailable bool     `json:"-"`
 	Rating      float32  `json:"rating"`
 	Images      []string `json:"images"`
 }

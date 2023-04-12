@@ -1,8 +1,8 @@
 package car
 
 import (
-	"encoding/json"
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
@@ -12,7 +12,6 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
 	res2 "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -166,6 +165,9 @@ func (h *handler) GetCar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, c)
 }
 
+// ToDO: transaction for reservation db and change availability
+// TODO check dates for rent (1st way time.Now() )
+
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
@@ -177,12 +179,12 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	if c.IsAvailable == false {
-		ctx.JSON(http.StatusBadRequest, gin.H{
-			"error": "car is not available",
-		})
-		return
-	}
+	//if c.IsAvailable == false {
+	//	ctx.JSON(http.StatusBadRequest, gin.H{
+	//		"error": "car is not available",
+	//	})
+	//	return
+	//}
 
 	authHeader := ctx.GetHeader("Authorization")
 	headers := strings.Split(authHeader, " ")
@@ -223,6 +225,24 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
+	dates, err := h.reservationRep.GetReservationDates(ctx, c.Id)
+	fmt.Println(dates)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err,
+		})
+		return
+	}
+
+	for _, v := range dates {
+		if startDate == v.StartDate || endDate == v.EndDate {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"msg": "car is busy this time",
+			})
+			return
+		}
+	}
+
 	sub := endDate.Sub(startDate)
 	days := sub.Hours() / 24
 
@@ -253,14 +273,14 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	marshal, _ := json.Marshal(&reservation)
-	log.Printf("payload: %s goes to kafka", string(marshal))
+	//marshal, _ := json.Marshal(&reservation)
+	//log.Printf("payload: %s goes to kafka", string(marshal))
+	//
+	//err = h.paymentPlacer.SendPayment(marshal)
+	//log.Println(err)
 
-	err = h.paymentPlacer.SendPayment(marshal)
-	log.Println(err)
-
-	err = h.carRepository.ChangeIsAvailable(ctx, c.Id)
-	log.Printf("error due change availability %v", err)
+	//err = h.carRepository.ChangeIsAvailable(ctx, c.Id)
+	//log.Printf("error due change availability %v", err)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"reservation": reservation,

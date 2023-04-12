@@ -1,10 +1,18 @@
 package reservation
 
-import car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
+import (
+	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
+	"time"
+)
 
 type TimeDto struct {
 	StartDate string `json:"start_date"`
 	EndDate   string `json:"end_date"`
+}
+
+type TimeFromDB struct {
+	StartDate time.Time
+	EndDate   time.Time
 }
 
 type Dto struct {
