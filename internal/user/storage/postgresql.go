@@ -18,6 +18,7 @@ type Storage interface {
 	GetOneUserById(ctx context.Context, id string) (user.GetUsersDto, error)
 	UpdateUser(ctx context.Context) error
 	DeleteUserById(ctx context.Context, id string) error
+	ChangeUserRating(ctx context.Context, id string, rating float32) error
 }
 
 type Repository struct {
@@ -161,6 +162,52 @@ func (r *Repository) DeleteUserById(ctx context.Context, id string) error {
 
 	rowsAffected := exec.RowsAffected()
 	log.Printf("after delete rows affected: %d", rowsAffected)
+
+	return nil
+}
+
+func (r *Repository) CreateRating(ctx context.Context, dto user.RateDto, userId, ratedBy string) error {
+	query := `
+		INSERT INTO public.ratings  (rate, comment, user_id, rate_by_user)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, dto.Rating, dto.Comment, userId, ratedBy)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
+
+	return nil
+}
+
+func (r *Repository) GetUserRatings(ctx context.Context, userId string) (amount float32, sum float32, err error) {
+	query := `
+		SELECT count(*), sum(rate) FROM ratings WHERE user_id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	_ = r.client.QueryRow(ctx, query, userId).Scan(&amount, &sum)
+
+	return amount, sum, nil
+}
+
+func (r *Repository) ChangeUserRating(ctx context.Context, id string, rating float32) error {
+	query := `
+		UPDATE public.users
+		SET rating = $1
+		WHERE id = $2
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, rating, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
 
 	return nil
 }

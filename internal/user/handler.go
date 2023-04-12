@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 
@@ -12,6 +13,8 @@ import (
 	"strings"
 	"time"
 )
+
+var WrongRating = errors.New("wrong rating")
 
 type handler struct {
 	repository *user.Repository
@@ -30,6 +33,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
 	router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
+	router.Handle(http.MethodPost, "/users/:id/rate", jwt.Middleware(h.RateUser))
 }
 
 func (h *handler) GetALlUsers(ctx *gin.Context) {
@@ -61,7 +65,7 @@ func (h *handler) GetOneUserById(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"user": userById})
+	ctx.JSON(http.StatusOK, userById)
 }
 
 func (h *handler) CreateUser(ctx *gin.Context) {
@@ -189,4 +193,106 @@ func (h *handler) GetMySelf(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, userById)
+}
+
+func (h *handler) RateUser(ctx *gin.Context) {
+	ratedUserId := ctx.Param("id")
+
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	user, err := h.repository.GetOneUserById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	userForRating, err := h.repository.GetOneUserById(ctx, ratedUserId)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	if user.Id == userForRating.Id {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": "u cant rate yourself"})
+		return
+	}
+
+	var dto user2.RateDto
+	err = ctx.ShouldBindJSON(&dto)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = ValidateRating(dto.Rating)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = ValidateCommentLength(dto.Comment)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.repository.CreateRating(ctx, dto, userForRating.Id, user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	amount, sum, err := h.repository.GetUserRatings(ctx, userForRating.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	rate := sum / amount
+
+	err = h.repository.ChangeUserRating(ctx, userForRating.Id, rate)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	userForRating.Rating = rate
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"me":        user,
+		"ratedUser": userForRating,
+	})
+}
+
+func ValidateRating(rating float32) error {
+	if rating > 5 || rating < 1 {
+		return WrongRating
+	}
+	return nil
+}
+
+func ValidateCommentLength(comment string) error {
+	if len(comment) > 250 {
+		return errors.New("long comment")
+	}
+	return nil
 }

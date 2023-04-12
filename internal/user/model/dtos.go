@@ -25,3 +25,8 @@ type UpdateUserDto struct {
 	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
 	City            string `json:"city"`
 }
+
+type RateDto struct {
+	Rating  float32 `json:"rating" binding:"required"`
+	Comment string  `json:"comment"`
+}

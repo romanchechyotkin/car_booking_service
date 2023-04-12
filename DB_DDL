@@ -56,3 +56,11 @@ CREATE TABLE reservations (
     end_date timestamp,
     total_price numeric(10, 2)
 );
+
+--- ratings table init
+CREATE TABLE ratings (
+    rate float CHECK ( rate <= 5.0 and rate >= 1.0),
+    comment text,
+    user_id uuid references users (id),
+    rate_by_user uuid references users (id)
+);
