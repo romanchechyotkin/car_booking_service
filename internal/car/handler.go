@@ -166,7 +166,6 @@ func (h *handler) GetCar(ctx *gin.Context) {
 }
 
 // ToDO: transaction for reservation db and change availability
-// TODO check dates for rent (1st way time.Now() )
 
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
@@ -178,13 +177,6 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		})
 		return
 	}
-
-	//if c.IsAvailable == false {
-	//	ctx.JSON(http.StatusBadRequest, gin.H{
-	//		"error": "car is not available",
-	//	})
-	//	return
-	//}
 
 	authHeader := ctx.GetHeader("Authorization")
 	headers := strings.Split(authHeader, " ")
@@ -273,6 +265,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
+	// kafka DONT TOUCH
 	//marshal, _ := json.Marshal(&reservation)
 	//log.Printf("payload: %s goes to kafka", string(marshal))
 	//
