@@ -17,7 +17,10 @@ type Storage interface {
 	GetCar(ctx context.Context, id string) (c *car.Car, err error)
 	GetCarOwner(ctx context.Context, id string)
 	ChangeIsAvailable(ctx context.Context, id string) error
-	GetAllCarRatings(ctx context.Context, id string) error
+	GetAllCarRatings(ctx context.Context, id string) ([]car.GetAllCarRatingsDto, error)
+	CreateRating(ctx context.Context, dto user.RateDto, carId, ratedBy string) error
+	GetAmountCarRatings(ctx context.Context, carId string) (amount float32, sum float32, err error)
+	ChangeCarRating(ctx context.Context, id string, rating float32) error
 }
 
 type Repository struct {
