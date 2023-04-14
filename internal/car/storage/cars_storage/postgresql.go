@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"log"
 )
@@ -16,6 +17,7 @@ type Storage interface {
 	GetCar(ctx context.Context, id string) (c *car.Car, err error)
 	GetCarOwner(ctx context.Context, id string)
 	ChangeIsAvailable(ctx context.Context, id string) error
+	GetAllCarRatings(ctx context.Context, id string) error
 }
 
 type Repository struct {
@@ -202,5 +204,82 @@ func (r *Repository) ChangeIsAvailable(ctx context.Context, id string) error {
 		return err
 	}
 	log.Printf("%d", exec.RowsAffected())
+	return nil
+}
+
+func (r *Repository) GetAllCarRatings(ctx context.Context, id string) ([]car.GetAllCarRatingsDto, error) {
+	query := `
+		SELECT r.rate, r.comment, u.full_name
+		FROM cars_ratings r
+		INNER JOIN users u on u.id = r.rate_by_user
+		WHERE r.car_id = $1;
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	rows, err := r.client.Query(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var ratings []car.GetAllCarRatingsDto
+	for rows.Next() {
+		var rate car.GetAllCarRatingsDto
+
+		err = rows.Scan(&rate.Rating, &rate.Comment, &rate.User)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		ratings = append(ratings, rate)
+	}
+
+	return ratings, nil
+}
+
+func (r *Repository) CreateRating(ctx context.Context, dto user.RateDto, carId, ratedBy string) error {
+	query := `
+		INSERT INTO public.cars_ratings  (rate, comment, car_id, rate_by_user)
+		VALUES ($1, $2, $3, $4)
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, dto.Rating, dto.Comment, carId, ratedBy)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
+
+	return nil
+}
+
+func (r *Repository) GetAmountCarRatings(ctx context.Context, carId string) (amount float32, sum float32, err error) {
+	query := `
+		SELECT count(*), sum(rate) FROM cars_ratings WHERE car_id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	_ = r.client.QueryRow(ctx, query, carId).Scan(&amount, &sum)
+
+	return amount, sum, nil
+}
+
+func (r *Repository) ChangeCarRating(ctx context.Context, id string, rating float32) error {
+	query := `
+		UPDATE public.cars
+		SET rating = $1
+		WHERE id = $2
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	exec, err := r.client.Exec(ctx, query, rating, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
+
 	return nil
 }

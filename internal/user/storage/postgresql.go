@@ -19,6 +19,7 @@ type Storage interface {
 	UpdateUser(ctx context.Context) error
 	DeleteUserById(ctx context.Context, id string) error
 	ChangeUserRating(ctx context.Context, id string, rating float32) error
+	GetAllUserRatings(ctx context.Context, id string) ([]user.GetAllRatingsDto, error)
 }
 
 type Repository struct {
@@ -168,7 +169,7 @@ func (r *Repository) DeleteUserById(ctx context.Context, id string) error {
 
 func (r *Repository) CreateRating(ctx context.Context, dto user.RateDto, userId, ratedBy string) error {
 	query := `
-		INSERT INTO public.ratings  (rate, comment, user_id, rate_by_user)
+		INSERT INTO public.users_ratings  (rate, comment, user_id, rate_by_user)
 		VALUES ($1, $2, $3, $4)
 	`
 
@@ -185,7 +186,7 @@ func (r *Repository) CreateRating(ctx context.Context, dto user.RateDto, userId,
 
 func (r *Repository) GetUserRatings(ctx context.Context, userId string) (amount float32, sum float32, err error) {
 	query := `
-		SELECT count(*), sum(rate) FROM ratings WHERE user_id = $1
+		SELECT count(*), sum(rate) FROM users_ratings WHERE user_id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
@@ -215,7 +216,7 @@ func (r *Repository) ChangeUserRating(ctx context.Context, id string, rating flo
 func (r *Repository) GetAllUserRatings(ctx context.Context, id string) ([]user.GetAllRatingsDto, error) {
 	query := `
 		SELECT r.rate, r.comment, u.full_name, us.full_name
-		FROM ratings r
+		FROM users_ratings r
 		INNER JOIN users u on u.id = r.user_id
 		INNER JOIN users us on us.id = r.rate_by_user
 		WHERE r.user_id = $1;

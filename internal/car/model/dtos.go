@@ -12,3 +12,9 @@ type GetCarDto struct {
 	Car    Car    `json:"car"`
 	UserId string `json:"user_id"`
 }
+
+type GetAllCarRatingsDto struct {
+	Rating  float32 `json:"rating"`
+	Comment string  `json:"comment"`
+	User    string  `json:"user"`
+}

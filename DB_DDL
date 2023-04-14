@@ -57,10 +57,18 @@ CREATE TABLE reservations (
     total_price numeric(10, 2)
 );
 
---- ratings table init
-CREATE TABLE ratings (
+--- users_ratings table init
+CREATE TABLE users_ratings (
     rate float CHECK ( rate <= 5.0 and rate >= 1.0),
     comment text,
     user_id uuid references users (id),
     rate_by_user uuid references users (id)
+);
+
+--- cars_ratings table init
+CREATE TABLE cars_ratings (
+   rate float CHECK ( rate <= 5.0 and rate >= 1.0),
+   comment text,
+   car_id varchar references cars (id),
+   rate_by_user uuid references users (id)
 );

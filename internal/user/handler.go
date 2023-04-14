@@ -293,6 +293,13 @@ func (h *handler) GetAllUserRates(ctx *gin.Context) {
 		return
 	}
 
+	if len(ratings) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"msg": "no ratings",
+		})
+		return
+	}
+
 	ctx.JSON(http.StatusOK, ratings)
 }
 

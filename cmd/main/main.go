@@ -80,7 +80,7 @@ func main() {
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)
 	paymentPlacer := paymentproducer.NewPaymentPlacer(producer, cfg.Kafka.PaymentTopic)
-	carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer, reservationRep)
+	carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer, reservationRep, repository)
 	carHandler.Register(router)
 
 	go func() {

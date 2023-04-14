@@ -11,6 +11,9 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
 	res2 "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
+	user3 "github.com/romanchechyotkin/car_booking_service/internal/user"
+	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"net/http"
 	"strings"
@@ -35,14 +38,16 @@ type handler struct {
 	imageRepository *images_storage.Repository
 	paymentPlacer   *paymentproducer.PaymentPlacer
 	reservationRep  *res2.Repository
+	userRep         *user.Repository
 }
 
-func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer, resRep *res2.Repository) *handler {
+func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer, resRep *res2.Repository, up *user.Repository) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
 		paymentPlacer:   pp,
 		reservationRep:  resRep,
+		userRep:         up,
 	}
 }
 
@@ -51,6 +56,8 @@ func (h *handler) Register(router *gin.Engine) {
 	router.GET("/cars", h.GetAllCars)
 	router.GET("/cars/:id", h.GetCar)
 	router.POST("/cars/:id/rent", jwt.Middleware(h.RentCar))
+	router.POST("/cars/:id/rate", jwt.Middleware(h.RateCar))
+	router.GET("/cars/:id/rate", h.GetAllCarRatings)
 }
 
 func (h *handler) CreateCar(ctx *gin.Context) {
@@ -165,7 +172,7 @@ func (h *handler) GetCar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, c)
 }
 
-// ToDO: transaction for reservation db and change availability
+// TODO: transaction for reservation db and change availability
 
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
@@ -278,6 +285,112 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"reservation": reservation,
 	})
+}
+
+func (h *handler) RateCar(ctx *gin.Context) {
+	carId := ctx.Param("id")
+
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	user, err := h.userRep.GetOneUserById(ctx, id)
+	if err != nil {
+		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
+		return
+	}
+
+	// TODO check validation for rate your own car
+
+	var dto user2.RateDto
+	err = ctx.ShouldBindJSON(&dto)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+		return
+	}
+
+	err = user3.ValidateRating(dto.Rating)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = user3.ValidateCommentLength(dto.Comment)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.carRepository.CreateRating(ctx, dto, carId, user.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	amount, sum, err := h.carRepository.GetAmountCarRatings(ctx, carId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	rate := sum / amount
+
+	err = h.carRepository.ChangeCarRating(ctx, carId, rate)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	c, err := h.carRepository.GetCar(ctx, carId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"car":  c,
+		"user": user.FullName,
+	})
+}
+
+func (h *handler) GetAllCarRatings(ctx *gin.Context) {
+	carId := ctx.Param("id")
+
+	ratings, err := h.carRepository.GetAllCarRatings(ctx, carId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	if len(ratings) == 0 {
+		ctx.JSON(http.StatusNotFound, gin.H{
+			"msg": "no ratings",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, ratings)
 }
 
 func ValidateCarNumbers(numbers string) error {
