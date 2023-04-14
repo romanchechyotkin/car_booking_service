@@ -24,8 +24,6 @@ func NewHandler(repository *user.Repository) *handler {
 	return &handler{repository: repository}
 }
 
-// TODO add validators
-
 func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	router.Handle(http.MethodPost, "/users", h.CreateUser)
@@ -34,6 +32,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
 	router.Handle(http.MethodPost, "/users/:id/rate", jwt.Middleware(h.RateUser))
+	router.Handle(http.MethodGet, "/users/:id/rate", h.GetAllUserRates)
 }
 
 func (h *handler) GetALlUsers(ctx *gin.Context) {
@@ -281,6 +280,20 @@ func (h *handler) RateUser(ctx *gin.Context) {
 		"me":        user,
 		"ratedUser": userForRating,
 	})
+}
+
+func (h *handler) GetAllUserRates(ctx *gin.Context) {
+	userId := ctx.Param("id")
+
+	ratings, err := h.repository.GetAllUserRatings(ctx, userId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, ratings)
 }
 
 func ValidateRating(rating float32) error {

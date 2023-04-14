@@ -211,3 +211,36 @@ func (r *Repository) ChangeUserRating(ctx context.Context, id string, rating flo
 
 	return nil
 }
+
+func (r *Repository) GetAllUserRatings(ctx context.Context, id string) ([]user.GetAllRatingsDto, error) {
+	query := `
+		SELECT r.rate, r.comment, u.full_name, us.full_name
+		FROM ratings r
+		INNER JOIN users u on u.id = r.user_id
+		INNER JOIN users us on us.id = r.rate_by_user
+		WHERE r.user_id = $1;
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	rows, err := r.client.Query(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var ratings []user.GetAllRatingsDto
+	for rows.Next() {
+		var rate user.GetAllRatingsDto
+
+		err = rows.Scan(&rate.Rating, &rate.Comment, &rate.User, &rate.RatedBy)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		ratings = append(ratings, rate)
+	}
+
+	return ratings, nil
+
+}
