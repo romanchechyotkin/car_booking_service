@@ -107,13 +107,9 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
-	err = h.carRepository.CreateCar(ctx, &formDto, id)
+	err = h.carRepository.CreateCar(ctx, &formDto, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -194,11 +190,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	customerId, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	customerId := token["id"]
 
 	var rtd reservation.TimeDto
 	err = ctx.ShouldBindJSON(&rtd)
@@ -257,7 +249,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 
 	var reservation = reservation.Dto{
 		Car:        c,
-		CustomerId: customerId,
+		CustomerId: fmt.Sprintf("%s", customerId),
 		CarOwnerId: carOwner,
 		StartDate:  rtd.StartDate,
 		EndDate:    rtd.EndDate,
@@ -299,13 +291,9 @@ func (h *handler) RateCar(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
-	user, err := h.userRep.GetOneUserById(ctx, id)
+	user, err := h.userRep.GetOneUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return

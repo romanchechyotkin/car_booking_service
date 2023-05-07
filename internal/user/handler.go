@@ -112,11 +112,7 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
 	var uu user2.UpdateUserDto
 	err = ctx.ShouldBindJSON(&uu)
@@ -125,7 +121,7 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 		return
 	}
 
-	err = h.repository.UpdateUser(ctx, id, &uu)
+	err = h.repository.UpdateUser(ctx, fmt.Sprintf("%s", id), &uu)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -152,13 +148,9 @@ func (h *handler) DeleteUser(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
-	err = h.repository.DeleteUserById(ctx, id)
+	err = h.repository.DeleteUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "something went wrong"})
 		return
@@ -183,13 +175,9 @@ func (h *handler) GetMySelf(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
-	userById, err := h.repository.GetOneUserById(ctx, id)
+	userById, err := h.repository.GetOneUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
@@ -208,11 +196,7 @@ func (h *handler) Verify(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
 	form, err := ctx.FormFile("image")
 	if err != nil {
@@ -231,7 +215,7 @@ func (h *handler) Verify(ctx *gin.Context) {
 		return
 	}
 
-	err = h.repository.CreateApplication(ctx, id, form.Filename)
+	err = h.repository.CreateApplication(ctx, fmt.Sprintf("%s", id), form.Filename)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "u have already sent",
@@ -254,23 +238,18 @@ func (h *handler) GetVerify(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
-	role, err := token.GetSubject()
-	if role != "ADMIN" || err != nil {
+	role := token["role"]
+	if role != "ADMIN" {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": "no rights"})
 		return
 	}
 
-	fmt.Println(id)
 	applications, err := h.repository.GetApplications(ctx)
 	if err != nil {
 		ctx.JSON(http.StatusOK, err)
 		return
 	}
+
 	ctx.JSON(http.StatusOK, applications)
 }
 
@@ -284,15 +263,24 @@ func (h *handler) VerifyUser(ctx *gin.Context) {
 		return
 	}
 
-	id := ctx.Param("id")
-
-	role, err := token.GetSubject()
-	if role != "ADMIN" || err != nil {
+	userId := ctx.Param("id")
+	role := token["role"]
+	if role != "ADMIN" {
 		ctx.JSON(http.StatusForbidden, gin.H{"error": "no rights"})
 		return
 	}
 
-	ctx.JSON(http.StatusOK, id)
+	err = h.repository.ChangeUserVerify(ctx, userId)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": fmt.Sprintf("user %s verified", userId),
+	})
 }
 
 func (h *handler) RateUser(ctx *gin.Context) {
@@ -307,13 +295,9 @@ func (h *handler) RateUser(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
-	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
-		return
-	}
+	id := token["id"]
 
-	user, err := h.repository.GetOneUserById(ctx, id)
+	user, err := h.repository.GetOneUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return

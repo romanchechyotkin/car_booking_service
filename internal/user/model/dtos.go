@@ -16,6 +16,7 @@ type GetUsersDto struct {
 	IsPremium       bool    `json:"is_premium"`
 	City            *string `json:"city"`
 	Rating          float32 `json:"rating"`
+	IsVerified      bool    `json:"is_verified"`
 }
 
 type UpdateUserDto struct {

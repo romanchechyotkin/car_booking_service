@@ -117,7 +117,7 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	id, err := token.GetIssuer()
+	id := token["id"]
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "server error",
@@ -125,7 +125,7 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	u, err := h.service.repository.GetOneUserById(ctx, id)
+	u, err := h.service.repository.GetOneUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "server error",

@@ -35,14 +35,6 @@ import (
 func main() {
 	ctx := context.Background()
 
-	//conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//defer conn.Close()
-
-	//client := pb.NewImageSenderClient(conn)
-
 	log.Println("gin init")
 	router := gin.Default()
 	router.Static("/static", "./static")

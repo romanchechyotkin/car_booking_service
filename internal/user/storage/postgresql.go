@@ -125,13 +125,13 @@ func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error
 
 func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error) {
 	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified 
 		FROM public.users
 		WHERE id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified)
 	if err != nil {
 		log.Println(err)
 		return u, err
@@ -142,13 +142,13 @@ func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetU
 
 func (r *Repository) GetOneUserByEmail(ctx context.Context, email string) (u user.GetUsersDto, err error) {
 	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating 
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified
 		FROM public.users
 		WHERE email = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified)
 	if err != nil {
 		log.Printf("err: %v", err)
 		return u, err
@@ -276,7 +276,7 @@ func (r *Repository) GetAllUserRatings(ctx context.Context, id string) ([]user.G
 
 }
 
-func (r *Repository) CreateApplication(ctx context.Context, id, filename string) error {
+func (r *Repository) CreateApplication(ctx context.Context, id string, filename string) error {
 	query := `
 		INSERT INTO applications (user_id, filename) VALUES ($1, $2)
 	`
@@ -314,4 +314,32 @@ func (r *Repository) GetApplications(ctx context.Context) ([]user.ApplicationDto
 	}
 
 	return apps, nil
+}
+
+func (r *Repository) ChangeUserVerify(ctx context.Context, id string) error {
+	query := `
+		UPDATE users SET is_verified = true WHERE id = $1
+	`
+
+	log.Println(query)
+	exec, err := r.client.Exec(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
+
+	query = `
+		UPDATE applications SET is_visited = true WHERE user_id = $1
+	`
+
+	log.Println(query)
+	exec, err = r.client.Exec(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return err
+	}
+	log.Println(exec.RowsAffected())
+
+	return nil
 }
