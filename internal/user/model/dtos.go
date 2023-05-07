@@ -37,3 +37,8 @@ type GetAllRatingsDto struct {
 	User    string  `json:"user"`
 	RatedBy string  `json:"rated_by"`
 }
+
+type ApplicationDto struct {
+	UserId   string `json:"user_id"`
+	Filename string `json:"filename"`
+}

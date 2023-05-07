@@ -67,7 +67,11 @@ func (s *service) Login(ctx *gin.Context, dto auth.LoginDto) (u user2.GetUsersDt
 		return u, "", fmt.Errorf("wrong password")
 	}
 
-	token, err = jwt.GenerateAccessToken(u)
+	role, err := s.repository.GetRole(ctx, u.Id)
+	if err != nil {
+		return u, "", err
+	}
+	token, err = jwt.GenerateAccessToken(u, role)
 	if err != nil {
 		return u, "", err
 	}

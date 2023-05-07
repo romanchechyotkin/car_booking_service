@@ -133,7 +133,15 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	generateAccessToken, err := jwt.GenerateAccessToken(u)
+	role, err := h.service.repository.GetRole(ctx, u.Id)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "server error",
+		})
+		return
+	}
+
+	generateAccessToken, err := jwt.GenerateAccessToken(u, role)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "server error",

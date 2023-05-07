@@ -126,7 +126,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		name := uuid.NewString()
 		file.Filename = name
 
-		err = ctx.SaveUploadedFile(file, "static/"+file.Filename)
+		err = ctx.SaveUploadedFile(file, "static/cars/"+file.Filename)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
@@ -310,8 +310,6 @@ func (h *handler) RateCar(ctx *gin.Context) {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
 	}
-
-	// TODO check validation for rate your own car
 
 	var dto user2.RateDto
 	err = ctx.ShouldBindJSON(&dto)

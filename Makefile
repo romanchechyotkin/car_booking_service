@@ -30,3 +30,6 @@ test-email_sender_microservice:
 
 run_postman:
 	cd /var/lib/Postman/ && ./Postman;
+
+proto:
+	protoc -I ./internal/user/proto ./internal/user/proto/proto.proto --go_out=./internal/user/proto/pb --go-grpc_out=./internal/user/proto/pb

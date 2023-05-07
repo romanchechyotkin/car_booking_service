@@ -2,12 +2,13 @@ package user
 
 import (
 	"errors"
+	"fmt"
 	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
-
+	"github.com/google/uuid"
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 
 	"net/http"
 	"strings"
@@ -31,6 +32,9 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
 	router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
+	router.Handle(http.MethodPost, "/users/verify", jwt.Middleware(h.Verify))
+	router.Handle(http.MethodGet, "/users/verify", jwt.Middleware(h.GetVerify))
+	router.Handle(http.MethodPost, "/users/verify/:id", jwt.Middleware(h.VerifyUser))
 	router.Handle(http.MethodPost, "/users/:id/rate", jwt.Middleware(h.RateUser))
 	router.Handle(http.MethodGet, "/users/:id/rate", h.GetAllUserRates)
 }
@@ -192,6 +196,103 @@ func (h *handler) GetMySelf(ctx *gin.Context) {
 	}
 
 	ctx.JSON(http.StatusOK, userById)
+}
+
+func (h *handler) Verify(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+
+	form, err := ctx.FormFile("image")
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	form.Filename = uuid.NewString()
+	err = ctx.SaveUploadedFile(form, "static/users/"+form.Filename)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	err = h.repository.CreateApplication(ctx, id, form.Filename)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "u have already sent",
+		})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"message": "your application is successfully sent",
+	})
+}
+
+func (h *handler) GetVerify(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id, err := token.GetIssuer()
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
+		return
+	}
+	role, err := token.GetSubject()
+	if role != "ADMIN" || err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "no rights"})
+		return
+	}
+
+	fmt.Println(id)
+	applications, err := h.repository.GetApplications(ctx)
+	if err != nil {
+		ctx.JSON(http.StatusOK, err)
+		return
+	}
+	ctx.JSON(http.StatusOK, applications)
+}
+
+func (h *handler) VerifyUser(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	id := ctx.Param("id")
+
+	role, err := token.GetSubject()
+	if role != "ADMIN" || err != nil {
+		ctx.JSON(http.StatusForbidden, gin.H{"error": "no rights"})
+		return
+	}
+
+	ctx.JSON(http.StatusOK, id)
 }
 
 func (h *handler) RateUser(ctx *gin.Context) {

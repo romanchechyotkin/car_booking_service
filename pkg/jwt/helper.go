@@ -11,13 +11,15 @@ import (
 type UserClaims struct {
 	jwt.RegisteredClaims
 	Email string `json:"email"`
+	Role  string `json:"role"`
 }
 
-func GenerateAccessToken(u user.GetUsersDto) (token string, err error) {
+func GenerateAccessToken(u user.GetUsersDto, role string) (token string, err error) {
 	uc := UserClaims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    u.Id,
 			ExpiresAt: jwt.NewNumericDate(time.Now().Add(time.Minute * 30)),
+			Subject:   role,
 		},
 		Email: u.Email,
 	}

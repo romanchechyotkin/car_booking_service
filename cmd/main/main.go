@@ -1,8 +1,11 @@
 package main
 
 import (
+	"context"
+	"fmt"
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-gonic/gin"
+	_ "github.com/romanchechyotkin/car_booking_service/docs"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
@@ -11,17 +14,12 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/config"
 	reservation "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
-	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
-
-	_ "github.com/romanchechyotkin/car_booking_service/docs"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
+	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
-
-	"context"
-	"fmt"
 	"log"
 	"net/http"
 	"time"
@@ -36,6 +34,14 @@ import (
 // @host      localhost:5000
 func main() {
 	ctx := context.Background()
+
+	//conn, err := grpc.Dial("localhost:9000", grpc.WithInsecure())
+	//if err != nil {
+	//	log.Fatalln(err)
+	//}
+	//defer conn.Close()
+
+	//client := pb.NewImageSenderClient(conn)
 
 	log.Println("gin init")
 	router := gin.Default()

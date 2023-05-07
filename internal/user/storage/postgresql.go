@@ -35,11 +35,27 @@ func NewRepository(client *pgxpool.Pool) *Repository {
 func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
 	query := `
 		INSERT INTO public.users (email, password, full_name, telephone_number) 
-		VALUES ($1, $2, $3, $4)
+		VALUES ($1, $2, $3, $4) RETURNING id
+	`
+	var id string
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	err := r.client.QueryRow(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber).Scan(&id)
+	if err != nil {
+		if pgErr, ok := err.(*pgconn.PgError); ok {
+			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
+			log.Println(newErr)
+			return newErr
+		}
+		return err
+	}
+
+	query = `
+		INSERT INTO public.roles (user_id) 
+		VALUES ($1)
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	_, err := r.client.Exec(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber)
+	_, err = r.client.Exec(ctx, query, id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
@@ -50,6 +66,20 @@ func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) e
 	}
 
 	return nil
+}
+
+func (r *Repository) GetRole(ctx context.Context, id string) (string, error) {
+	query := `
+		SELECT role from roles WHERE user_id = $1
+	`
+
+	var role string
+	err := r.client.QueryRow(ctx, query, id).Scan(&role)
+	if err != nil {
+		return "", err
+	}
+
+	return role, nil
 }
 
 func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error) {
@@ -244,4 +274,44 @@ func (r *Repository) GetAllUserRatings(ctx context.Context, id string) ([]user.G
 
 	return ratings, nil
 
+}
+
+func (r *Repository) CreateApplication(ctx context.Context, id, filename string) error {
+	query := `
+		INSERT INTO applications (user_id, filename) VALUES ($1, $2)
+	`
+
+	exec, err := r.client.Exec(ctx, query, id, filename)
+	if err != nil {
+		return err
+	}
+	log.Println(exec.RowsAffected())
+	return nil
+}
+
+func (r *Repository) GetApplications(ctx context.Context) ([]user.ApplicationDto, error) {
+	query := `
+		SELECT user_id, filename FROM applications WHERE is_visited = false
+	`
+
+	log.Println(query)
+	rows, err := r.client.Query(ctx, query)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+
+	var apps []user.ApplicationDto
+	for rows.Next() {
+		var a user.ApplicationDto
+		err := rows.Scan(&a.UserId, &a.Filename)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		apps = append(apps, a)
+	}
+
+	return apps, nil
 }
