@@ -221,6 +221,13 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		})
 		return
 	}
+	now := time.Now()
+	if startDate.Before(now) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "u wanna to rent car in the past",
+		})
+		return
+	}
 	log.Println(startDate, endDate)
 
 	dates, err := h.reservationRep.GetReservationDates(ctx, c.Id)
@@ -233,7 +240,9 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	}
 
 	for _, v := range dates {
-		if startDate.Day() == v.StartDate.Day() || endDate.Day() == v.EndDate.Day() {
+		if startDate.Before(v.EndDate) && startDate.After(v.StartDate) {
+			log.Println(startDate, v.StartDate)
+			log.Println(endDate, v.EndDate)
 			log.Printf("equal dates %d-%d or %d-%d\n", startDate.Day(), v.StartDate.Day(), endDate.Day(), v.EndDate.Day())
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"msg": "car is busy this time",
@@ -244,7 +253,12 @@ func (h *handler) RentCar(ctx *gin.Context) {
 
 	sub := endDate.Sub(startDate)
 	days := sub.Hours() / 24
-
+	if sub.Milliseconds() < 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "negative time",
+		})
+		return
+	}
 	price := math.Round(c.PricePerDay * days)
 
 	carOwner, err := h.carRepository.GetCarOwner(ctx, carId)
