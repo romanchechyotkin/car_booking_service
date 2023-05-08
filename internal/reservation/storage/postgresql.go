@@ -11,8 +11,6 @@ import (
 
 const (
 	hhDDMMYYYY = "15 02.01.2006"
-
-	DDMMYYYY = "02.01.2006"
 )
 
 type Repository struct {

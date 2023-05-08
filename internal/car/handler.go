@@ -33,8 +33,6 @@ var (
 
 const (
 	hhDDMMYYYY = "15 02.01.2006"
-	YYYYMMDDhh = "2006-01-02 15"
-	DDMMYYYY   = "02.01.2006"
 )
 
 type handler struct {
