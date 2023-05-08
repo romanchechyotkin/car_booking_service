@@ -174,8 +174,6 @@ func (h *handler) GetCar(ctx *gin.Context) {
 
 // TODO: transaction for reservation db and change availability
 
-// TODO rent for past time
-
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
