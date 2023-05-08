@@ -10,6 +10,8 @@ import (
 )
 
 const (
+	hhDDMMYYYY = "15 02.01.2006"
+
 	DDMMYYYY = "02.01.2006"
 )
 
@@ -29,11 +31,11 @@ func (r *Repository) CreateReservation(ctx context.Context, dto reservation.Dto)
 		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
-	startDate, err := time.Parse(DDMMYYYY, dto.StartDate)
+	startDate, err := time.Parse(hhDDMMYYYY, dto.StartDate)
 	if err != nil {
 		return err
 	}
-	endDate, err := time.Parse(DDMMYYYY, dto.EndDate)
+	endDate, err := time.Parse(hhDDMMYYYY, dto.EndDate)
 	if err != nil {
 		return err
 	}

@@ -36,3 +36,6 @@ proto:
 
 prometheus:
 	cd /var/lib/prometheus && ./prometheus --config.file=/home/chechyotka/projects/golang_projects/car_booking_service/monorepo/prometheus.yml
+
+build_project:
+	echo $(GOPATH) && $(GOPATH)/go build -o ./build/bin ./cmd/main/main.go && ./build/bin

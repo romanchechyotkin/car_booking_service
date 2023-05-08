@@ -105,7 +105,6 @@ func (r *Repository) GetAllCars(ctx context.Context) ([]car.GetCarDto, error) {
 		imgQuery := `
 			SELECT url FROM car_images WHERE car_id = $1
 		`
-		fmt.Println(c.Car)
 
 		r, err := r.client.Query(ctx, imgQuery, c.Car.Id)
 		if err != nil {

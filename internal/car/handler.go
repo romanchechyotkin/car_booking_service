@@ -15,6 +15,8 @@ import (
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"log"
+	"math"
 	"net/http"
 	"strings"
 	"time"
@@ -30,7 +32,9 @@ var (
 )
 
 const (
-	DDMMYYYY = "02.01.2006"
+	hhDDMMYYYY = "15 02.01.2006"
+	YYYYMMDDhh = "2006-01-02 15"
+	DDMMYYYY   = "02.01.2006"
 )
 
 type handler struct {
@@ -170,6 +174,8 @@ func (h *handler) GetCar(ctx *gin.Context) {
 
 // TODO: transaction for reservation db and change availability
 
+// TODO rent for past time
+
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
@@ -201,23 +207,24 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	startDate, err := time.Parse(DDMMYYYY, rtd.StartDate)
+	startDate, err := time.Parse(hhDDMMYYYY, rtd.StartDate)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
-	endDate, err := time.Parse(DDMMYYYY, rtd.EndDate)
+	endDate, err := time.Parse(hhDDMMYYYY, rtd.EndDate)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
 		})
 		return
 	}
+	log.Println(startDate, endDate)
 
 	dates, err := h.reservationRep.GetReservationDates(ctx, c.Id)
-	fmt.Println(dates)
+	log.Println(dates)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err,
@@ -226,7 +233,8 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	}
 
 	for _, v := range dates {
-		if startDate == v.StartDate || endDate == v.EndDate {
+		if startDate.Day() == v.StartDate.Day() || endDate.Day() == v.EndDate.Day() {
+			log.Printf("equal dates %d-%d or %d-%d\n", startDate.Day(), v.StartDate.Day(), endDate.Day(), v.EndDate.Day())
 			ctx.JSON(http.StatusBadRequest, gin.H{
 				"msg": "car is busy this time",
 			})
@@ -237,7 +245,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	sub := endDate.Sub(startDate)
 	days := sub.Hours() / 24
 
-	price := c.PricePerDay * days
+	price := math.Round(c.PricePerDay * days)
 
 	carOwner, err := h.carRepository.GetCarOwner(ctx, carId)
 	if err != nil {
@@ -271,8 +279,8 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	//err = h.paymentPlacer.SendPayment(marshal)
 	//log.Println(err)
 
-	//err = h.carRepository.ChangeIsAvailable(ctx, c.Id)
-	//log.Printf("error due change availability %v", err)
+	err = h.carRepository.ChangeIsAvailable(ctx, c.Id)
+	log.Printf("error due change availability %v", err)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"reservation": reservation,

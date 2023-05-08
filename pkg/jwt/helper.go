@@ -22,7 +22,7 @@ func GenerateAccessToken(u user.GetUsersDto, role string) (token string, err err
 	mapClaims["email"] = u.Email
 	mapClaims["role"] = role
 	mapClaims["is_verified"] = u.IsVerified
-	mapClaims["exp"] = time.Now().Add(time.Second * 30).Unix()
+	mapClaims["exp"] = time.Now().Add(time.Minute * 30).Unix()
 	token, err = t.SignedString([]byte("secret"))
 	if err != nil {
 		return "", err
