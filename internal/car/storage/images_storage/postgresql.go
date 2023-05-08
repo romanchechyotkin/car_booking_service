@@ -11,6 +11,10 @@ type Repository struct {
 	client *pgxpool.Pool
 }
 
+type ImageStorage interface {
+	SaveImageToDB(ctx context.Context, url, carId string) error
+}
+
 func NewRepository(client *pgxpool.Pool) *Repository {
 	return &Repository{client: client}
 }

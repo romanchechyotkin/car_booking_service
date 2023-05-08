@@ -36,11 +36,11 @@ const (
 )
 
 type handler struct {
-	carRepository   *car2.Repository
-	imageRepository *images_storage.Repository
-	paymentPlacer   *paymentproducer.PaymentPlacer
-	reservationRep  *res2.Repository
-	userRep         *user.Repository
+	carRepository   car2.Storage
+	imageRepository images_storage.ImageStorage
+	paymentPlacer   paymentproducer.PaymentPlacerer
+	reservationRep  res2.Storage
+	userRep         user.Storage
 }
 
 func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer, resRep *res2.Repository, up *user.Repository) *handler {

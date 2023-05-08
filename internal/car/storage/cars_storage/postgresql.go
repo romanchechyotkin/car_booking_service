@@ -12,10 +12,10 @@ import (
 )
 
 type Storage interface {
-	CreateCar(ctx context.Context, car *car.CreateCarFormDto, id string) error
-	GetAllCars(ctx context.Context) error
-	GetCar(ctx context.Context, id string) (c *car.Car, err error)
-	GetCarOwner(ctx context.Context, id string)
+	CreateCar(ctx context.Context, car *car.CreateCarFormDto, userId string) error
+	GetAllCars(ctx context.Context) ([]car.GetCarDto, error)
+	GetCar(ctx context.Context, id string) (c car.Car, err error)
+	GetCarOwner(ctx context.Context, id string) (userId string, err error)
 	ChangeIsAvailable(ctx context.Context, id string) error
 	GetAllCarRatings(ctx context.Context, id string) ([]car.GetAllCarRatingsDto, error)
 	CreateRating(ctx context.Context, dto user.RateDto, carId, ratedBy string) error

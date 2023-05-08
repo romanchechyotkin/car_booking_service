@@ -11,6 +11,10 @@ type PaymentPlacer struct {
 	deliveryChannel chan kafka.Event
 }
 
+type PaymentPlacerer interface {
+	SendPayment(payload []byte) error
+}
+
 func NewPaymentPlacer(pr *kafka.Producer, topic string) *PaymentPlacer {
 	return &PaymentPlacer{
 		producer:        pr,

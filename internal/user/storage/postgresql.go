@@ -14,12 +14,19 @@ import (
 
 type Storage interface {
 	CreateUser(ctx context.Context, user *user.CreateUserDto) error
+	GetRole(ctx context.Context, id string) (string, error)
 	GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error)
-	GetOneUserById(ctx context.Context, id string) (user.GetUsersDto, error)
-	UpdateUser(ctx context.Context) error
+	GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error)
+	GetOneUserByEmail(ctx context.Context, email string) (u user.GetUsersDto, err error)
+	UpdateUser(ctx context.Context, id string, user *user.UpdateUserDto) error
 	DeleteUserById(ctx context.Context, id string) error
+	CreateRating(ctx context.Context, dto user.RateDto, userId, ratedBy string) error
+	GetUserRatings(ctx context.Context, userId string) (amount float32, sum float32, err error)
 	ChangeUserRating(ctx context.Context, id string, rating float32) error
 	GetAllUserRatings(ctx context.Context, id string) ([]user.GetAllRatingsDto, error)
+	CreateApplication(ctx context.Context, id string, filename string) error
+	GetApplications(ctx context.Context) ([]user.ApplicationDto, error)
+	ChangeUserVerify(ctx context.Context, id string) error
 }
 
 type Repository struct {

@@ -17,6 +17,11 @@ type Repository struct {
 	client *pgxpool.Pool
 }
 
+type Storage interface {
+	CreateReservation(ctx context.Context, dto reservation.Dto) error
+	GetReservationDates(ctx context.Context, id string) (dates []reservation.TimeFromDB, err error)
+}
+
 func NewRepository(client *pgxpool.Pool) *Repository {
 	return &Repository{
 		client: client,
