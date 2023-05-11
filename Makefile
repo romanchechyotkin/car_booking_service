@@ -1,5 +1,5 @@
 swag:
-	cd cmd/main && $(GOPATH)/bin/swag init -o "../../docs";
+	$(GOPATH)/bin/swag init;
 
 bombardier:
 	cd cmd/main && $(GOPATH)/bin/bombardier -c 100 -d 60s http://localhost:5000/users;
@@ -38,4 +38,4 @@ prometheus:
 	cd /var/lib/prometheus && ./prometheus --config.file=/home/chechyotka/projects/golang_projects/car_booking_service/monorepo/prometheus.yml
 
 build_project:
-	echo $(GOPATH) && $(GOPATH)/go build -o ./build/bin ./cmd/main/main.go && ./build/bin
+	echo $(GOPATH) && $(GOPATH)/bin/swag init && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin

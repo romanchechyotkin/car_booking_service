@@ -1,10 +1,166 @@
 {
     "swagger": "2.0",
     "info": {
+        "description": "P2P service for renting and booking cars",
         "title": "Car Booking Service API",
         "contact": {},
         "version": "1.0"
     },
     "host": "localhost:5000",
-    "paths": {}
+    "paths": {
+        "/auth/login": {
+            "post": {
+                "description": "Endpoint for login users",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Login into user acc",
+                "parameters": [
+                    {
+                        "description": "Login",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/auth.LoginResDto"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/registration": {
+            "post": {
+                "description": "Endpoint for registration users",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Register users",
+                "parameters": [
+                    {
+                        "description": "Registration",
+                        "name": "body",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/auth.RegistrationDto"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/health": {
+            "get": {
+                "description": "Checking health of backend",
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Health Check",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "auth.LoginDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "auth.LoginResDto": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user.GetUsersDto"
+                }
+            }
+        },
+        "auth.RegistrationDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "full_name",
+                "password",
+                "telephone_number"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "telephone_number": {
+                    "type": "string"
+                }
+            }
+        },
+        "user.GetUsersDto": {
+            "type": "object",
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "string"
+                },
+                "is_premium": {
+                    "type": "boolean"
+                },
+                "is_verified": {
+                    "type": "boolean"
+                },
+                "rating": {
+                    "type": "number"
+                },
+                "telephone_number": {
+                    "type": "string"
+                }
+            }
+        }
+    }
 }

@@ -43,11 +43,10 @@ type handler struct {
 	userRep         user.Storage
 }
 
-func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, pp *paymentproducer.PaymentPlacer, resRep *res2.Repository, up *user.Repository) *handler {
+func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, resRep *res2.Repository, up *user.Repository) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
-		paymentPlacer:   pp,
 		reservationRep:  resRep,
 		userRep:         up,
 	}
@@ -193,6 +192,13 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	}
 
 	customerId := token["id"]
+	isVerified := token["is_verified"]
+	if !isVerified.(bool) {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "you are not verified customer for driving",
+		})
+		return
+	}
 
 	var rtd reservation.TimeDto
 	err = ctx.ShouldBindJSON(&rtd)

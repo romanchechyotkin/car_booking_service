@@ -33,6 +33,14 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/auth/refresh", h.RefreshToken)
 }
 
+// Registration godoc
+// @Tag auth
+// @Summary Register users
+// @Description Endpoint for registration users
+// @Produce application/json
+// @Param body body auth.RegistrationDto{} true "Registration"
+// @Success 201 {string} successful registration
+// @Router /auth/registration [post]
 func (h *handler) Registration(ctx *gin.Context) {
 	var body auth.RegistrationDto
 	err := ctx.ShouldBindJSON(&body)
@@ -59,9 +67,17 @@ func (h *handler) Registration(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"message": "successful registration"})
+	ctx.JSON(http.StatusCreated, gin.H{"message": "successful registration"})
 }
 
+// Login godoc
+// @Tag auth
+// @Summary Login into user acc
+// @Description Endpoint for login users
+// @Produce application/json
+// @Param body body auth.LoginDto{} true "Login"
+// @Success 200 {object} auth.LoginResDto{}
+// @Router /auth/login [post]
 func (h *handler) Login(ctx *gin.Context) {
 	var body auth.LoginDto
 	err := ctx.ShouldBindJSON(&body)
@@ -76,6 +92,10 @@ func (h *handler) Login(ctx *gin.Context) {
 		return
 	}
 
+	var res auth.LoginResDto
+	res.User = user
+	res.AccessToken = token
+
 	refreshToken, err := jwt.GenerateRefreshToken(user.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
@@ -84,10 +104,7 @@ func (h *handler) Login(ctx *gin.Context) {
 
 	ctx.SetCookie("refresh_token", refreshToken, 24*60*60*1000, "/", "localhost", false, true) // 1 day
 
-	ctx.JSON(http.StatusOK, gin.H{
-		"access_token": token,
-		"user":         user,
-	})
+	ctx.JSON(http.StatusOK, res)
 }
 
 func (h *handler) RefreshToken(ctx *gin.Context) {

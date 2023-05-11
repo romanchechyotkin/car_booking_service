@@ -19,10 +19,9 @@ type service struct {
 	placer     *emailproducer.EmailPlacer
 }
 
-func NewService(rep *user.Repository, placer *emailproducer.EmailPlacer) *service {
+func NewService(rep *user.Repository) *service {
 	return &service{
 		repository: rep,
-		placer:     placer,
 	}
 }
 
@@ -47,10 +46,10 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		return fmt.Errorf("telephone number is used")
 	}
 
-	err := s.placer.SendEmail(cu.Email, "registration")
-	if err != nil {
-		log.Printf("error due kafka %v\n", err)
-	}
+	//err := s.placer.SendEmail(cu.Email, "registration")
+	//if err != nil {
+	//	log.Printf("error due kafka %v\n", err)
+	//}
 
 	log.Printf("user %s registrated", cu.Email)
 	return nil

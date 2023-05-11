@@ -1,7 +1,109 @@
+definitions:
+  auth.LoginDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  auth.LoginResDto:
+    properties:
+      access_token:
+        type: string
+      user:
+        $ref: '#/definitions/user.GetUsersDto'
+    type: object
+  auth.RegistrationDto:
+    properties:
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      telephone_number:
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - telephone_number
+    type: object
+  user.GetUsersDto:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      id:
+        type: string
+      is_premium:
+        type: boolean
+      is_verified:
+        type: boolean
+      rating:
+        type: number
+      telephone_number:
+        type: string
+    type: object
 host: localhost:5000
 info:
   contact: {}
+  description: P2P service for renting and booking cars
   title: Car Booking Service API
   version: "1.0"
-paths: {}
+paths:
+  /auth/login:
+    post:
+      description: Endpoint for login users
+      parameters:
+      - description: Login
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.LoginDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/auth.LoginResDto'
+      summary: Login into user acc
+  /auth/registration:
+    post:
+      description: Endpoint for registration users
+      parameters:
+      - description: Registration
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/auth.RegistrationDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Register users
+  /health:
+    get:
+      description: Checking health of backend
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Health Check
 swagger: "2.0"
