@@ -88,6 +88,24 @@ definitions:
       start_date:
         type: string
     type: object
+  user.ApplicationDto:
+    properties:
+      filename:
+        type: string
+      user_id:
+        type: string
+    type: object
+  user.GetAllRatingsDto:
+    properties:
+      comment:
+        type: string
+      rated_by:
+        type: string
+      rating:
+        type: number
+      user:
+        type: string
+    type: object
   user.GetUsersDto:
     properties:
       city:
@@ -117,6 +135,19 @@ definitions:
         type: number
     required:
     - rating
+    type: object
+  user.UpdateUserDto:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        type: string
+      telephone_number:
+        type: string
     type: object
 host: localhost:5000
 info:
@@ -359,6 +390,182 @@ paths:
           schema:
             type: string
       summary: Health Check
+  /users:
+    delete:
+      description: Endpoint for deleting users info
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: DeleteUser
+      tags:
+      - users
+    get:
+      description: Endpoint for getting all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.GetUsersDto'
+            type: array
+      summary: GetALlUsers
+      tags:
+      - users
+    patch:
+      description: Endpoint for updating users info
+      parameters:
+      - description: Updates
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.UpdateUserDto'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: UpdateUser
+      tags:
+      - users
+  /users/{id}:
+    get:
+      description: Endpoint for getting all users
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.GetUsersDto'
+      summary: GetOneUserById
+      tags:
+      - users
+  /users/{id}/rate:
+    get:
+      description: Endpoint for getting all users rates
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/user.GetAllRatingsDto'
+            type: array
+      summary: GetAllUserRates
+      tags:
+      - users
+    post:
+      description: Endpoint for rating users
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rate
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.RateDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: RateUser
+      tags:
+      - users
+  /users/verify:
+    get:
+      description: Endpoint for getting all applications to verify
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/user.ApplicationDto'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: GetVerify
+      tags:
+      - users
+    post:
+      description: Endpoint for getting all applications to verify
+      parameters:
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            items:
+              $ref: '#/definitions/user.ApplicationDto'
+            type: array
+      security:
+      - BearerAuth: []
+      summary: Verify
+      tags:
+      - users
+  /users/verify/{id}:
+    post:
+      description: Endpoint for rating users
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: VerifyUser
+      tags:
+      - users
 securityDefinitions:
   BearerAuth:
     in: header

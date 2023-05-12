@@ -21,10 +21,10 @@ type GetUsersDto struct {
 }
 
 type UpdateUserDto struct {
-	Email           string `json:"email" binding:"required,email"`
-	Password        string `json:"password" binding:"required"`
-	FullName        string `json:"full_name" binding:"required"`
-	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
+	Email           string `json:"email" binding:"email"`
+	Password        string `json:"password"`
+	FullName        string `json:"full_name"`
+	TelephoneNumber string `json:"telephone_number" binding:"e164"`
 	City            string `json:"city"`
 }
 

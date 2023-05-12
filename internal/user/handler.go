@@ -27,10 +27,11 @@ func NewHandler(repository *user.Repository) *handler {
 
 func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
-	router.Handle(http.MethodPost, "/users", h.CreateUser)
+	//router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
-	router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
-	router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
+	// TODO think about put and delete requests
+	// router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
+	// router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
 	router.Handle(http.MethodPost, "/users/verify", jwt.Middleware(h.Verify))
 	router.Handle(http.MethodGet, "/users/verify", jwt.Middleware(h.GetVerify))
@@ -39,6 +40,13 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users/:id/rate", h.GetAllUserRates)
 }
 
+// GetALlUsers godoc
+// @Tags users
+// @Summary GetALlUsers
+// @Description Endpoint for getting all users
+// @Produce application/json
+// @Success 200 {object} []user.GetUsersDto{}
+// @Router /users [get]
 func (h *handler) GetALlUsers(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
@@ -54,6 +62,14 @@ func (h *handler) GetALlUsers(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, users)
 }
 
+// GetOneUserById godoc
+// @Tags users
+// @Summary GetOneUserById
+// @Description Endpoint for getting all users
+// @Produce application/json
+// @Param id path string true "Car ID"
+// @Success 200 {object} user.GetUsersDto{}
+// @Router /users/{id} [get]
 func (h *handler) GetOneUserById(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
@@ -71,31 +87,40 @@ func (h *handler) GetOneUserById(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userById)
 }
 
-func (h *handler) CreateUser(ctx *gin.Context) {
-	start := time.Now()
-	status := http.StatusOK
-	defer func() {
-		user3.CreateUserObserveRequest(time.Since(start), status)
-	}()
+//func (h *handler) CreateUser(ctx *gin.Context) {
+//	start := time.Now()
+//	status := http.StatusOK
+//	defer func() {
+//		user3.CreateUserObserveRequest(time.Since(start), status)
+//	}()
+//
+//	var cu user2.CreateUserDto
+//	err := ctx.ShouldBindJSON(&cu)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+//		return
+//	}
+//
+//	err = h.repository.CreateUser(ctx, &cu)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+//		return
+//	}
+//
+//	ctx.JSON(http.StatusCreated, gin.H{
+//		"message": "created",
+//	})
+//}
 
-	var cu user2.CreateUserDto
-	err := ctx.ShouldBindJSON(&cu)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	err = h.repository.CreateUser(ctx, &cu)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
-	}
-
-	ctx.JSON(http.StatusCreated, gin.H{
-		"message": "created",
-	})
-}
-
+// UpdateUser godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary UpdateUser
+// @Description Endpoint for updating users info
+// @Produce application/json
+// @Param body body user2.UpdateUserDto{} true "Updates"
+// @Success 200 {string} updated
+// @Router /users [patch]
 func (h *handler) UpdateUser(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
@@ -116,9 +141,8 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 
 	var uu user2.UpdateUserDto
 	err = ctx.ShouldBindJSON(&uu)
-	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
-		return
+	if uu.Email == "" || uu.TelephoneNumber == "" {
+
 	}
 
 	err = h.repository.UpdateUser(ctx, fmt.Sprintf("%s", id), &uu)
@@ -132,6 +156,14 @@ func (h *handler) UpdateUser(ctx *gin.Context) {
 	})
 }
 
+// DeleteUser godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary DeleteUser
+// @Description Endpoint for deleting users info
+// @Produce application/json
+// @Success 200 {string} deleted
+// @Router /users [delete]
 func (h *handler) DeleteUser(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
@@ -186,6 +218,15 @@ func (h *handler) GetMySelf(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, userById)
 }
 
+// Verify godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary Verify
+// @Description Endpoint for getting all applications to verify
+// @Produce application/json
+// @Param image formData file true "Image file"
+// @Success 201 {object} []user.ApplicationDto{}
+// @Router /users/verify [post]
 func (h *handler) Verify(ctx *gin.Context) {
 	authHeader := ctx.GetHeader("Authorization")
 	headers := strings.Split(authHeader, " ")
@@ -228,6 +269,14 @@ func (h *handler) Verify(ctx *gin.Context) {
 	})
 }
 
+// GetVerify godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary GetVerify
+// @Description Endpoint for getting all applications to verify
+// @Produce application/json
+// @Success 201 {object} []user.ApplicationDto{}
+// @Router /users/verify [get]
 func (h *handler) GetVerify(ctx *gin.Context) {
 	authHeader := ctx.GetHeader("Authorization")
 	headers := strings.Split(authHeader, " ")
@@ -253,6 +302,15 @@ func (h *handler) GetVerify(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, applications)
 }
 
+// VerifyUser godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary VerifyUser
+// @Description Endpoint for rating users
+// @Produce application/json
+// @Param id path string true "User ID"
+// @Success 201 {string} string
+// @Router /users/verify/{id} [post]
 func (h *handler) VerifyUser(ctx *gin.Context) {
 	authHeader := ctx.GetHeader("Authorization")
 	headers := strings.Split(authHeader, " ")
@@ -283,6 +341,16 @@ func (h *handler) VerifyUser(ctx *gin.Context) {
 	})
 }
 
+// RateUser godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary RateUser
+// @Description Endpoint for rating users
+// @Produce application/json
+// @Param id path string true "User ID"
+// @Param body body user2.RateDto{} true "Rate"
+// @Success 201 {string} string
+// @Router /users/{id}/rate [post]
 func (h *handler) RateUser(ctx *gin.Context) {
 	ratedUserId := ctx.Param("id")
 
@@ -367,6 +435,14 @@ func (h *handler) RateUser(ctx *gin.Context) {
 	})
 }
 
+// GetAllUserRates godoc
+// @Tags users
+// @Summary GetAllUserRates
+// @Description Endpoint for getting all users rates
+// @Produce application/json
+// @Param id path string true "User ID"
+// @Success 200 {object} []user.GetAllRatingsDto{}
+// @Router /users/{id}/rate [get]
 func (h *handler) GetAllUserRates(ctx *gin.Context) {
 	userId := ctx.Param("id")
 
