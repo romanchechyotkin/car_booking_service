@@ -49,6 +49,8 @@ definitions:
         type: boolean
       rating:
         type: number
+      role:
+        type: string
       telephone_number:
         type: string
     type: object
@@ -77,6 +79,35 @@ paths:
           schema:
             $ref: '#/definitions/auth.LoginResDto'
       summary: Login into user acc
+      tags:
+      - auth
+  /auth/logout:
+    get:
+      description: Remove cookie so user is log out
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Logout from user acc
+      tags:
+      - auth
+  /auth/refresh:
+    get:
+      description: If your access token is expired, you need to refresh it using refresh
+        token in cookies.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: refresh invalid access token
+      tags:
+      - auth
   /auth/registration:
     post:
       description: Endpoint for registration users
@@ -95,6 +126,8 @@ paths:
           schema:
             type: string
       summary: Register users
+      tags:
+      - auth
   /health:
     get:
       description: Checking health of backend

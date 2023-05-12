@@ -105,6 +105,7 @@ func main() {
 	}
 
 	log.Printf("server running http://localhost:%s/health", cfg.Listen.Port)
+	log.Println("docs http://localhost:5000/swagger/index.html")
 	log.Fatal(server.ListenAndServe())
 }
 

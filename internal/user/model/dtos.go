@@ -17,6 +17,7 @@ type GetUsersDto struct {
 	City            *string `json:"city"`
 	Rating          float32 `json:"rating"`
 	IsVerified      bool    `json:"is_verified"`
+	Role            string  `json:"role"`
 }
 
 type UpdateUserDto struct {

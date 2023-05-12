@@ -22,6 +22,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    "auth"
+                ],
                 "summary": "Login into user acc",
                 "parameters": [
                     {
@@ -44,11 +47,54 @@ const docTemplate = `{
                 }
             }
         },
+        "/auth/logout": {
+            "get": {
+                "description": "Remove cookie so user is log out",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "Logout from user acc",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/auth/refresh": {
+            "get": {
+                "description": "If your access token is expired, you need to refresh it using refresh token in cookies.",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "auth"
+                ],
+                "summary": "refresh invalid access token",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/auth/registration": {
             "post": {
                 "description": "Endpoint for registration users",
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    "auth"
                 ],
                 "summary": "Register users",
                 "parameters": [
@@ -164,6 +210,9 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "number"
+                },
+                "role": {
+                    "type": "string"
                 },
                 "telephone_number": {
                     "type": "string"

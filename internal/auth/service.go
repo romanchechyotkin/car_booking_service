@@ -55,28 +55,28 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 	return nil
 }
 
-func (s *service) Login(ctx *gin.Context, dto auth.LoginDto) (u user2.GetUsersDto, token string, err error) {
+func (s *service) Login(ctx *gin.Context, dto auth.LoginDto) (u user2.GetUsersDto, role, token string, err error) {
 	u, userErr := s.repository.GetOneUserByEmail(ctx, dto.Email)
 	if userErr != nil {
-		return u, "", fmt.Errorf("user not found")
+		return u, "", "", fmt.Errorf("user not found")
 	}
 
 	hashedPassword := checkPasswordHash(dto.Password, u.Password)
 	if !hashedPassword {
-		return u, "", fmt.Errorf("wrong password")
+		return u, "", "", fmt.Errorf("wrong password")
 	}
 
-	role, err := s.repository.GetRole(ctx, u.Id)
+	role, err = s.repository.GetRole(ctx, u.Id)
 	if err != nil {
-		return u, "", err
+		return u, "", "", err
 	}
 	token, err = jwt.GenerateAccessToken(u, role)
 	if err != nil {
-		return u, "", err
+		return u, "", "", err
 	}
 
 	log.Printf("user %s logined", u.Email)
-	return u, token, nil
+	return u, role, token, nil
 }
 
 func hashPassword(password string) (string, error) {

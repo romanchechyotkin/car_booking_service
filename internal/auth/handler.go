@@ -34,7 +34,7 @@ func (h *handler) Register(router *gin.Engine) {
 }
 
 // Registration godoc
-// @Tag auth
+// @Tags auth
 // @Summary Register users
 // @Description Endpoint for registration users
 // @Produce application/json
@@ -71,7 +71,7 @@ func (h *handler) Registration(ctx *gin.Context) {
 }
 
 // Login godoc
-// @Tag auth
+// @Tags auth
 // @Summary Login into user acc
 // @Description Endpoint for login users
 // @Produce application/json
@@ -86,7 +86,7 @@ func (h *handler) Login(ctx *gin.Context) {
 		return
 	}
 
-	user, token, err := h.service.Login(ctx, body)
+	user, userRole, token, err := h.service.Login(ctx, body)
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -94,6 +94,7 @@ func (h *handler) Login(ctx *gin.Context) {
 
 	var res auth.LoginResDto
 	res.User = user
+	res.User.Role = userRole
 	res.AccessToken = token
 
 	refreshToken, err := jwt.GenerateRefreshToken(user.Id)
@@ -107,6 +108,13 @@ func (h *handler) Login(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, res)
 }
 
+// RefreshToken godoc
+// @Tags auth
+// @Summary refresh invalid access token
+// @Description If your access token is expired, you need to refresh it using refresh token in cookies.
+// @Produce application/json
+// @Success 200 {string} access_token
+// @Router /auth/refresh [get]
 func (h *handler) RefreshToken(ctx *gin.Context) {
 	refreshToken, err := ctx.Cookie("refresh_token")
 	if err != nil {
@@ -181,6 +189,13 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 	})
 }
 
+// Logout godoc
+// @Tags auth
+// @Summary Logout from user acc
+// @Description Remove cookie so user is log out
+// @Produce application/json
+// @Success 200 {string} log out
+// @Router /auth/logout [get]
 func (h *handler) Logout(ctx *gin.Context) {
 	ctx.SetCookie("access_token", "", -1, "/", "127.0.01", false, false)
 	ctx.JSON(http.StatusOK, gin.H{
