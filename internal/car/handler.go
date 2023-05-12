@@ -61,6 +61,22 @@ func (h *handler) Register(router *gin.Engine) {
 	router.GET("/cars/:id/rate", h.GetAllCarRatings)
 }
 
+// CreateCar godoc
+// @Tags cars
+// @Security BearerAuth
+// @Summary CreateCar
+// @Description Endpoint for creating car post
+// @Produce application/json
+// @ID image
+// @Accept multipart/form-data
+// @Param id formData string true "id"
+// @Param brand formData string true "brand"
+// @Param model formData string true "model"
+// @Param price formData float64 true "price"
+// @Param year formData int true "year"
+// @Param image formData file true "Image file"
+// @Success 201 {object} car.CreateCarFormDto{}
+// @Router /cars [post]
 func (h *handler) CreateCar(ctx *gin.Context) {
 	var formDto car.CreateCarFormDto
 
@@ -68,6 +84,17 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
+		})
+		return
+	}
+
+	fmt.Println(formDto)
+
+	form, err := ctx.MultipartForm()
+	files := form.File["image"]
+	if len(files) == 0 {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "no photos",
 		})
 		return
 	}
@@ -91,7 +118,6 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 	formDto.Brand = brand
 	formDto.Model = model
 
-	form, err := ctx.MultipartForm()
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
@@ -118,7 +144,6 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	files := form.File["image"]
 	for _, file := range files {
 		name := uuid.NewString()
 		file.Filename = name
@@ -140,9 +165,16 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		}
 	}
 
-	ctx.JSON(http.StatusOK, formDto)
+	ctx.JSON(http.StatusCreated, formDto)
 }
 
+// GetAllCars godoc
+// @Tags cars
+// @Summary GetAllCars
+// @Description Endpoint for getting all cars posts
+// @Produce application/json
+// @Success 200 {object} []car.GetCarDto{}
+// @Router /cars [get]
 func (h *handler) GetAllCars(ctx *gin.Context) {
 	cars, err := h.carRepository.GetAllCars(ctx)
 	if err != nil {
@@ -155,6 +187,14 @@ func (h *handler) GetAllCars(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, cars)
 }
 
+// GetCar godoc
+// @Tags cars
+// @Summary GetCar
+// @Description Endpoint for getting one car info by its id
+// @Produce application/json
+// @Param id path string true "Car ID"
+// @Success 200 {object} car.GetCarDto{}
+// @Router /cars/{id} [get]
 func (h *handler) GetCar(ctx *gin.Context) {
 	id := ctx.Param("id")
 
@@ -171,6 +211,16 @@ func (h *handler) GetCar(ctx *gin.Context) {
 
 // TODO: transaction for reservation db and change availability
 
+// RentCar godoc
+// @Tags cars
+// @Security BearerAuth
+// @Summary RentCar
+// @Description Endpoint for renting cars
+// @Produce application/json
+// @Param id path string true "Car ID"
+// @Param body body reservation.TimeDto{} true "Times"
+// @Success 201 {object} car.CreateCarFormDto{}
+// @Router /cars/{id}/rent [post]
 func (h *handler) RentCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
@@ -303,6 +353,16 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	})
 }
 
+// RateCar godoc
+// @Tags cars
+// @Security BearerAuth
+// @Summary RateCar
+// @Description Endpoint for rating cars
+// @Produce application/json
+// @Param id path string true "Car ID"
+// @Param body body user2.RateDto{} true "Rate"
+// @Success 201 {object} car.CreateCarFormDto{}
+// @Router /cars/{id}/rate [post]
 func (h *handler) RateCar(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
@@ -382,6 +442,14 @@ func (h *handler) RateCar(ctx *gin.Context) {
 	})
 }
 
+// GetAllCarRatings godoc
+// @Tags cars
+// @Summary GetAllCarRatings
+// @Description Endpoint for getting all cars rates
+// @Produce application/json
+// @Param id path string true "Car ID"
+// @Success 200 {object} []car.GetAllCarRatingsDto{}
+// @Router /cars/{id}/rate [get]
 func (h *handler) GetAllCarRatings(ctx *gin.Context) {
 	carId := ctx.Param("id")
 
@@ -404,6 +472,7 @@ func (h *handler) GetAllCarRatings(ctx *gin.Context) {
 }
 
 func ValidateCarNumbers(numbers string) error {
+	log.Println(numbers)
 	if len(numbers) != 8 {
 		return WrongCarNumbersLen
 	}

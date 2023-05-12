@@ -31,6 +31,9 @@ import (
 // @version         1.0
 // @description  	P2P service for renting and booking cars
 // @host      		localhost:5000
+// @securityDefinitions.apikey BearerAuth
+// @in header
+// @name Authorization
 func main() {
 	ctx := context.Background()
 

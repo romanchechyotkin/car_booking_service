@@ -33,6 +33,61 @@ definitions:
     - password
     - telephone_number
     type: object
+  car.Car:
+    properties:
+      brand:
+        type: string
+      id:
+        type: string
+      images:
+        items:
+          type: string
+        type: array
+      model:
+        type: string
+      pricePerDay:
+        type: number
+      rating:
+        type: number
+      year:
+        type: integer
+    type: object
+  car.CreateCarFormDto:
+    properties:
+      brand:
+        type: string
+      id:
+        type: string
+      model:
+        type: string
+      price:
+        type: number
+      year:
+        type: integer
+    type: object
+  car.GetAllCarRatingsDto:
+    properties:
+      comment:
+        type: string
+      rating:
+        type: number
+      user:
+        type: string
+    type: object
+  car.GetCarDto:
+    properties:
+      car:
+        $ref: '#/definitions/car.Car'
+      user_id:
+        type: string
+    type: object
+  reservation.TimeDto:
+    properties:
+      end_date:
+        type: string
+      start_date:
+        type: string
+    type: object
   user.GetUsersDto:
     properties:
       city:
@@ -53,6 +108,15 @@ definitions:
         type: string
       telephone_number:
         type: string
+    type: object
+  user.RateDto:
+    properties:
+      comment:
+        type: string
+      rating:
+        type: number
+    required:
+    - rating
     type: object
 host: localhost:5000
 info:
@@ -128,6 +192,162 @@ paths:
       summary: Register users
       tags:
       - auth
+  /cars:
+    get:
+      description: Endpoint for getting all cars posts
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/car.GetCarDto'
+            type: array
+      summary: GetAllCars
+      tags:
+      - cars
+    post:
+      consumes:
+      - multipart/form-data
+      description: Endpoint for creating car post
+      operationId: image
+      parameters:
+      - description: id
+        in: formData
+        name: id
+        required: true
+        type: string
+      - description: brand
+        in: formData
+        name: brand
+        required: true
+        type: string
+      - description: model
+        in: formData
+        name: model
+        required: true
+        type: string
+      - description: price
+        in: formData
+        name: price
+        required: true
+        type: number
+      - description: year
+        in: formData
+        name: year
+        required: true
+        type: integer
+      - description: Image file
+        in: formData
+        name: image
+        required: true
+        type: file
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/car.CreateCarFormDto'
+      security:
+      - BearerAuth: []
+      summary: CreateCar
+      tags:
+      - cars
+  /cars/{id}:
+    get:
+      description: Endpoint for getting one car info by its id
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/car.GetCarDto'
+      summary: GetCar
+      tags:
+      - cars
+  /cars/{id}/rate:
+    get:
+      description: Endpoint for getting all cars rates
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/car.GetAllCarRatingsDto'
+            type: array
+      summary: GetAllCarRatings
+      tags:
+      - cars
+    post:
+      description: Endpoint for rating cars
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Rate
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/user.RateDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/car.CreateCarFormDto'
+      security:
+      - BearerAuth: []
+      summary: RateCar
+      tags:
+      - cars
+  /cars/{id}/rent:
+    post:
+      description: Endpoint for renting cars
+      parameters:
+      - description: Car ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Times
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/reservation.TimeDto'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/car.CreateCarFormDto'
+      security:
+      - BearerAuth: []
+      summary: RentCar
+      tags:
+      - cars
   /health:
     get:
       description: Checking health of backend
@@ -139,4 +359,9 @@ paths:
           schema:
             type: string
       summary: Health Check
+securityDefinitions:
+  BearerAuth:
+    in: header
+    name: Authorization
+    type: apiKey
 swagger: "2.0"
