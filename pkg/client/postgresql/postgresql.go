@@ -1,10 +1,10 @@
 package postgresql
 
 import (
+	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 
 	"context"
-	"fmt"
 	"log"
 	"strings"
 )
@@ -28,12 +28,15 @@ func NewPgConfig(username, password, host, port, database string) *pgConfig {
 }
 
 func NewClient(ctx context.Context, cfg *pgConfig) *pgxpool.Pool {
-	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+	connString := fmt.Sprintf("postgres://%s:%s@%s:%s/%s?sslmode=disable", cfg.Username, cfg.Password, cfg.Host, cfg.Port, cfg.Database)
+	//dockerConn := "postgresql://postgres:5432@database:5432/car_booking_service?sslmode=disable"
+	log.Println(connString)
 
 	log.Println("postgresql client init")
 	pool, err := pgxpool.New(ctx, connString)
 	err = pool.Ping(ctx)
 	if err != nil {
+		log.Println(err)
 		log.Fatal("cannot to connect to postgres")
 	}
 

@@ -6,7 +6,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
@@ -38,9 +37,9 @@ const (
 type handler struct {
 	carRepository   car2.Storage
 	imageRepository images_storage.ImageStorage
-	paymentPlacer   paymentproducer.PaymentPlacerer
-	reservationRep  res2.Storage
-	userRep         user.Storage
+	//paymentPlacer   paymentproducer.PaymentPlacerer
+	reservationRep res2.Storage
+	userRep        user.Storage
 }
 
 func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, resRep *res2.Repository, up *user.Repository) *handler {

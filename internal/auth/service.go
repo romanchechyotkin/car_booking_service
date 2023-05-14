@@ -2,7 +2,6 @@ package auth
 
 import (
 	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 
@@ -16,7 +15,7 @@ import (
 
 type service struct {
 	repository *user.Repository
-	placer     *emailproducer.EmailPlacer
+	//placer     *emailproducer.EmailPlacer
 }
 
 func NewService(rep *user.Repository) *service {

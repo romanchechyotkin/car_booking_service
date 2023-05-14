@@ -2,8 +2,8 @@ package config
 
 import (
 	"github.com/ilyakaznacheev/cleanenv"
-
 	"log"
+	"os"
 	"path"
 	"sync"
 )
@@ -35,8 +35,16 @@ func GetConfig() *Config {
 		log.Println("parsing config")
 
 		instance = &Config{}
-		err := cleanenv.ReadConfig(path.Join("/home", "chechyotka", "projects", "golang_projects", "car_booking_service", "monorepo", "config.yml"), instance)
+
+		wd, err := os.Getwd()
 		if err != nil {
+			log.Fatal("during configuration")
+		}
+		log.Println(wd)
+
+		err = cleanenv.ReadConfig(path.Join(wd, "config.yml"), instance)
+		if err != nil {
+			log.Println(wd, path.Join(wd, "config.yml"))
 			helpText, _ := cleanenv.GetDescription(instance, nil)
 			log.Println(helpText)
 			log.Fatal(err)

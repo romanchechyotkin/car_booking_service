@@ -3,3 +3,4 @@ build
 static
 config.yml
 .fleet
+.env
