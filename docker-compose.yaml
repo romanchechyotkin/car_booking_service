@@ -1,7 +1,7 @@
 version: "3.7"
 services:
   database:
-    build: romanchechyotkin/car_booking_service_postgresql
+    image: romanchechyotkin/car_booking_service_postgresql
     restart: always
     environment:
       POSTGRES_DB: car_booking_service
@@ -12,7 +12,7 @@ services:
     volumes:
       - data:/var/lib/postgresql/data
   server:
-    build: romanchechyotkin/car_booking_service_backend
+    image: romanchechyotkin/car_booking_service_backend
     depends_on:
       - database
     networks:
