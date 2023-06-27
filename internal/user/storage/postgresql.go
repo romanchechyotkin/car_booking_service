@@ -39,14 +39,17 @@ func NewRepository(client *pgxpool.Pool) *Repository {
 	}
 }
 
+// TODO: transaction below
+
 func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
 	query := `
-		INSERT INTO public.users (email, password, full_name, telephone_number) 
-		VALUES ($1, $2, $3, $4) RETURNING id
+		INSERT INTO public.users (email, password, full_name, telephone_number, city) 
+		VALUES ($1, $2, $3, $4, $5) RETURNING id
 	`
+
 	var id string
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err := r.client.QueryRow(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber).Scan(&id)
+	err := r.client.QueryRow(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber, user.City).Scan(&id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))

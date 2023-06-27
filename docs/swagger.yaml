@@ -18,6 +18,8 @@ definitions:
     type: object
   auth.RegistrationDto:
     properties:
+      city:
+        type: string
       email:
         type: string
       full_name:

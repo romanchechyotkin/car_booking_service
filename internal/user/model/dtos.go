@@ -5,6 +5,7 @@ type CreateUserDto struct {
 	Password        string `json:"password" binding:"required"`
 	FullName        string `json:"full_name" binding:"required"`
 	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
+	City            string
 }
 
 type GetUsersDto struct {

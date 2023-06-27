@@ -38,11 +38,13 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		Password:        hashedPassword,
 		FullName:        dto.FullName,
 		TelephoneNumber: dto.TelephoneNumber,
+		City:            dto.City,
 	}
 
 	createErr := s.repository.CreateUser(ctx, &cu)
 	if createErr != nil {
-		return fmt.Errorf("telephone number is used")
+		log.Printf("Error: %v", createErr)
+		return fmt.Errorf(createErr.Error())
 	}
 
 	//err := s.placer.SendEmail(cu.Email, "registration")

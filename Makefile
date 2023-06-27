@@ -29,7 +29,7 @@ test-email_sender_microservice:
 	cd /home/chechyotka/projects/golang_projects/car_booking_service/email_sender_microservice/ && $(GOPATH)/go test ./...;
 
 run_postman:
-	cd /var/lib/Postman/ && ./Postman;
+	cd /var/lib/postman/ && ./Postman;
 
 proto:
 	protoc -I ./internal/user/proto ./internal/user/proto/proto.proto --go_out=./internal/user/proto/pb --go-grpc_out=./internal/user/proto/pb

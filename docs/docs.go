@@ -690,6 +690,9 @@ const docTemplate = `{
                 "telephone_number"
             ],
             "properties": {
+                "city": {
+                    "type": "string"
+                },
                 "email": {
                     "type": "string"
                 },
