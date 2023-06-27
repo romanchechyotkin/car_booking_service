@@ -320,7 +320,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		return
 	}
 
-	var reservation = reservation.Dto{
+	var rsv = reservation.Dto{
 		Car:        c,
 		CustomerId: fmt.Sprintf("%s", customerId),
 		CarOwnerId: carOwner,
@@ -329,7 +329,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 		TotalPrice: price,
 	}
 
-	err = h.reservationRep.CreateReservation(ctx, reservation)
+	err = h.reservationRep.CreateReservation(ctx, rsv)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "server error",
@@ -348,7 +348,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	log.Printf("error due change availability %v", err)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"reservation": reservation,
+		"reservation": rsv,
 	})
 }
 
