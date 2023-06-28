@@ -15,7 +15,7 @@ type ImageStorage interface {
 	SaveImageToDB(ctx context.Context, url, carId string) error
 }
 
-func NewRepository(client *pgxpool.Pool) *Repository {
+func NewRepository(client *pgxpool.Pool) ImageStorage {
 	return &Repository{client: client}
 }
 
