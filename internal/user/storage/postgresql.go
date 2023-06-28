@@ -38,8 +38,6 @@ func NewRepository(client *pgxpool.Pool) *Repository {
 	}
 }
 
-// TODO: transaction below
-
 func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
 	conn, err := r.client.Acquire(ctx)
 	if err != nil {
