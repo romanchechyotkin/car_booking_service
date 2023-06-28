@@ -3,9 +3,8 @@ package user
 import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 
 	"context"
 	"fmt"
@@ -42,14 +41,31 @@ func NewRepository(client *pgxpool.Pool) *Repository {
 // TODO: transaction below
 
 func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) error {
-	query := `
+	conn, err := r.client.Acquire(ctx)
+	if err != nil {
+		return err
+	}
+
+	tx, err := conn.Begin(ctx)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback(ctx)
+		} else {
+			tx.Commit(ctx)
+		}
+	}()
+
+	userQuery := `
 		INSERT INTO public.users (email, password, full_name, telephone_number, city) 
 		VALUES ($1, $2, $3, $4, $5) RETURNING id
 	`
 
 	var id string
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err := r.client.QueryRow(ctx, query, user.Email, user.Password, user.FullName, user.TelephoneNumber, user.City).Scan(&id)
+	log.Printf("SQL query: %s", postgresql.FormatQuery(userQuery))
+	err = tx.QueryRow(ctx, userQuery, user.Email, user.Password, user.FullName, user.TelephoneNumber, user.City).Scan(&id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
@@ -59,19 +75,23 @@ func (r *Repository) CreateUser(ctx context.Context, user *user.CreateUserDto) e
 		return err
 	}
 
-	query = `
+	rolesQuery := `
 		INSERT INTO public.roles (user_id) 
 		VALUES ($1)
 	`
 
-	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	_, err = r.client.Exec(ctx, query, id)
+	log.Printf("SQL query: %s", postgresql.FormatQuery(rolesQuery))
+	_, err = tx.Exec(ctx, rolesQuery, id)
 	if err != nil {
 		if pgErr, ok := err.(*pgconn.PgError); ok {
 			newErr := fmt.Errorf(fmt.Sprintf("SQL error: %s, Detail: %s, Where: %s, Code: %s, SQL State: %s", pgErr.Message, pgErr.Detail, pgErr.Where, pgErr.Code, pgErr.SQLState()))
 			log.Println(newErr)
 			return newErr
 		}
+		return err
+	}
+
+	if err != nil {
 		return err
 	}
 
