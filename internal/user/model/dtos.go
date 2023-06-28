@@ -15,7 +15,7 @@ type GetUsersDto struct {
 	FullName        string  `json:"full_name"`
 	TelephoneNumber string  `json:"telephone_number"`
 	IsPremium       bool    `json:"is_premium"`
-	City            *string `json:"city"`
+	City            string  `json:"city"`
 	Rating          float32 `json:"rating"`
 	IsVerified      bool    `json:"is_verified"`
 	Role            string  `json:"role"`

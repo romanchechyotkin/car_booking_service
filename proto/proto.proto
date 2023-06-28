@@ -1,0 +1,23 @@
+syntax="proto3";
+
+option go_package="pb/";
+
+service CarsManagement {
+  rpc CreateCarDoc(CreateCarDocReq) returns (CreateCarDocRes);
+}
+
+message CreateCarDocReq {
+  string car_id        = 1;
+  string brand         = 2;
+  string model         = 3;
+  uint32 year          = 4;
+  float  price_per_day = 5;
+  bool   is_available  = 6;
+  float  rating        = 7;
+  string username      = 8;
+  string city          = 9;
+}
+
+message CreateCarDocRes {
+  string id = 1;
+}

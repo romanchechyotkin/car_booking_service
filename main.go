@@ -15,6 +15,7 @@ import (
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
+	grpc "github.com/romanchechyotkin/car_booking_service/pkg/grpc/client"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 	swaggerfiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
@@ -77,19 +78,17 @@ func main() {
 	// TODO: return kafka
 	//	emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
 	//	authService := auth.NewService(repository, emailPlacer)
-
 	authService := auth.NewService(repository)
-
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
+	grpcClient := grpc.NewCarsManagementClient()
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)
 	//paymentPlacer := paymentproducer.NewPaymentPlacer(producer, cfg.Kafka.PaymentTopic)
 	//carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer, reservationRep, repository)
-
-	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository)
+	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, grpcClient)
 	carHandler.Register(router)
 
 	go func() {

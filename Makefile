@@ -38,4 +38,10 @@ prometheus:
 	cd /var/lib/prometheus && ./prometheus --config.file=/home/chechyotka/projects/golang_projects/car_booking_service/monorepo/prometheus.yml
 
 build_project:
-	echo $(GOPATH) && $(GOPATH)/bin/swag init && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin
+	echo $(GOPATH) && $(GOPATH)/bin/swag init  --parseDependency --parseInternal && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin
+
+generate_proto:
+	protoc -I ./proto ./proto/proto.proto --go_out=./proto --go-grpc_out=./proto
+
+run_elasticsearch_microservice:
+	echo $(GOPATH) && cd /home/chechyotka/projects/cars_searching_filtering && make build

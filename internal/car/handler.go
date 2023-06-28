@@ -6,6 +6,7 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
+	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
@@ -14,6 +15,7 @@ import (
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"github.com/romanchechyotkin/car_booking_service/proto/pb"
 	"log"
 	"math"
 	"net/http"
@@ -37,17 +39,20 @@ const (
 type handler struct {
 	carRepository   car2.Storage
 	imageRepository images_storage.ImageStorage
-	//paymentPlacer   paymentproducer.PaymentPlacerer
-	reservationRep res2.Storage
-	userRep        user.Storage
+	paymentPlacer   paymentproducer.PaymentPlacerer
+	reservationRep  res2.Storage
+	userRep         user.Storage
+	grpcClient      pb.CarsManagementClient
 }
 
-func NewHandler(carRep *car2.Repository, imgRep *images_storage.Repository, resRep *res2.Repository, up *user.Repository) *handler {
+func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, grpcClient pb.CarsManagementClient) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
 		reservationRep:  resRep,
 		userRep:         up,
+		grpcClient:      grpcClient,
+		//paymentPlacer:
 	}
 }
 
@@ -133,9 +138,9 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	id := token["id"]
+	userId := token["id"]
 
-	err = h.carRepository.CreateCar(ctx, &formDto, fmt.Sprintf("%s", id))
+	err = h.carRepository.CreateCar(ctx, &formDto, fmt.Sprintf("%s", userId))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
@@ -163,6 +168,29 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 			return
 		}
 	}
+
+	usr, err := h.userRep.GetOneUserById(ctx, userId.(string))
+	if err != nil {
+		log.Println(err)
+	}
+
+	grpcReq := &pb.CreateCarDocReq{
+		CarId:       formDto.Id,
+		Brand:       formDto.Brand,
+		Model:       formDto.Model,
+		Year:        uint32(formDto.Year),
+		PricePerDay: float32(formDto.PricePerDay),
+		IsAvailable: false,
+		Rating:      0.0,
+		Username:    usr.FullName,
+		City:        usr.City,
+	}
+
+	res, err := h.grpcClient.CreateCarDoc(ctx, grpcReq)
+	if err != nil {
+		log.Println("GRPC ERROR", err)
+	}
+	log.Println("GRPC RESPONSE", res)
 
 	ctx.JSON(http.StatusCreated, formDto)
 }
