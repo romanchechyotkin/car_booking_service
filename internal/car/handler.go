@@ -208,8 +208,6 @@ func (h *handler) GetCar(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, c)
 }
 
-// TODO: transaction for reservation db and change availability
-
 // RentCar godoc
 // @Tags cars
 // @Security BearerAuth
@@ -376,7 +374,7 @@ func (h *handler) RateCar(ctx *gin.Context) {
 
 	id := token["id"]
 
-	user, err := h.userRep.GetOneUserById(ctx, fmt.Sprintf("%s", id))
+	usr, err := h.userRep.GetOneUserById(ctx, fmt.Sprintf("%s", id))
 	if err != nil {
 		ctx.JSON(http.StatusNotFound, gin.H{"error": "user not found"})
 		return
@@ -405,7 +403,7 @@ func (h *handler) RateCar(ctx *gin.Context) {
 		return
 	}
 
-	err = h.carRepository.CreateRating(ctx, dto, carId, user.Id)
+	err = h.carRepository.CreateRating(ctx, dto, carId, usr.Id)
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{"error": "server error"})
 		return
@@ -437,7 +435,7 @@ func (h *handler) RateCar(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"car":  c,
-		"user": user.FullName,
+		"user": usr.FullName,
 	})
 }
 
