@@ -3,10 +3,16 @@ package car
 import (
 	"errors"
 	"fmt"
+	"log"
+	"math"
+	"net/http"
+	"strings"
+	"time"
+
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
-	paymentproducer "github.com/romanchechyotkin/car_booking_service/internal/car/producer"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/reservation/model"
@@ -16,11 +22,6 @@ import (
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"github.com/romanchechyotkin/car_booking_service/proto/pb"
-	"log"
-	"math"
-	"net/http"
-	"strings"
-	"time"
 )
 
 var (
@@ -39,7 +40,6 @@ const (
 type handler struct {
 	carRepository   car2.Storage
 	imageRepository images_storage.ImageStorage
-	paymentPlacer   paymentproducer.PaymentPlacerer
 	reservationRep  res2.Storage
 	userRep         user.Storage
 	grpcClient      pb.CarsManagementClient
@@ -52,7 +52,6 @@ func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep 
 		reservationRep:  resRep,
 		userRep:         up,
 		grpcClient:      grpcClient,
-		//paymentPlacer:
 	}
 }
 

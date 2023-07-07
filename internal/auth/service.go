@@ -1,26 +1,28 @@
 package auth
 
 import (
+	"fmt"
+	"log"
+
 	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"golang.org/x/crypto/bcrypt"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
+	emailproducer "github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
-
-	"fmt"
-	"log"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 )
 
 type service struct {
-	repository *user.Repository
-	//placer     *emailproducer.EmailPlacer
+	repository user.Storage
+	placer     *emailproducer.EmailPlacer
 }
 
-func NewService(rep *user.Repository) *service {
+func NewService(rep user.Storage, placer *emailproducer.EmailPlacer) *service {
 	return &service{
 		repository: rep,
+		placer:     placer,
 	}
 }
 
@@ -47,10 +49,10 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		return fmt.Errorf(createErr.Error())
 	}
 
-	//err := s.placer.SendEmail(cu.Email, "registration")
-	//if err != nil {
-	//	log.Printf("error due kafka %v\n", err)
-	//}
+	err := s.placer.SendEmail(cu.Email, "registration")
+	if err != nil {
+		log.Printf("error due kafka %v\n", err)
+	}
 
 	log.Printf("user %s registrated", cu.Email)
 	return nil

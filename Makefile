@@ -45,3 +45,4 @@ generate_proto:
 
 run_elasticsearch_microservice:
 	echo $(GOPATH) && cd /home/chechyotka/projects/cars_searching_filtering && make build
+

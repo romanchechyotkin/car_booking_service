@@ -3,10 +3,12 @@ package main
 import (
 	"context"
 	"fmt"
+	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	_ "github.com/romanchechyotkin/car_booking_service/docs"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
+	emailproducer "github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
@@ -24,9 +26,8 @@ import (
 	"time"
 )
 
-// TODO: http tests, swagger docs, add secret to config file, refactor code
 // TODO: IP feature (new device)
-// TODO: credit-cards microservice & payments microservice
+// TODO: new tables for postgresql for cars brands, models
 
 // @title           Car Booking Service API
 // @version         1.0
@@ -63,22 +64,20 @@ func main() {
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
 
-	//kafkaConfig := &kafka.ConfigMap{
-	//	"bootstrap.servers": cfg.Kafka.Port,
-	//	"client.id":         "client",
-	//	"acks":              "all",
-	//}
-	//producer, _ := kafka.NewProducer(kafkaConfig)
-	////fmt.Println(err)
-	////if err != nil {
-	////	log.Fatalf("failed to connect to kafka %v", err)
-	////}
-	//defer producer.Close()
+	// TODO config for kafka
+	kafkaConfig := &kafka.ConfigMap{
+		"bootstrap.servers": cfg.Kafka.Port,
+		"client.id":         "client",
+		"acks":              "all",
+	}
+	producer, err := kafka.NewProducer(kafkaConfig)
+	if err != nil {
+		log.Fatalf("failed to connect to kafka %v", err)
+	}
+	defer producer.Close()
 
-	// TODO: return kafka
-	//	emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
-	//	authService := auth.NewService(repository, emailPlacer)
-	authService := auth.NewService(repository)
+	emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
+	authService := auth.NewService(repository, emailPlacer)
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
@@ -86,8 +85,6 @@ func main() {
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)
-	//paymentPlacer := paymentproducer.NewPaymentPlacer(producer, cfg.Kafka.PaymentTopic)
-	//carHandler := car.NewHandler(carRepository, imgRep, paymentPlacer, reservationRep, repository)
 	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, grpcClient)
 	carHandler.Register(router)
 
