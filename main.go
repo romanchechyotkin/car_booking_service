@@ -42,9 +42,6 @@ import (
 func main() {
 	ctx := context.Background()
 
-	client := min.New()
-	log.Println(client)
-
 	log.Println("gin init")
 	router := gin.Default()
 	router.Use(cors.Default())
@@ -54,6 +51,11 @@ func main() {
 
 	log.Println("config init")
 	cfg := config.GetConfig()
+	log.Println(cfg)
+
+	log.Println("minio init")
+	client := min.New(cfg.Minio.Host, cfg.Minio.Port)
+	log.Println(client)
 
 	log.Println("postgresql config init")
 	pgConfig := postgresql.NewPgConfig(
@@ -68,7 +70,6 @@ func main() {
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
 
-	// TODO config for kafka
 	kafkaConfig := &kafka.ConfigMap{
 		"bootstrap.servers": cfg.Kafka.Port,
 		"client.id":         "client",
@@ -85,7 +86,7 @@ func main() {
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
-	grpcClient := grpc.NewCarsManagementClient()
+	grpcClient := grpc.NewCarsManagementClient(cfg.ElasticSearchMicroservice.Host, cfg.ElasticSearchMicroservice.Port)
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)

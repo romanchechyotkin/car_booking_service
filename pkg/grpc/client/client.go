@@ -7,7 +7,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-func NewCarsManagementClient() pb.CarsManagementClient {
+func NewCarsManagementClient(host, port string) pb.CarsManagementClient {
 	conn, err := grpc.Dial("localhost:5500", grpc.WithInsecure())
 	if err != nil {
 		log.Fatalln(err)

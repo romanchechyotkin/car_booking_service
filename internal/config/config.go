@@ -21,10 +21,18 @@ type Config struct {
 		Database string `yaml:"database"`
 	} `yaml:"postgresql_storage"`
 	Kafka struct {
-		Port         string `yaml:"port"`
-		EmailTopic   string `yaml:"email_topic"`
-		PaymentTopic string `yaml:"payment_topic"`
+		Host       string `yaml:"host"`
+		Port       string `yaml:"port"`
+		EmailTopic string `yaml:"email_topic"`
 	} `yaml:"kafka"`
+	Minio struct {
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
+	} `yaml:"minio"`
+	ElasticSearchMicroservice struct {
+		Host string `yaml:"host"`
+		Port string `yaml:"port"`
+	} `yaml:"elastic_search_microservice"`
 }
 
 var instance *Config

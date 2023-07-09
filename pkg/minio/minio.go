@@ -2,13 +2,14 @@ package minio
 
 import (
 	"context"
+	"fmt"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
 	"log"
 )
 
-func New() *minio.Client {
-	endpoint := "localhost:9000"
+func New(host, port string) *minio.Client {
+	endpoint := fmt.Sprintf("%s:%s", host, port)
 	accessKeyID := "bC2fbyLxLUsUHMtqUvDx"
 	secretAccessKey := "rQ0EorX8bTLLo75xLn0lIeu9echhwQXEtwuOxhjA"
 
@@ -39,14 +40,4 @@ func New() *minio.Client {
 	}
 
 	return minioClient
-	//objectName := "img.png"
-	//filePath := "./Screenshot from 2023-07-08 00-26-39.png"
-	//contentType := "application/png"
-	//
-	//info, err := minioClient.FPutObject(ctx, bucketName, objectName, filePath, minio.PutObjectOptions{ContentType: contentType})
-	//if err != nil {
-	//	log.Fatalln(err)
-	//}
-	//
-	//log.Printf("Successfully uploaded %s of size %d\n", objectName, info.Size)
 }
