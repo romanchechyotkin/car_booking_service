@@ -3,9 +3,16 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
+	"net/http"
+	"time"
+
 	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
+
 	_ "github.com/romanchechyotkin/car_booking_service/docs"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
 	emailproducer "github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
@@ -19,11 +26,7 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	grpc "github.com/romanchechyotkin/car_booking_service/pkg/grpc/client"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
-	swaggerfiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
-	"log"
-	"net/http"
-	"time"
+	min "github.com/romanchechyotkin/car_booking_service/pkg/minio"
 )
 
 // TODO: IP feature (new device)
@@ -39,11 +42,12 @@ import (
 func main() {
 	ctx := context.Background()
 
+	client := min.New()
+	log.Println(client)
+
 	log.Println("gin init")
 	router := gin.Default()
 	router.Use(cors.Default())
-
-	router.Static("/static", "./static")
 
 	log.Println("swagger init")
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
@@ -85,7 +89,7 @@ func main() {
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)
-	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, grpcClient)
+	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, grpcClient, client)
 	carHandler.Register(router)
 
 	go func() {

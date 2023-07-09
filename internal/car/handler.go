@@ -1,11 +1,14 @@
 package car
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"github.com/minio/minio-go/v7"
 	"log"
 	"math"
 	"net/http"
+	"os"
 	"strings"
 	"time"
 
@@ -43,15 +46,17 @@ type handler struct {
 	reservationRep  res2.Storage
 	userRep         user.Storage
 	grpcClient      pb.CarsManagementClient
+	minioClient     *minio.Client
 }
 
-func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, grpcClient pb.CarsManagementClient) *handler {
+func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, grpcClient pb.CarsManagementClient, minioClient *minio.Client) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
 		reservationRep:  resRep,
 		userRep:         up,
 		grpcClient:      grpcClient,
+		minioClient:     minioClient,
 	}
 }
 
@@ -149,7 +154,7 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 
 	for _, file := range files {
 		name := uuid.NewString()
-		file.Filename = name
+		file.Filename = name + ".png"
 
 		err = ctx.SaveUploadedFile(file, "static/cars/"+file.Filename)
 		if err != nil {
@@ -159,12 +164,22 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 			return
 		}
 
+		err = saveToMinio(ctx, h.minioClient, file.Filename, "static/cars/"+file.Filename)
+		if err != nil {
+			log.Println(err)
+		}
+
 		err = h.imageRepository.SaveImageToDB(ctx, file.Filename, formDto.Id)
 		if err != nil {
 			ctx.JSON(http.StatusInternalServerError, gin.H{
 				"error": err.Error(),
 			})
 			return
+		}
+
+		err = os.Remove("static/cars/" + file.Filename)
+		if err != nil {
+			log.Println(err)
 		}
 	}
 
@@ -536,4 +551,15 @@ func ValidateForEmptyStrings(brand, model string) (string, string, error) {
 	}
 
 	return brandTrim, modelTrim, nil
+}
+
+func saveToMinio(ctx context.Context, client *minio.Client, fileName, filePath string) error {
+	info, err := client.FPutObject(ctx, "test-bucket", fileName, filePath, minio.PutObjectOptions{ContentType: "image/png"})
+	if err != nil {
+		return err
+	}
+
+	log.Printf("Successfully uploaded %s of size %d\n", fileName, info.Size)
+
+	return nil
 }
