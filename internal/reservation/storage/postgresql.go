@@ -59,6 +59,7 @@ func (r *Repository) GetReservationDates(ctx context.Context, id string) (dates 
 		SELECT start_date, end_date
 		FROM public.reservations
 		WHERE car_id = $1 
+		ORDER BY start_date
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))

@@ -11,8 +11,8 @@ type TimeDto struct {
 }
 
 type TimeFromDB struct {
-	StartDate time.Time
-	EndDate   time.Time
+	StartDate time.Time `json:"start_date"`
+	EndDate   time.Time `json:"end_date"`
 }
 
 type Dto struct {
@@ -25,6 +25,6 @@ type Dto struct {
 }
 
 type GetResDto struct {
-	StartDate time.Time
-	EndDate   time.Time
+	StartDate string `json:"start_date"`
+	EndDate   string `json:"end_date"`
 }

@@ -71,7 +71,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars/:id/rent", jwt.Middleware(h.RentCar))
 	router.POST("/cars/:id/rate", jwt.Middleware(h.RateCar))
 	router.GET("/cars/:id/rate", h.GetAllCarRatings)
-	//router.GET("/cars/:id/reservations", h.GetAllCarReservations)
+	router.GET("/cars/:id/reservations", h.GetAllCarReservations)
 }
 
 // CreateCar godoc
@@ -533,26 +533,35 @@ func (h *handler) GetAllCarRatings(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, ratings)
 }
 
-//func (h *handler) GetAllCarReservations(ctx *gin.Context) {
-//	carId := ctx.Param("id")
-//
-//	ratings, err := h.reservationRep.GetAllCarReservations(ctx, carId)
-//	if err != nil {
-//		ctx.JSON(http.StatusBadRequest, gin.H{
-//			"error": err.Error(),
-//		})
-//		return
-//	}
-//
-//	if len(ratings) == 0 {
-//		ctx.JSON(http.StatusNotFound, gin.H{
-//			"msg": "no ratings",
-//		})
-//		return
-//	}
-//
-//	ctx.JSON(http.StatusOK, ratings)
-//}
+func (h *handler) GetAllCarReservations(ctx *gin.Context) {
+	carId := ctx.Param("id")
+
+	dates, err := h.reservationRep.GetReservationDates(ctx, carId)
+	if err != nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": err.Error(),
+		})
+		return
+	}
+
+	log.Println(dates)
+
+	if len(dates) == 0 {
+		ctx.JSON(http.StatusOK, "no reservations")
+		return
+	}
+
+	var resDates = make([]reservation.GetResDto, 0, len(dates))
+
+	for _, d := range dates {
+		resDates = append(resDates, reservation.GetResDto{
+			StartDate: d.StartDate.Format(hhDDMMYYYY),
+			EndDate:   d.EndDate.Format(hhDDMMYYYY),
+		})
+	}
+
+	ctx.JSON(http.StatusOK, resDates)
+}
 
 func ValidateCarNumbers(numbers string) error {
 	log.Println(numbers)
