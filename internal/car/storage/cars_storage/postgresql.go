@@ -9,11 +9,18 @@ import (
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"log"
+	"time"
+)
+
+const (
+	CREATED_AT         = "created_at"
+	SORT_BY_ASC_PRICE  = "asc"
+	SORT_BY_DESC_PRICE = "desc"
 )
 
 type Storage interface {
 	CreateCar(ctx context.Context, car *car.CreateCarFormDto, userId string) error
-	GetAllCars(ctx context.Context) ([]car.GetCarDto, error)
+	GetAllCars(ctx context.Context, opt ...string) ([]car.GetCarDto, error)
 	GetCar(ctx context.Context, id string) (c car.Car, err error)
 	GetCarOwner(ctx context.Context, id string) (userId string, err error)
 	ChangeIsAvailable(ctx context.Context, id string) error
@@ -52,8 +59,8 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	}()
 
 	carsQuery := `
-		INSERT INTO public.cars (id, brand, model, year, price_per_day) 
-		VALUES ($1, $2, $3, $4, $5)
+		INSERT INTO public.cars (id, brand, model, year, price_per_day, created_at) 
+		VALUES ($1, $2, $3, $4, $5, $6)
 	`
 
 	carsUsersQuery := `
@@ -62,7 +69,7 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsQuery))
-	row, _ := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay)
+	row, _ := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay, time.Now())
 	fmt.Println(row.RowsAffected())
 	if row.RowsAffected() == 0 {
 		return errors.New("wrong cars numbers")
@@ -79,12 +86,40 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	return nil
 }
 
-func (r *Repository) GetAllCars(ctx context.Context) ([]car.GetCarDto, error) {
-	var query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cu.user_id
+func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCarDto, error) {
+
+	var orderBy, query string
+
+	if len(opt) != 0 {
+		log.Println(opt[0])
+		orderBy = opt[0]
+	}
+
+	switch orderBy {
+	case SORT_BY_ASC_PRICE:
+		query = `
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.created_at, cu.user_id
 		FROM public.cars
-		INNER JOIN cars_users cu on cars.id = cu.car_id
+		INNER JOIN cars_users cu on cars.id = cu.car_id		
+		ORDER BY price_per_day
 	`
+	case SORT_BY_DESC_PRICE:
+		query = `
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.created_at, cu.user_id
+		FROM public.cars
+		INNER JOIN cars_users cu on cars.id = cu.car_id		
+		ORDER BY price_per_day DESC 
+	`
+	default:
+		query = `
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.created_at, cu.user_id
+		FROM public.cars
+		INNER JOIN cars_users cu on cars.id = cu.car_id		
+		ORDER BY created_at 
+	`
+	}
+
+	log.Println(query)
 
 	rows, err := r.client.Query(ctx, query)
 	if err != nil {
@@ -96,7 +131,7 @@ func (r *Repository) GetAllCars(ctx context.Context) ([]car.GetCarDto, error) {
 	cars := make([]car.GetCarDto, 0)
 	for rows.Next() {
 		var c car.GetCarDto
-		err = rows.Scan(&c.Car.Id, &c.Car.Brand, &c.Car.Model, &c.Car.PricePerDay, &c.Car.Year, &c.Car.IsAvailable, &c.Car.Rating, &c.UserId)
+		err = rows.Scan(&c.Car.Id, &c.Car.Brand, &c.Car.Model, &c.Car.PricePerDay, &c.Car.Year, &c.Car.IsAvailable, &c.Car.Rating, &c.Car.CreatedAt, &c.UserId)
 		if err != nil {
 			log.Println(err)
 			return nil, err

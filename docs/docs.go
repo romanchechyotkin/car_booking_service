@@ -714,6 +714,9 @@ const docTemplate = `{
                 "brand": {
                     "type": "string"
                 },
+                "createdAt": {
+                    "type": "string"
+                },
                 "id": {
                     "type": "string"
                 },

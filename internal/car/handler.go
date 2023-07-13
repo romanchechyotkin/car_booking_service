@@ -37,7 +37,9 @@ var (
 )
 
 const (
-	hhDDMMYYYY = "15 02.01.2006"
+	hhDDMMYYYY         = "15 02.01.2006"
+	SORT_BY_ASC_PRICE  = "asc"
+	SORT_BY_DESC_PRICE = "desc"
 )
 
 type handler struct {
@@ -217,7 +219,21 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 // @Success 200 {object} []car.GetCarDto{}
 // @Router /cars [get]
 func (h *handler) GetAllCars(ctx *gin.Context) {
-	cars, err := h.carRepository.GetAllCars(ctx)
+	value := ctx.Query("sort")
+	log.Println(value)
+
+	var cars []car.GetCarDto
+	var err error
+
+	switch value {
+	case SORT_BY_ASC_PRICE:
+		cars, err = h.carRepository.GetAllCars(ctx, value)
+	case SORT_BY_DESC_PRICE:
+		cars, err = h.carRepository.GetAllCars(ctx, value)
+	default:
+		cars, err = h.carRepository.GetAllCars(ctx)
+	}
+
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),

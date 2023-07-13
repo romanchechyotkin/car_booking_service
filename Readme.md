@@ -1,4 +1,5 @@
 Database scheme: https://dbdiagram.io/d/63ea01e6296d97641d80732a
+// invalid now, database was increased 
 
 working with microservice through Kafka
 https://github.com/romanchechyotkin/email_sender_microservice
