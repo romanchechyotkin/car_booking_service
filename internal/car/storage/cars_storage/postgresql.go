@@ -13,9 +13,10 @@ import (
 )
 
 const (
-	CREATED_AT         = "created_at"
-	SORT_BY_ASC_PRICE  = "asc"
-	SORT_BY_DESC_PRICE = "desc"
+	SORT_BY_ASC_PRICE  = "prc.a"
+	SORT_BY_DESC_PRICE = "prc.d"
+	SORT_BY_ASC_YEAR   = "y.a"
+	SORT_BY_DESC_YEAR  = "y.d"
 )
 
 type Storage interface {
@@ -109,6 +110,20 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY price_per_day DESC 
+	`
+	case SORT_BY_ASC_YEAR:
+		query = `
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.created_at, cu.user_id
+		FROM public.cars
+		INNER JOIN cars_users cu on cars.id = cu.car_id		
+		ORDER BY year
+	`
+	case SORT_BY_DESC_YEAR:
+		query = `
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.created_at, cu.user_id
+		FROM public.cars
+		INNER JOIN cars_users cu on cars.id = cu.car_id		
+		ORDER BY year DESC 
 	`
 	default:
 		query = `

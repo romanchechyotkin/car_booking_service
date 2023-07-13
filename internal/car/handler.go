@@ -38,8 +38,10 @@ var (
 
 const (
 	hhDDMMYYYY         = "15 02.01.2006"
-	SORT_BY_ASC_PRICE  = "asc"
-	SORT_BY_DESC_PRICE = "desc"
+	SORT_BY_ASC_PRICE  = "prc.a"
+	SORT_BY_DESC_PRICE = "prc.d"
+	SORT_BY_ASC_YEAR   = "y.a"
+	SORT_BY_DESC_YEAR  = "y.d"
 )
 
 type handler struct {
@@ -229,6 +231,10 @@ func (h *handler) GetAllCars(ctx *gin.Context) {
 	case SORT_BY_ASC_PRICE:
 		cars, err = h.carRepository.GetAllCars(ctx, value)
 	case SORT_BY_DESC_PRICE:
+		cars, err = h.carRepository.GetAllCars(ctx, value)
+	case SORT_BY_ASC_YEAR:
+		cars, err = h.carRepository.GetAllCars(ctx, value)
+	case SORT_BY_DESC_YEAR:
 		cars, err = h.carRepository.GetAllCars(ctx, value)
 	default:
 		cars, err = h.carRepository.GetAllCars(ctx)
