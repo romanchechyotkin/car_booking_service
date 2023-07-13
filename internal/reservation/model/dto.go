@@ -23,3 +23,8 @@ type Dto struct {
 	EndDate    string  `json:"end_date"`
 	TotalPrice float64 `json:"total_price"`
 }
+
+type GetResDto struct {
+	StartDate time.Time
+	EndDate   time.Time
+}

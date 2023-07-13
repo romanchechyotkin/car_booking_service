@@ -71,6 +71,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.POST("/cars/:id/rent", jwt.Middleware(h.RentCar))
 	router.POST("/cars/:id/rate", jwt.Middleware(h.RateCar))
 	router.GET("/cars/:id/rate", h.GetAllCarRatings)
+	//router.GET("/cars/:id/reservations", h.GetAllCarReservations)
 }
 
 // CreateCar godoc
@@ -353,7 +354,7 @@ func (h *handler) RentCar(ctx *gin.Context) {
 	}
 
 	for _, v := range dates {
-		if startDate.Before(v.EndDate) && startDate.After(v.StartDate) {
+		if (startDate.After(v.StartDate) && startDate.Before(v.EndDate)) || (endDate.After(v.StartDate) && endDate.Before(v.EndDate)) {
 			log.Println(startDate, v.StartDate)
 			log.Println(endDate, v.EndDate)
 			log.Printf("equal dates %d-%d or %d-%d\n", startDate.Day(), v.StartDate.Day(), endDate.Day(), v.EndDate.Day())
@@ -531,6 +532,27 @@ func (h *handler) GetAllCarRatings(ctx *gin.Context) {
 
 	ctx.JSON(http.StatusOK, ratings)
 }
+
+//func (h *handler) GetAllCarReservations(ctx *gin.Context) {
+//	carId := ctx.Param("id")
+//
+//	ratings, err := h.reservationRep.GetAllCarReservations(ctx, carId)
+//	if err != nil {
+//		ctx.JSON(http.StatusBadRequest, gin.H{
+//			"error": err.Error(),
+//		})
+//		return
+//	}
+//
+//	if len(ratings) == 0 {
+//		ctx.JSON(http.StatusNotFound, gin.H{
+//			"msg": "no ratings",
+//		})
+//		return
+//	}
+//
+//	ctx.JSON(http.StatusOK, ratings)
+//}
 
 func ValidateCarNumbers(numbers string) error {
 	log.Println(numbers)

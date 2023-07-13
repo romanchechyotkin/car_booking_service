@@ -80,3 +80,31 @@ func (r *Repository) GetReservationDates(ctx context.Context, id string) (dates 
 
 	return dates, err
 }
+
+//
+//func (r *Repository) GetAllCarReservations(ctx context.Context, id string) (res []reservation.TimeFromDB, err error) {
+//	query := `
+//		SELECT start_date, end_date
+//		FROM public.reservations
+//		WHERE car_id = $1
+//	`
+//
+//	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+//	rows, err := r.client.Query(ctx, query, id)
+//	if err != nil {
+//		return dates, err
+//	}
+//
+//	for rows.Next() {
+//		var dto reservation.TimeFromDB
+//
+//		err = rows.Scan(&dto.StartDate, &dto.EndDate)
+//		if err != nil {
+//			return dates, err
+//		}
+//
+//		dates = append(dates, dto)
+//	}
+//
+//	return dates, err
+//}
