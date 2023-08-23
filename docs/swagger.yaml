@@ -153,12 +153,8 @@ definitions:
       telephone_number:
         type: string
     type: object
-host: localhost:5000
 info:
   contact: {}
-  description: P2P service for renting and booking cars
-  title: Car Booking Service API
-  version: "1.0"
 paths:
   /auth/login:
     post:
@@ -570,9 +566,4 @@ paths:
       summary: VerifyUser
       tags:
       - users
-securityDefinitions:
-  BearerAuth:
-    in: header
-    name: Authorization
-    type: apiKey
 swagger: "2.0"

@@ -7,7 +7,6 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/confluentinc/confluent-kafka-go/v2/kafka"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -15,7 +14,6 @@ import (
 
 	_ "github.com/romanchechyotkin/car_booking_service/docs"
 	"github.com/romanchechyotkin/car_booking_service/internal/auth"
-	emailproducer "github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
@@ -29,16 +27,6 @@ import (
 	min "github.com/romanchechyotkin/car_booking_service/pkg/minio"
 )
 
-// TODO: IP feature (new device)
-// TODO: new tables for postgresql for cars brands, models
-
-// @title           Car Booking Service API
-// @version         1.0
-// @description  	P2P service for renting and booking cars
-// @host      		localhost:5000
-// @securityDefinitions.apikey BearerAuth
-// @in header
-// @name Authorization
 func main() {
 	ctx := context.Background()
 
@@ -70,19 +58,14 @@ func main() {
 	handler := user2.NewHandler(repository)
 	handler.Register(router)
 
-	kafkaConfig := &kafka.ConfigMap{
-		"bootstrap.servers": cfg.Kafka.Port,
-		"client.id":         "client",
-		"acks":              "all",
-	}
-	producer, err := kafka.NewProducer(kafkaConfig)
-	if err != nil {
-		log.Fatalf("failed to connect to kafka %v", err)
-	}
-	defer producer.Close()
+	//producer, err := kafka.NewProducer(kafkaConfig)
+	//if err != nil {
+	//	log.Fatalf("failed to connect to kafka %v", err)
+	//}
+	//defer producer.Close()
+	//emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
 
-	emailPlacer := emailproducer.NewEmailPlacer(producer, cfg.Kafka.EmailTopic)
-	authService := auth.NewService(repository, emailPlacer)
+	authService := auth.NewService(repository)
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 

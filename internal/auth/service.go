@@ -8,7 +8,6 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
-	emailproducer "github.com/romanchechyotkin/car_booking_service/internal/auth/producer"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
@@ -16,13 +15,15 @@ import (
 
 type service struct {
 	repository user.Storage
-	placer     *emailproducer.EmailPlacer
+	//placer     *emailproducer.EmailPlacer
 }
 
-func NewService(rep user.Storage, placer *emailproducer.EmailPlacer) *service {
+//func NewService(rep user.Storage, placer *emailproducer.EmailPlacer) *service {
+
+func NewService(rep user.Storage) *service {
 	return &service{
 		repository: rep,
-		placer:     placer,
+		//placer:     placer,
 	}
 }
 
@@ -49,12 +50,13 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		return fmt.Errorf(createErr.Error())
 	}
 
-	err := s.placer.SendEmail(cu.Email, "registration")
-	if err != nil {
-		log.Printf("error due kafka %v\n", err)
-	}
+	//err := s.placer.SendEmail(cu.Email, "registration")
+	//if err != nil {
+	//	log.Printf("error due kafka %v\n", err)
+	//}
+	//
+	//log.Printf("user %s registrated", cu.Email)
 
-	log.Printf("user %s registrated", cu.Email)
 	return nil
 }
 
