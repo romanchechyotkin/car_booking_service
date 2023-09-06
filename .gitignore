@@ -1,6 +1,7 @@
 .idea
 build
 static
+frontend/node_modules
 config.yml
 .fleet
 .env

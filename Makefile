@@ -41,8 +41,7 @@ prometheus:
 #	echo $(GOPATH) && $(GOPATH)/bin/swag init  --parseDependency --parseInternal && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin
 
 build_project:
-	echo $(GOPATH) && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin
-
+	echo $(GOPATH) && $(GOPATH)/go build -o ./build/bin ./main.go && ./build/bin;
 
 generate_proto:
 	protoc -I ./proto ./proto/proto.proto --go_out=./proto --go-grpc_out=./proto
