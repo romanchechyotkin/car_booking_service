@@ -99,7 +99,7 @@ const docTemplate = `{
                 "summary": "Register users",
                 "parameters": [
                     {
-                        "description": "Registration",
+                        "description": "Login",
                         "name": "body",
                         "in": "body",
                         "required": true,

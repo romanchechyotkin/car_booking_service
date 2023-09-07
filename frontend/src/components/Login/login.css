@@ -1,0 +1,19 @@
+.login {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.login_form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.login input {
+    width: 250px;
+}
+
+.login button {
+    width: 125px;
+}

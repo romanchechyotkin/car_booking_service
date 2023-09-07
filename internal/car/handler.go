@@ -607,7 +607,7 @@ func ValidateForEmptyStrings(brand, model string) (string, string, error) {
 }
 
 func saveToMinio(ctx context.Context, client *minio.Client, fileName, filePath string) error {
-	info, err := client.FPutObject(ctx, "test-bucket", fileName, filePath, minio.PutObjectOptions{ContentType: "image/png"})
+	info, err := client.FPutObject(ctx, "Admin-bucket", fileName, filePath, minio.PutObjectOptions{ContentType: "image/png"})
 	if err != nil {
 		return err
 	}

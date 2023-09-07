@@ -1,0 +1,19 @@
+.registration {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.registration_form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.registration_form input {
+    width: 250px;
+}
+
+.registration button {
+    width: 125px;
+}

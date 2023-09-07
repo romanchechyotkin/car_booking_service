@@ -3,6 +3,7 @@ package auth
 import (
 	"github.com/gin-gonic/gin"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"log"
 
 	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 
@@ -38,31 +39,35 @@ func (h *handler) Register(router *gin.Engine) {
 // @Summary Register users
 // @Description Endpoint for registration users
 // @Produce application/json
-// @Param body body auth.RegistrationDto{} true "Registration"
+// @Param body body auth.RegistrationDto{} true "Login"
 // @Success 201 {string} successful registration
 // @Router /auth/registration [post]
 func (h *handler) Registration(ctx *gin.Context) {
 	var body auth.RegistrationDto
 	err := ctx.ShouldBindJSON(&body)
 	if err != nil {
+		log.Println("error during binding json", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = ValidateForEmptyPasswordAndFullName(body.Password, body.FullName)
 	if err != nil {
+		log.Println("error during validating password and full name", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = ValidateBelarusTelephoneNumber(body.TelephoneNumber)
 	if err != nil {
+		log.Println("error during validating phone number", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
 
 	err = h.service.Registration(ctx, body)
 	if err != nil {
+		log.Println("error during registration process", err)
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}

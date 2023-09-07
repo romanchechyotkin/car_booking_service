@@ -21,7 +21,7 @@ func New(host, port string) *minio.Client {
 	}
 	log.Printf("%#v\n", minioClient) // minioClient is now set up
 
-	bucketName := "test-bucket"
+	bucketName := "Admin-bucket"
 	location := "BLR"
 	ctx := context.Background()
 

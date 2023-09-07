@@ -207,7 +207,7 @@ paths:
     post:
       description: Endpoint for registration users
       parameters:
-      - description: Registration
+      - description: Login
         in: body
         name: body
         required: true
