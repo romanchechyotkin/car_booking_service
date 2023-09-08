@@ -8,9 +8,11 @@ import {Login} from "./components/Login/Login";
 import {Navbar} from "./components/Navbar/Navbar";
 import {Admin} from "./components/Admin/Admin";
 import {Feed} from "./components/Feed/Feed";
+import {Verify} from "./components/Verify/Verify";
 
 export const App = () => {
     const isAuth = useSelector((state) => state.user.isAuth)
+    // const isVerified = useSelector((state) => state.user.isVerified)
     const role = useSelector((state) => state.user.role)
     const dispatch = useDispatch()
 
@@ -23,6 +25,9 @@ export const App = () => {
             dispatch(userActions.setUser(user))
             dispatch(userActions.setRole(user.role))
             dispatch(userActions.setIsAuth())
+            if (user.is_verified) {
+                dispatch(userActions.setIsVerified())
+            }
         }
     }, [dispatch]);
 
@@ -45,6 +50,7 @@ export const App = () => {
                     <>
                         <Route path={"/"} element={isAuth ? <Navigate to={"/feed"} /> : <Navigate to={"/login"} />} />
                         <Route path={"/login"} element={isAuth ? <Navigate to={"/feed"} /> : <Login />} />
+                        <Route path={"/verify"} element={<Verify />} />
                         <Route path={"/registration"} element={isAuth ? <Navigate to={"/feed"} /> : <Registration />} />
                         <Route path={"/feed"} element={isAuth ? <Feed /> : <Navigate to={"/login"} />} />
                     </>

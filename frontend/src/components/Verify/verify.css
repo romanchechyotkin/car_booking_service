@@ -1,0 +1,9 @@
+.verify {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.verify button {
+    width: 125px;
+}

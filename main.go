@@ -54,7 +54,7 @@ func main() {
 	)
 	pgClient := postgresql.NewClient(ctx, pgConfig)
 	repository := user.NewRepository(pgClient)
-	handler := user2.NewHandler(repository)
+	handler := user2.NewHandler(repository, client)
 	handler.Register(router)
 
 	//producer, err := kafka.NewProducer(kafkaConfig)

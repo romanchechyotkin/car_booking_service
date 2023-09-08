@@ -29,6 +29,9 @@ export const Login = () => {
             dispatch(userActions.setUser(res.data.user))
             dispatch(userActions.setRole(res.data.user.role))
             dispatch(userActions.setIsAuth())
+            if (res.data.user.is_verified === true) {
+                dispatch(userActions.setIsVerified())
+            }
 
             navigate("/feed")
         } catch (e) {

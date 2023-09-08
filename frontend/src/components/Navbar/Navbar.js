@@ -1,9 +1,10 @@
 import React from 'react';
 import "./navbar.css";
 import {userActions} from "../../store/loginUserSlice";
-import {useDispatch} from "react-redux";
+import {useDispatch, useSelector} from "react-redux";
 
 export const Navbar = () => {
+    const isAuth = useSelector((state) => state.user.isAuth)
     const dispatch = useDispatch();
 
     const logout = () => {
@@ -14,7 +15,7 @@ export const Navbar = () => {
 
     return (
         <nav className={"navbar"}>
-            <button onClick={logout}>log out</button>
+            {isAuth && <button onClick={logout}>log out</button>}
         </nav>
     )
 };

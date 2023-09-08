@@ -5,10 +5,12 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"log"
 
 	"net/http"
 	"strings"
@@ -18,11 +20,15 @@ import (
 var WrongRating = errors.New("wrong rating")
 
 type handler struct {
-	repository *user.Repository
+	repository  *user.Repository
+	minioClient *minio.Client
 }
 
-func NewHandler(repository *user.Repository) *handler {
-	return &handler{repository: repository}
+func NewHandler(repository *user.Repository, client *minio.Client) *handler {
+	return &handler{
+		repository:  repository,
+		minioClient: client,
+	}
 }
 
 func (h *handler) Register(router *gin.Engine) {
@@ -258,11 +264,21 @@ func (h *handler) Verify(ctx *gin.Context) {
 
 	err = h.repository.CreateApplication(ctx, fmt.Sprintf("%s", id), form.Filename)
 	if err != nil {
-		ctx.JSON(http.StatusInternalServerError, gin.H{
+		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": "u have already sent",
 		})
 		return
 	}
+
+	info, err := h.minioClient.FPutObject(ctx, "test-bucket", form.Filename, "static/users/"+form.Filename, minio.PutObjectOptions{ContentType: "image/png"})
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"error": "internal server error",
+		})
+		return
+	}
+
+	log.Printf("Successfully uploaded %s of size %d\n", form.Filename, info.Size)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"message": "your application is successfully sent",

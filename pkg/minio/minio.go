@@ -3,9 +3,10 @@ package minio
 import (
 	"context"
 	"fmt"
+	"log"
+
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"log"
 )
 
 func New(host, port string) *minio.Client {
@@ -21,7 +22,7 @@ func New(host, port string) *minio.Client {
 	}
 	log.Printf("%#v\n", minioClient) // minioClient is now set up
 
-	bucketName := "Admin-bucket"
+	bucketName := "test-bucket"
 	location := "BLR"
 	ctx := context.Background()
 
