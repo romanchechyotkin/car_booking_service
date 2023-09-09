@@ -4,7 +4,7 @@ import {axiosInstance, STATIC} from "../../axios/axios";
 export const Admin = () => {
     const [users, setUsers] = useState([])
 
-    const fetchUsers= async () => {
+    const fetchUsers = async () => {
         try {
             const res= await axiosInstance.get("/users/verify")
             console.log(res.data)

@@ -31,7 +31,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodPost, "/auth/registration", h.Registration)
 	router.Handle(http.MethodPost, "/auth/login", h.Login)
 	router.Handle(http.MethodGet, "/auth/logout", h.Logout)
-	router.Handle(http.MethodGet, "/auth/refresh", h.RefreshToken)
+	router.Handle(http.MethodPost, "/auth/refresh", h.RefreshToken)
 }
 
 // Registration godoc
@@ -108,7 +108,9 @@ func (h *handler) Login(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("refresh_token", refreshToken, 24*60*60*1000, "/", "localhost", false, true) // 1 day
+	res.RefreshToken = refreshToken
+
+	//ctx.SetCookie("refresh_token", refreshToken, 24*60*60*1000, "/", "localhost", false, true) // 1 day
 
 	ctx.JSON(http.StatusOK, res)
 }
@@ -121,16 +123,30 @@ func (h *handler) Login(ctx *gin.Context) {
 // @Success 200 {string} access_token
 // @Router /auth/refresh [get]
 func (h *handler) RefreshToken(ctx *gin.Context) {
-	refreshToken, err := ctx.Cookie("refresh_token")
+	var reqDto struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+
+	//refreshToken, err := ctx.Cookie("refresh_token")
+	//if err != nil {
+	//	fmt.Println("cookie")
+	//	ctx.JSON(http.StatusUnauthorized, gin.H{
+	//		"error": "unauthorized",
+	//	})
+	//	return
+	//}
+
+	err := ctx.ShouldBindJSON(&reqDto)
 	if err != nil {
-		fmt.Println("cookie")
+		log.Println(err)
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized",
 		})
 		return
 	}
+	log.Println(reqDto)
 
-	if refreshToken == "" {
+	if reqDto.RefreshToken == "" {
 		fmt.Println("empty")
 		ctx.JSON(http.StatusUnauthorized, gin.H{
 			"error": "unauthorized",
@@ -138,7 +154,7 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	token, err := jwt.ParseRefreshTokenToken(refreshToken)
+	token, err := jwt.ParseRefreshTokenToken(reqDto.RefreshToken)
 	if err != nil {
 		fmt.Println("hz")
 		ctx.JSON(http.StatusUnauthorized, gin.H{
@@ -187,10 +203,11 @@ func (h *handler) RefreshToken(ctx *gin.Context) {
 		return
 	}
 
-	ctx.SetCookie("refresh_token", generateRefreshToken, 24*60*60*1000, "/", "localhost", false, true)
+	//ctx.SetCookie("refresh_token", generateRefreshToken, 24*60*60*1000, "/", "localhost", false, true)
 
 	ctx.JSON(http.StatusOK, gin.H{
-		"access_token": generateAccessToken,
+		"access_token":  generateAccessToken,
+		"refresh_token": generateRefreshToken,
 	})
 }
 

@@ -24,6 +24,7 @@ export const Login = () => {
             console.log(res)
 
             localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
+            localStorage.setItem('refresh_token', JSON.stringify(res.data.refresh_token))
             localStorage.setItem('user', JSON.stringify(res.data.user))
 
             dispatch(userActions.setUser(res.data.user))

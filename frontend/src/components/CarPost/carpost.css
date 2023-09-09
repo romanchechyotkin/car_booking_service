@@ -1,0 +1,15 @@
+.post {
+    display: flex;
+    flex-direction: column;
+}
+
+.post_images {
+    display: flex;
+    gap: 10px;
+
+}
+
+.post_images img {
+    height: 160px;
+    width: 120px;
+}

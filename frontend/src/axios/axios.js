@@ -14,7 +14,7 @@ axiosInstance.interceptors.request.use(
         config.headers = {
             'Authorization': `Bearer ${JSON.parse(localStorage.getItem("access_token"))}`,
             'Accept': 'application/json',
-            'Content-Type': 'application/x-www-form-urlencoded',
+            'Content-Type': 'application/json'
         }
         return config;
     },
@@ -28,13 +28,17 @@ axiosInstance.interceptors.response.use((response) => {
     const originalRequest = error.config;
     if (error.response.status === 401 && !originalRequest._retry) {
         originalRequest._retry = true;
-        const access_token = await refreshAccessToken();
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + access_token;
+        const res = await refreshAccessToken();
+        localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
+        localStorage.setItem('refresh_token', JSON.stringify(res.data.refresh_token))
+        axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.access_token;
         return axiosInstance(originalRequest);
     }
     return Promise.reject(error);
 });
 
 const refreshAccessToken = async () => {
-    return await axiosInstance.get("/auth/refresh")
+    return await axiosInstance.post("/auth/refresh", JSON.stringify({
+        "refresh_token": JSON.parse(localStorage.getItem("refresh_token"))
+    }))
 }

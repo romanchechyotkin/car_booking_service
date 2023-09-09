@@ -16,6 +16,7 @@ type LoginDto struct {
 }
 
 type LoginResDto struct {
-	AccessToken string           `json:"access_token"`
-	User        user.GetUsersDto `json:"user"`
+	AccessToken  string           `json:"access_token"`
+	RefreshToken string           `json:"refresh_token"`
+	User         user.GetUsersDto `json:"user"`
 }

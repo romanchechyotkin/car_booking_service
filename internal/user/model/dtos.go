@@ -30,8 +30,8 @@ type UpdateUserDto struct {
 }
 
 type RateDto struct {
-	Rating  float32 `json:"rating" binding:"required"`
-	Comment string  `json:"comment"`
+	Rating  int    `json:"rating" binding:"required"`
+	Comment string `json:"comment"`
 }
 
 type GetAllRatingsDto struct {

@@ -25,6 +25,9 @@ export const userSlice = createSlice({
         },
         logout: (state) => {
             state.isAuth = false
+            state.user = null
+            state.role = ""
+            state.isVerified = false
         },
     },
 })

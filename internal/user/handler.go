@@ -11,7 +11,6 @@ import (
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"log"
-
 	"net/http"
 	"strings"
 	"time"
@@ -480,7 +479,7 @@ func (h *handler) GetAllUserRates(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, ratings)
 }
 
-func ValidateRating(rating float32) error {
+func ValidateRating(rating int) error {
 	if rating > 5 || rating < 1 {
 		return WrongRating
 	}

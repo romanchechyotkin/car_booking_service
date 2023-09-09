@@ -22,7 +22,7 @@ func GenerateAccessToken(u user.GetUsersDto, role string) (token string, err err
 	mapClaims["email"] = u.Email
 	mapClaims["role"] = role
 	mapClaims["is_verified"] = u.IsVerified
-	mapClaims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	mapClaims["exp"] = time.Now().Add(30 * time.Minute).Unix()
 	token, err = t.SignedString([]byte("secret"))
 	if err != nil {
 		return "", err
@@ -49,7 +49,7 @@ func GenerateRefreshToken(id string) (token string, err error) {
 	t := jwt.New(jwt.SigningMethodHS256)
 	mapClaims := t.Claims.(jwt.MapClaims)
 	mapClaims["id"] = id
-	mapClaims["exp"] = time.Now().Add(time.Minute * 30).Unix()
+	mapClaims["exp"] = time.Now().Add(time.Hour * 24).Unix()
 	token, err = t.SignedString([]byte("refresh_token"))
 	if err != nil {
 		return "", err

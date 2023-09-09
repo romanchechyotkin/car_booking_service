@@ -1,0 +1,27 @@
+.car_page {
+    display: flex;
+    gap: 50px;
+}
+
+.car_info {
+
+}
+
+.car_page__images {
+    display: flex;
+    flex-direction: row;
+    gap: 15px;
+    margin-bottom: 15px;
+}
+
+.car_page__images img {
+    height: 160px;
+    width: 220px;
+}
+
+.car_rates {
+}
+
+.rate_form {
+    margin-bottom: 10px;
+}

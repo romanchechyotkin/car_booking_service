@@ -227,7 +227,7 @@ func (r *Repository) DeleteUserById(ctx context.Context, id string) error {
 
 func (r *Repository) CreateRating(ctx context.Context, dto user.RateDto, userId, ratedBy string) error {
 	query := `
-		INSERT INTO public.users_ratings  (rate, comment, user_id, rate_by_user)
+		INSERT INTO public.users_ratings (rate, comment, user_id, rate_by_user)
 		VALUES ($1, $2, $3, $4)
 	`
 
