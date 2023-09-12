@@ -264,8 +264,9 @@ func (r *Repository) GetAllCarRatings(ctx context.Context, id string) ([]car.Get
 		SELECT r.rate, r.comment, u.full_name
 		FROM cars_ratings r
 		INNER JOIN users u on u.id = r.rate_by_user
-		WHERE r.car_id = $1;
-	`
+	 	WHERE r.car_id = $1
+		ORDER BY r.created_at desc
+`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
 	rows, err := r.client.Query(ctx, query, id)
