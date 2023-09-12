@@ -42,6 +42,7 @@ export const App = () => {
                         <Route path={"/login"} element={isAuth ? <Navigate to={"/"} /> : <Login />} />
                         <Route path={"/registration"} element={isAuth ? <Navigate to={"/"} /> : <Registration />} />
                         <Route path={"/feed"} element={<Feed />} />
+                        <Route path={"/verify"} element={<Verify />} />
                         <Route path={"/post/:id"} element={<CarPage />} />
                     </>
                 }

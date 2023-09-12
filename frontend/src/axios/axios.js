@@ -5,7 +5,7 @@ export const STATIC = process.env.REACT_APP_MINIO
 export const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_BACKEND,
     headers: {
-        "Content-Type": "application/json",
+        "Content-Type": ['application/x-www-form-urlencoded', "application/json"],
     },
 })
 
@@ -14,7 +14,7 @@ axiosInstance.interceptors.request.use(
         config.headers = {
             'Authorization': `Bearer ${JSON.parse(localStorage.getItem("access_token"))}`,
             'Accept': 'application/json',
-            'Content-Type': 'application/json'
+            'Content-Type': 'application/x-www-form-urlencoded',
         }
         return config;
     },
