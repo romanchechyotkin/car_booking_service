@@ -4,3 +4,9 @@
     row-gap: 30px;
     column-gap: 30px;
 }
+
+.feed_sort {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 15px;
+}

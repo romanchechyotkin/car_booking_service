@@ -13,6 +13,7 @@ export const CarPage = () => {
     const [rates, setRates] = useState([])
     const [comment, setComment] = useState("")
     const [rate, setRate] = useState(1)
+    const [reservations, setReservations] = useState([])
 
     const fetchCarInfo = async () => {
         try {
@@ -34,9 +35,20 @@ export const CarPage = () => {
         }
     }
 
+    const fetchCarReservations = async () => {
+        try {
+            const res = await axiosInstance.get(`/cars/${params.id}/reservations`)
+            console.log(res.data)
+            setReservations(res.data)
+        } catch (e) {
+            console.log(e)
+        }
+    }
+
     useEffect(() => {
         fetchCarInfo()
         fetchCarRates()
+        fetchCarReservations()
     }, []);
 
     const sendRate = async () => {
@@ -86,6 +98,9 @@ export const CarPage = () => {
             </div>
             <div className={"reservation"}>
                 <h2>reservation</h2>
+                {reservations !== "no reservations" ? reservations.map(r =>
+                    <div>Start:{r.start_date} End:{r.end_date}</div>
+                ) :  <div>no reservations</div>}
             </div>
         </div>
     )

@@ -544,8 +544,6 @@ func (h *handler) GetAllCarReservations(ctx *gin.Context) {
 		return
 	}
 
-	log.Println(dates)
-
 	if len(dates) == 0 {
 		ctx.JSON(http.StatusOK, "no reservations")
 		return
@@ -564,7 +562,6 @@ func (h *handler) GetAllCarReservations(ctx *gin.Context) {
 }
 
 func ValidateCarNumbers(numbers string) error {
-	log.Println(numbers)
 	if len(numbers) != 8 {
 		return WrongCarNumbersLen
 	}
