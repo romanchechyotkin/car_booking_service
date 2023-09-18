@@ -25,3 +25,18 @@
 .rate_form {
     margin-bottom: 10px;
 }
+
+.reservation_dates {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 25px;
+}
+
+.reservation_dates div{
+    display: flex;
+    justify-content: space-between;
+}
+
+.reservation_dates button{
+    margin-top: 5px;
+}
