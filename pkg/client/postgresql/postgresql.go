@@ -1,12 +1,18 @@
 package postgresql
 
 import (
-	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
-
 	"context"
+	"fmt"
 	"log"
+	"regexp"
 	"strings"
+
+	"github.com/golang-migrate/migrate/v4"
+	_ "github.com/golang-migrate/migrate/v4/database/postgres"
+	_ "github.com/golang-migrate/migrate/v4/source/file"
+	"github.com/golang-migrate/migrate/v4/source/iofs"
+	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/romanchechyotkin/car_booking_service/schema"
 )
 
 type pgConfig struct {
@@ -45,4 +51,40 @@ func NewClient(ctx context.Context, cfg *pgConfig) *pgxpool.Pool {
 
 func FormatQuery(q string) string {
 	return strings.ReplaceAll(strings.ReplaceAll(q, "\t", ""), "\n", "")
+}
+
+
+func Migrate(dbUrl string) {
+	source, err := iofs.New(schema.DB, "migrations")
+	if err != nil {
+		log.Println("failed to read migrations source", err)
+		return
+	}
+
+	instance, err := migrate.NewWithSourceInstance("iofs", source, makeMigrateUrl(dbUrl))
+	if err != nil {
+		log.Println("failed to initialization the migrate instance", err)
+		return
+	}
+
+	err = instance.Up()
+
+	switch err {
+	case nil:
+		log.Println("the migration schema successfully upgraded!")
+	case migrate.ErrNoChange:
+		log.Println("the migration schema not changed")
+	default:
+		log.Println("could not apply the migration schema", err)
+	}
+}
+
+func makeMigrateUrl(dbUrl string) string {
+	urlRe := regexp.MustCompile("^[^\\?]+")
+	url := urlRe.FindString(dbUrl)
+
+	sslModeRe := regexp.MustCompile("(sslmode=)[a-zA-Z0-9]+")
+	sslMode := sslModeRe.FindString(dbUrl)
+
+	return fmt.Sprintf("%s?%s", url, sslMode)
 }

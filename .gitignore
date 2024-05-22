@@ -2,6 +2,8 @@
 build
 static
 frontend/node_modules
-config.yml
 .fleet
 .env
+.vscode
+app_pg_data
+minio-storage

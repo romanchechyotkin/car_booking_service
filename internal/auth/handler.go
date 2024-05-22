@@ -1,11 +1,11 @@
 package auth
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	"log"
 
-	auth "github.com/romanchechyotkin/car_booking_service/internal/auth/model"
+	"github.com/gin-gonic/gin"
+	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	"github.com/romanchechyotkin/car_booking_service/internal/auth/model"
 
 	"errors"
 	"fmt"

@@ -34,9 +34,12 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	//router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
+	
 	// TODO think about put and delete requests
+
 	// router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
 	// router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
+	
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
 	router.Handle(http.MethodPost, "/users/verify", jwt.Middleware(h.Verify))
 	router.Handle(http.MethodGet, "/users/verify", jwt.Middleware(h.GetVerify))
@@ -483,6 +486,7 @@ func ValidateRating(rating int) error {
 	if rating > 5 || rating < 1 {
 		return WrongRating
 	}
+
 	return nil
 }
 

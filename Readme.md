@@ -1,3 +1,16 @@
+```env
+    MINIO_HOST=minio
+    MINIO_PORT=9000
+    MINIO_USER=minio
+    MINIO_PASSWORD=minio123
+    POSTGRES_HOST=postgres
+    POSTGRES_PORT=5432
+    POSTGRES_USER=postgres
+    POSTGRES_PASSWORD=5432
+    POSTGRES_DATABASE=car_booking_service
+```
+
+
 Database scheme: https://dbdiagram.io/d/63ea01e6296d97641d80732a
 // invalid now, database was increased 
 

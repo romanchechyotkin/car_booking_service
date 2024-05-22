@@ -16,12 +16,13 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/internal/car"
 	car2 "github.com/romanchechyotkin/car_booking_service/internal/car/storage/cars_storage"
 	"github.com/romanchechyotkin/car_booking_service/internal/car/storage/images_storage"
-	"github.com/romanchechyotkin/car_booking_service/internal/config"
 	reservation "github.com/romanchechyotkin/car_booking_service/internal/reservation/storage"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-	grpc "github.com/romanchechyotkin/car_booking_service/pkg/grpc/client"
+	"github.com/romanchechyotkin/car_booking_service/pkg/config"
+
+	// grpc "github.com/romanchechyotkin/car_booking_service/pkg/grpc/client"
 	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 	min "github.com/romanchechyotkin/car_booking_service/pkg/minio"
 )
@@ -37,22 +38,28 @@ func main() {
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
 
 	log.Println("config init")
-	cfg := config.GetConfig()
-	log.Println(cfg)
+	cfg, err := config.New()
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	log.Println("minio init")
-	client := min.New(cfg.Minio.Host, cfg.Minio.Port)
+	client := min.New(cfg)
 	log.Println(client)
 
 	log.Println("postgresql config init")
 	pgConfig := postgresql.NewPgConfig(
-		cfg.PostgresStorage.Username,
-		cfg.PostgresStorage.Password,
-		cfg.PostgresStorage.Host,
-		cfg.PostgresStorage.Port,
-		cfg.PostgresStorage.Database,
+		cfg.Postgresql.User,
+		cfg.Postgresql.Password,
+		cfg.Postgresql.Host,
+		cfg.Postgresql.Port,
+		cfg.Postgresql.Database,
 	)
 	pgClient := postgresql.NewClient(ctx, pgConfig)
+	
+	dbURL := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", cfg.Postgresql.User, cfg.Postgresql.Password, cfg.Postgresql.Host, cfg.Postgresql.Port, cfg.Postgresql.Database)
+	postgresql.Migrate(dbURL)
+	
 	repository := user.NewRepository(pgClient)
 	handler := user2.NewHandler(repository, client)
 	handler.Register(router)
@@ -68,11 +75,11 @@ func main() {
 	authH := auth.NewHandler(authService)
 	authH.Register(router)
 
-	grpcClient := grpc.NewCarsManagementClient(cfg.ElasticSearchMicroservice.Host, cfg.ElasticSearchMicroservice.Port)
+	// grpcClient := grpc.NewCarsManagementClient(cfg.ElasticSearchMicroservice.Host, cfg.ElasticSearchMicroservice.Port)
 	carRepository := car2.NewRepository(pgClient)
 	imgRep := images_storage.NewRepository(pgClient)
 	reservationRep := reservation.NewRepository(pgClient)
-	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, grpcClient, client)
+	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, client)
 	carHandler.Register(router)
 
 	go func() {
@@ -82,16 +89,16 @@ func main() {
 	router.GET("/health", health)
 
 	log.Println("http server init")
-	port := fmt.Sprintf(":%s", cfg.Listen.Port)
+	address := fmt.Sprintf("%s:%s", cfg.HTTP.Host,cfg.HTTP.Port)
 	server := http.Server{
 		Handler:      router,
-		Addr:         port,
+		Addr:         address,
 		ReadTimeout:  15 * time.Second,
 		WriteTimeout: 15 * time.Second,
 	}
 
-	log.Printf("server running http://localhost:%s/health", cfg.Listen.Port)
-	log.Println("docs http://localhost:5000/swagger/index.html")
+	log.Printf("server running http://%s/health\n", address)
+	log.Printf("docs http://%s/swagger/index.html\n", address)
 	log.Fatal(server.ListenAndServe())
 }
 

@@ -1,0 +1,21 @@
+http:
+  host: 127.0.0.1
+  port: 8000
+
+minio:
+  host:
+  port:
+  user:
+  password:
+
+postgresql:
+  host:
+  port:
+  user:
+  password:
+  database:
+
+kafka:
+  host:
+  port:
+  email_topic:  

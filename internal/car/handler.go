@@ -53,13 +53,14 @@ type handler struct {
 	minioClient     *minio.Client
 }
 
-func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, grpcClient pb.CarsManagementClient, minioClient *minio.Client) *handler {
+// func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, grpcClient pb.CarsManagementClient, minioClient *minio.Client) *handler {
+func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep res2.Storage, up user.Storage, minioClient *minio.Client) *handler {
 	return &handler{
 		carRepository:   carRep,
 		imageRepository: imgRep,
 		reservationRep:  resRep,
 		userRep:         up,
-		grpcClient:      grpcClient,
+		// grpcClient:      grpcClient,
 		minioClient:     minioClient,
 	}
 }

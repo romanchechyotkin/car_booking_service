@@ -1,24 +1,57 @@
 version: "3.7"
 services:
-  database:
-    image: romanchechyotkin/car_booking_service_postgresql
-    restart: always
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    command: server --console-address ":9001" /data/
+    ports:
+      - "9000:9000"
+      - "9001:9001"
     environment:
-      POSTGRES_DB: car_booking_service
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 5432
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: minio123
+    volumes:
+      - ./minio-storage:/data
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+
+  postgres:
+    container_name: postgres
+    image: postgres
+    environment:
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "5432"
+      POSTGRES_DB: "car_booking_service"
+    volumes:
+      - ./app_pg_data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
-    volumes:
-      - data:/var/lib/postgresql/data
-  server:
-    image: romanchechyotkin/car_booking_service_backend
-    depends_on:
-      - database
-    networks:
-      - default
-    ports:
-      - "5000:5000"
+
+  # server:
+  #   build:
+  #     context: .
+  #   environment:
+  #     MINIO_HOST: "minio"
+  #     MINIO_PORT: "9000"
+  #     MINIO_USER: "minio"
+  #     MINIO_PASSWORD: "minio123"
+
+  #     POSTGRES_HOST: "postgres"
+  #     POSTGRES_PORT: "5432"
+  #     POSTGRES_USER: "postgres"
+  #     POSTGRES_PASSWORD: "5432"
+  #     POSTGRES_DATABASE: "car_booking_service"
+
+    # depends_on:
+    #   - postgres
+    #   - minio
+    # ports:
+    #   - "5000:5000"
+    # restart: always
 
 volumes:
   data:
