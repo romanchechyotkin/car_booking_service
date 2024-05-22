@@ -76,7 +76,8 @@ CREATE TABLE public.cars (
     year numeric(4,0),
     price_per_day numeric(10,2),
     is_available boolean DEFAULT true,
-    rating numeric(3,2) DEFAULT 0.0
+    rating numeric(3,2) DEFAULT 0.0,
+    created_at timestamp default now()
 );
 
 

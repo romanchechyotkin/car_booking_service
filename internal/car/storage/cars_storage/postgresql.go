@@ -2,14 +2,12 @@ package cars_storage
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"github.com/jackc/pgx/v5/pgxpool"
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 	"log"
-	"time"
 )
 
 const (
@@ -60,8 +58,8 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	}()
 
 	carsQuery := `
-		INSERT INTO public.cars (id, brand, model, year, price_per_day, created_at) 
-		VALUES ($1, $2, $3, $4, $5, $6)
+		INSERT INTO public.cars (id, brand, model, year, price_per_day) 
+		VALUES ($1, $2, $3, $4, $5)
 	`
 
 	carsUsersQuery := `
@@ -70,10 +68,9 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsQuery))
-	row, _ := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay, time.Now())
-	fmt.Println(row.RowsAffected())
-	if row.RowsAffected() == 0 {
-		return errors.New("wrong cars numbers")
+	row, err := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay)
+	if err != nil {
+		return err
 	}
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsUsersQuery))

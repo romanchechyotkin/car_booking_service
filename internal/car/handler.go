@@ -189,28 +189,28 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		}
 	}
 
-	usr, err := h.userRep.GetOneUserById(ctx, userId.(string))
-	if err != nil {
-		log.Println(err)
-	}
+	// usr, err := h.userRep.GetOneUserById(ctx, userId.(string))
+	// if err != nil {
+	// 	log.Println(err)
+	// }
 
-	grpcReq := &pb.CreateCarDocReq{
-		CarId:       formDto.Id,
-		Brand:       formDto.Brand,
-		Model:       formDto.Model,
-		Year:        uint32(formDto.Year),
-		PricePerDay: float32(formDto.PricePerDay),
-		IsAvailable: false,
-		Rating:      0.0,
-		Username:    usr.FullName,
-		City:        usr.City,
-	}
+	// grpcReq := &pb.CreateCarDocReq{
+	// 	CarId:       formDto.Id,
+	// 	Brand:       formDto.Brand,
+	// 	Model:       formDto.Model,
+	// 	Year:        uint32(formDto.Year),
+	// 	PricePerDay: float32(formDto.PricePerDay),
+	// 	IsAvailable: false,
+	// 	Rating:      0.0,
+	// 	Username:    usr.FullName,
+	// 	City:        usr.City,
+	// }
 
-	res, err := h.grpcClient.CreateCarDoc(ctx, grpcReq)
-	if err != nil {
-		log.Println("GRPC ERROR", err)
-	}
-	log.Println("GRPC RESPONSE", res)
+	// res, err := h.grpcClient.CreateCarDoc(ctx, grpcReq)
+	// if err != nil {
+	// 	log.Println("GRPC ERROR", err)
+	// }
+	// log.Println("GRPC RESPONSE", res)
 
 	ctx.JSON(http.StatusCreated, formDto)
 }
@@ -605,7 +605,7 @@ func ValidateForEmptyStrings(brand, model string) (string, string, error) {
 }
 
 func saveToMinio(ctx context.Context, client *minio.Client, fileName, filePath string) error {
-	info, err := client.FPutObject(ctx, "Admin-bucket", fileName, filePath, minio.PutObjectOptions{ContentType: "image/png"})
+	info, err := client.FPutObject(ctx, "images", fileName, filePath, minio.PutObjectOptions{ContentType: "image/png"})
 	if err != nil {
 		return err
 	}
