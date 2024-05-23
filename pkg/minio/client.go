@@ -12,7 +12,7 @@ import (
 	"go.uber.org/zap"
 )
 
-const bucketName = "images"
+const BucketName = "images"
 
 type Client struct {
 	log         *zap.Logger
@@ -35,11 +35,11 @@ func New(cfg *config.Config) *minio.Client {
 	location := "BLR"
 	ctx := context.Background()
 
-	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+	err = minioClient.MakeBucket(ctx, BucketName, minio.MakeBucketOptions{Region: location})
 	if err != nil {
-		exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
+		exists, errBucketExists := minioClient.BucketExists(ctx, BucketName)
 		if errBucketExists == nil && exists {
-			log.Println("We already own", zap.String("bucket", bucketName))
+			log.Println("We already own", zap.String("bucket", BucketName))
 		} else {
 			log.Println("failed to init minio", zap.Error(err))
 			return nil
@@ -67,11 +67,11 @@ func NewClient(cfg *config.Config, log *zap.Logger) *Client {
 	location := "BLR"
 	ctx := context.Background()
 
-	err = minioClient.MakeBucket(ctx, bucketName, minio.MakeBucketOptions{Region: location})
+	err = minioClient.MakeBucket(ctx, BucketName, minio.MakeBucketOptions{Region: location})
 	if err != nil {
-		exists, errBucketExists := minioClient.BucketExists(ctx, bucketName)
+		exists, errBucketExists := minioClient.BucketExists(ctx, BucketName)
 		if errBucketExists == nil && exists {
-			log.Info("We already own", zap.String("bucket", bucketName))
+			log.Info("We already own", zap.String("bucket", BucketName))
 		} else {
 			log.Error("failed to init minio", zap.Error(err))
 			return nil

@@ -10,6 +10,7 @@ import (
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
+	minio2 "github.com/romanchechyotkin/car_booking_service/pkg/minio"
 	"log"
 	"net/http"
 	"strings"
@@ -34,12 +35,12 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
 	//router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
-	
+
 	// TODO think about put and delete requests
 
 	// router.Handle(http.MethodPatch, "/users", jwt.Middleware(h.UpdateUser))
 	// router.Handle(http.MethodDelete, "/users", jwt.Middleware(h.DeleteUser))
-	
+
 	router.Handle(http.MethodGet, "/users/me", jwt.Middleware(h.GetMySelf))
 	router.Handle(http.MethodPost, "/users/verify", jwt.Middleware(h.Verify))
 	router.Handle(http.MethodGet, "/users/verify", jwt.Middleware(h.GetVerify))
@@ -272,7 +273,7 @@ func (h *handler) Verify(ctx *gin.Context) {
 		return
 	}
 
-	info, err := h.minioClient.FPutObject(ctx, "test-bucket", form.Filename, "static/users/"+form.Filename, minio.PutObjectOptions{ContentType: "image/png"})
+	info, err := h.minioClient.FPutObject(ctx, minio2.BucketName, form.Filename, "static/users/"+form.Filename, minio.PutObjectOptions{ContentType: "image/png"})
 	if err != nil {
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": "internal server error",
