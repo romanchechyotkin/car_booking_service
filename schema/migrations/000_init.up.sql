@@ -173,12 +173,6 @@ CREATE TABLE public.users (
     is_verified boolean DEFAULT false
 );
 
-INSERT INTO public.users(id, email, password, full_name, telephone_number, city) VALUES
-    ('550e8400-e29b-41d4-a716-446655440000', 'admin@gmail.com', 'admin', 'admin', '', '');
-
-
-INSERT INTO public.roles(role, user_id) VALUES
-    ('ADMIN', '550e8400-e29b-41d4-a716-446655440000');
 
 --
 -- Name: users_ratings; Type: TABLE; Schema: public; Owner: postgres
