@@ -1,9 +1,9 @@
 import axios from "axios";
 
-export const STATIC = process.env.REACT_APP_MINIO
+export const STATIC = "http://localhost:9000/images/"
 
 export const axiosInstance = axios.create({
-    baseURL: process.env.REACT_APP_BACKEND,
+    baseURL: "http://localhost:8000",
     headers: {
         "Content-Type": ['application/x-www-form-urlencoded', "application/json"],
     },

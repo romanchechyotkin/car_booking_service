@@ -181,13 +181,13 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 
 func (r *Repository) GetCar(ctx context.Context, id string) (c car.Car, err error) {
 	carQuery := `
-		SELECT id, brand, model, price_per_day, year, is_available, rating
+		SELECT id, brand, model, price_per_day, year, is_available, rating, created_at
 		FROM public.cars
 		WHERE id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carQuery))
-	err = r.client.QueryRow(ctx, carQuery, id).Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating)
+	err = r.client.QueryRow(ctx, carQuery, id).Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating, &c.CreatedAt)
 	if err != nil {
 		log.Println(err)
 		return c, err
@@ -258,7 +258,7 @@ func (r *Repository) ChangeIsAvailable(ctx context.Context, id string) error {
 
 func (r *Repository) GetAllCarRatings(ctx context.Context, id string) ([]car.GetAllCarRatingsDto, error) {
 	query := `
-		SELECT r.rate, r.comment, u.full_name
+		SELECT r.rate, r.comment, u.full_name, r.created_at
 		FROM cars_ratings r
 		INNER JOIN users u on u.id = r.rate_by_user
 	 	WHERE r.car_id = $1
@@ -276,7 +276,7 @@ func (r *Repository) GetAllCarRatings(ctx context.Context, id string) ([]car.Get
 	for rows.Next() {
 		var rate car.GetAllCarRatingsDto
 
-		err = rows.Scan(&rate.Rating, &rate.Comment, &rate.User)
+		err = rows.Scan(&rate.Rating, &rate.Comment, &rate.User, &rate.CreatedAt)
 		if err != nil {
 			log.Println(err)
 			return nil, err

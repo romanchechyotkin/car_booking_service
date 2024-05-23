@@ -1,5 +1,7 @@
 package car
 
+import "time"
+
 type CreateCarFormDto struct {
 	Id          string  `form:"id" json:"id"`
 	Brand       string  `form:"brand" json:"brand"`
@@ -14,7 +16,8 @@ type GetCarDto struct {
 }
 
 type GetAllCarRatingsDto struct {
-	Rating  float32 `json:"rating"`
-	Comment string  `json:"comment"`
-	User    string  `json:"user"`
+	Rating    float32   `json:"rating"`
+	Comment   string    `json:"comment"`
+	User      string    `json:"user"`
+	CreatedAt time.Time `json:"created_at"`
 }
