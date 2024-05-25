@@ -1,40 +1,4 @@
 definitions:
-  auth.LoginDto:
-    properties:
-      email:
-        type: string
-      password:
-        type: string
-    required:
-    - email
-    - password
-    type: object
-  auth.LoginResDto:
-    properties:
-      access_token:
-        type: string
-      user:
-        $ref: '#/definitions/user.GetUsersDto'
-    type: object
-  auth.RegistrationDto:
-    properties:
-      city:
-        type: string
-      email:
-        type: string
-      full_name:
-        type: string
-      password:
-        minLength: 6
-        type: string
-      telephone_number:
-        type: string
-    required:
-    - email
-    - full_name
-    - password
-    - telephone_number
-    type: object
   car.Car:
     properties:
       brand:
@@ -73,6 +37,8 @@ definitions:
     properties:
       comment:
         type: string
+      created_at:
+        type: string
       rating:
         type: number
       user:
@@ -84,6 +50,44 @@ definitions:
         $ref: '#/definitions/car.Car'
       user_id:
         type: string
+    type: object
+  github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginDto:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginResDto:
+    properties:
+      access_token:
+        type: string
+      refresh_token:
+        type: string
+      user:
+        $ref: '#/definitions/user.GetUsersDto'
+    type: object
+  github_com_romanchechyotkin_car_booking_service_internal_auth_model.RegistrationDto:
+    properties:
+      city:
+        type: string
+      email:
+        type: string
+      full_name:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      telephone_number:
+        type: string
+    required:
+    - email
+    - full_name
+    - password
+    - telephone_number
     type: object
   reservation.TimeDto:
     properties:
@@ -124,6 +128,8 @@ definitions:
         type: boolean
       is_verified:
         type: boolean
+      posts_limit:
+        type: integer
       rating:
         type: number
       role:
@@ -136,7 +142,7 @@ definitions:
       comment:
         type: string
       rating:
-        type: number
+        type: integer
     required:
     - rating
     type: object
@@ -165,14 +171,14 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/auth.LoginDto'
+          $ref: '#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginDto'
       produces:
       - application/json
       responses:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/auth.LoginResDto'
+            $ref: '#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginResDto'
       summary: Login into user acc
       tags:
       - auth
@@ -212,7 +218,7 @@ paths:
         name: body
         required: true
         schema:
-          $ref: '#/definitions/auth.RegistrationDto'
+          $ref: '#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.RegistrationDto'
       produces:
       - application/json
       responses:
@@ -504,6 +510,21 @@ paths:
       security:
       - BearerAuth: []
       summary: RateUser
+      tags:
+      - users
+  /users/premium:
+    put:
+      description: Endpoint for set user a premium level
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      security:
+      - BearerAuth: []
+      summary: PremiumUser
       tags:
       - users
   /users/verify:

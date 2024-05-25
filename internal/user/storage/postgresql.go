@@ -1,14 +1,15 @@
 package user
 
 import (
-	"github.com/jackc/pgx/v5/pgconn"
-	"github.com/jackc/pgx/v5/pgxpool"
-	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
-	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-
 	"context"
 	"fmt"
 	"log"
+
+	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
+	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
+
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 type Storage interface {
@@ -26,6 +27,7 @@ type Storage interface {
 	CreateApplication(ctx context.Context, id string, filename string) error
 	GetApplications(ctx context.Context) ([]user.ApplicationDto, error)
 	ChangeUserVerify(ctx context.Context, id string) error
+	PremiumUser(ctx context.Context, id string) (bool, error)
 }
 
 type Repository struct {
@@ -112,7 +114,7 @@ func (r *Repository) GetRole(ctx context.Context, id string) (string, error) {
 
 func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error) {
 	query := `
-		SELECT id, email, full_name, telephone_number, is_premium, city, rating
+		SELECT id, email, full_name, telephone_number, is_premium, city, rating, posts_limit
 		FROM public.users
 	`
 
@@ -133,11 +135,13 @@ func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error
 	for rows.Next() {
 		var u user.GetUsersDto
 
-		err = rows.Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating)
+		err = rows.Scan(&u.Id, &u.Email, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.PostsLimit)
 		if err != nil {
 			log.Println(err)
 			return nil, err
 		}
+
+		log.Println(u)
 
 		users = append(users, u)
 	}
@@ -153,13 +157,14 @@ func (r *Repository) GetAllUsers(ctx context.Context) ([]user.GetUsersDto, error
 
 func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetUsersDto, err error) {
 	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified 
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified, posts_limit
 		FROM public.users
 		WHERE id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified)
+
+	err = r.client.QueryRow(ctx, query, id).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified, &u.PostsLimit)
 	if err != nil {
 		log.Println(err)
 		return u, err
@@ -170,13 +175,14 @@ func (r *Repository) GetOneUserById(ctx context.Context, id string) (u user.GetU
 
 func (r *Repository) GetOneUserByEmail(ctx context.Context, email string) (u user.GetUsersDto, err error) {
 	query := `
-		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified
+		SELECT id, email, password, full_name, telephone_number, is_premium, city, rating, is_verified, posts_limit
 		FROM public.users
 		WHERE email = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
-	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified)
+
+	err = r.client.QueryRow(ctx, query, email).Scan(&u.Id, &u.Email, &u.Password, &u.FullName, &u.TelephoneNumber, &u.IsPremium, &u.City, &u.Rating, &u.IsVerified, &u.PostsLimit)
 	if err != nil {
 		log.Printf("err: %v", err)
 		return u, err
@@ -370,4 +376,21 @@ func (r *Repository) ChangeUserVerify(ctx context.Context, id string) error {
 	log.Println(exec.RowsAffected())
 
 	return nil
+}
+
+func (r *Repository) PremiumUser(ctx context.Context, id string) (bool, error) {
+	query := `
+		UPDATE public.users SET is_premium = true, posts_limit = 5 WHERE id = $1
+	`
+
+	log.Println(postgresql.FormatQuery(query))
+
+	exec, err := r.client.Exec(ctx, query, id)
+	if err != nil {
+		log.Println(err)
+		return false, err
+	}
+	log.Println(exec.RowsAffected())
+
+	return true, nil
 }

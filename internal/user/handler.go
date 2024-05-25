@@ -3,18 +3,20 @@ package user
 import (
 	"errors"
 	"fmt"
-	"github.com/gin-gonic/gin"
-	"github.com/google/uuid"
-	"github.com/minio/minio-go/v7"
+	"log"
+	"net/http"
+	"strings"
+	"time"
+
 	user3 "github.com/romanchechyotkin/car_booking_service/internal/user/metrics"
 	user2 "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/storage"
 	"github.com/romanchechyotkin/car_booking_service/pkg/jwt"
 	minio2 "github.com/romanchechyotkin/car_booking_service/pkg/minio"
-	"log"
-	"net/http"
-	"strings"
-	"time"
+
+	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"github.com/minio/minio-go/v7"
 )
 
 var WrongRating = errors.New("wrong rating")
@@ -46,6 +48,7 @@ func (h *handler) Register(router *gin.Engine) {
 	router.Handle(http.MethodGet, "/users/verify", jwt.Middleware(h.GetVerify))
 	router.Handle(http.MethodPost, "/users/verify/:id", jwt.Middleware(h.VerifyUser))
 	router.Handle(http.MethodPost, "/users/:id/rate", jwt.Middleware(h.RateUser))
+	router.Handle(http.MethodPut, "/users/premium", jwt.Middleware(h.PremiumUser))
 	router.Handle(http.MethodGet, "/users/:id/rate", h.GetAllUserRates)
 }
 
@@ -68,6 +71,7 @@ func (h *handler) GetALlUsers(ctx *gin.Context) {
 		ctx.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
+
 	ctx.JSON(http.StatusOK, users)
 }
 
@@ -451,6 +455,40 @@ func (h *handler) RateUser(ctx *gin.Context) {
 	ctx.JSON(http.StatusOK, gin.H{
 		"me":        user,
 		"ratedUser": userForRating,
+	})
+}
+
+// PremiumUser godoc
+// @Tags users
+// @Security BearerAuth
+// @Summary PremiumUser
+// @Description Endpoint for set user a premium level
+// @Produce application/json
+// @Success 201 {string} string
+// @Router /users/premium [put]
+func (h *handler) PremiumUser(ctx *gin.Context) {
+	authHeader := ctx.GetHeader("Authorization")
+	headers := strings.Split(authHeader, " ")
+
+	token, err := jwt.ParseAccessToken(headers[1])
+	if err != nil {
+		ctx.JSON(http.StatusUnauthorized, gin.H{"error": "unauthorized"})
+		return
+	}
+
+	userID := token["id"]
+
+	isPremium, err := h.repository.PremiumUser(ctx, fmt.Sprintf("%s", userID))
+	if err != nil {
+		log.Println(err)
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"is_premium": isPremium,
 	})
 }
 

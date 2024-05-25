@@ -1,10 +1,11 @@
 package jwt
 
 import (
-	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
 	"strings"
+
+	"github.com/gin-gonic/gin"
 )
 
 func Middleware(h gin.HandlerFunc) gin.HandlerFunc {

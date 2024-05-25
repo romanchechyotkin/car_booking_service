@@ -3,11 +3,13 @@ package cars_storage
 import (
 	"context"
 	"fmt"
-	"github.com/jackc/pgx/v5/pgxpool"
+	"log"
+
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
-	"log"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
 const (
@@ -19,6 +21,8 @@ const (
 
 type Storage interface {
 	CreateCar(ctx context.Context, car *car.CreateCarFormDto, userId string) error
+	GetAllUserCars(ctx context.Context, userID string) ([]car.Car, error)
+	GetAllUserCarsAmount(ctx context.Context, userID string) (int, error)
 	GetAllCars(ctx context.Context, opt ...string) ([]car.GetCarDto, error)
 	GetCar(ctx context.Context, id string) (c car.Car, err error)
 	GetCarOwner(ctx context.Context, id string) (userId string, err error)
@@ -177,6 +181,84 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 	}
 
 	return cars, err
+}
+
+func (r *Repository) GetAllUserCars(ctx context.Context, userID string) ([]car.Car, error) {
+	query := `
+		select c.id, c.brand, c.model, c.price_per_day, c.year, c.is_available, c.rating, c.created_at
+		from public.cars c
+		INNER JOIN cars_users u on u.car_id = c.id
+	 	WHERE u.user_id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+	rows, err := r.client.Query(ctx, query, userID)
+	if err != nil {
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	imagesQuery := `
+		SELECT url FROM car_images WHERE car_id = $1
+	`
+
+	var cars []car.Car
+	for rows.Next() {
+		var c car.Car
+
+		err := rows.Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating, &c.CreatedAt)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+		log.Printf("SQL query: %s", postgresql.FormatQuery(imagesQuery))
+		imagesRows, err := r.client.Query(ctx, imagesQuery, c.Id)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+		defer imagesRows.Close()
+
+		images := make([]string, 0)
+		for imagesRows.Next() {
+			var i car.Image
+
+			err = imagesRows.Scan(&i.Url)
+			if err != nil {
+				log.Println(err)
+				return nil, err
+			}
+
+			images = append(images, i.Url)
+		}
+
+		c.Images = images
+		cars = append(cars, c)
+	}
+
+	return cars, nil
+}
+
+func (r *Repository) GetAllUserCarsAmount(ctx context.Context, userID string) (int, error) {
+	query := `
+		select count(*) 
+		from public.cars c
+		INNER JOIN cars_users u on u.car_id = c.id
+	 	WHERE u.user_id = $1
+	`
+
+	log.Printf("SQL query: %s", postgresql.FormatQuery(query))
+
+	var amount int
+	err := r.client.QueryRow(ctx, query, userID).Scan(&amount)
+	if err != nil {
+		log.Println(err)
+		return -1, err
+	}
+
+	return amount, nil
 }
 
 func (r *Repository) GetCar(ctx context.Context, id string) (c car.Car, err error) {

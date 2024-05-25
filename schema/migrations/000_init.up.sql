@@ -168,6 +168,7 @@ CREATE TABLE public.users (
     full_name text NOT NULL,
     telephone_number text NOT NULL,
     is_premium boolean DEFAULT false,
+    posts_limit integer DEFAULT 2,
     city text,
     rating numeric(3,2) DEFAULT 0,
     is_verified boolean DEFAULT false

@@ -21,7 +21,7 @@
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginDto"
+                            "$ref": "#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginDto"
                         }
                     }
                 ],
@@ -29,7 +29,7 @@
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/auth.LoginResDto"
+                            "$ref": "#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginResDto"
                         }
                     }
                 }
@@ -87,12 +87,12 @@
                 "summary": "Register users",
                 "parameters": [
                     {
-                        "description": "Registration",
+                        "description": "Login",
                         "name": "body",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/auth.RegistrationDto"
+                            "$ref": "#/definitions/github_com_romanchechyotkin_car_booking_service_internal_auth_model.RegistrationDto"
                         }
                     }
                 ],
@@ -442,6 +442,31 @@
                 }
             }
         },
+        "/users/premium": {
+            "put": {
+                "security": [
+                    {
+                        "BearerAuth": []
+                    }
+                ],
+                "description": "Endpoint for set user a premium level",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "users"
+                ],
+                "summary": "PremiumUser",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/users/verify": {
             "get": {
                 "security": [
@@ -643,59 +668,6 @@
         }
     },
     "definitions": {
-        "auth.LoginDto": {
-            "type": "object",
-            "required": [
-                "email",
-                "password"
-            ],
-            "properties": {
-                "email": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string"
-                }
-            }
-        },
-        "auth.LoginResDto": {
-            "type": "object",
-            "properties": {
-                "access_token": {
-                    "type": "string"
-                },
-                "user": {
-                    "$ref": "#/definitions/user.GetUsersDto"
-                }
-            }
-        },
-        "auth.RegistrationDto": {
-            "type": "object",
-            "required": [
-                "email",
-                "full_name",
-                "password",
-                "telephone_number"
-            ],
-            "properties": {
-                "city": {
-                    "type": "string"
-                },
-                "email": {
-                    "type": "string"
-                },
-                "full_name": {
-                    "type": "string"
-                },
-                "password": {
-                    "type": "string",
-                    "minLength": 6
-                },
-                "telephone_number": {
-                    "type": "string"
-                }
-            }
-        },
         "car.Car": {
             "type": "object",
             "properties": {
@@ -754,6 +726,9 @@
                 "comment": {
                     "type": "string"
                 },
+                "created_at": {
+                    "type": "string"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -769,6 +744,62 @@
                     "$ref": "#/definitions/car.Car"
                 },
                 "user_id": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "password"
+            ],
+            "properties": {
+                "email": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string"
+                }
+            }
+        },
+        "github_com_romanchechyotkin_car_booking_service_internal_auth_model.LoginResDto": {
+            "type": "object",
+            "properties": {
+                "access_token": {
+                    "type": "string"
+                },
+                "refresh_token": {
+                    "type": "string"
+                },
+                "user": {
+                    "$ref": "#/definitions/user.GetUsersDto"
+                }
+            }
+        },
+        "github_com_romanchechyotkin_car_booking_service_internal_auth_model.RegistrationDto": {
+            "type": "object",
+            "required": [
+                "email",
+                "full_name",
+                "password",
+                "telephone_number"
+            ],
+            "properties": {
+                "city": {
+                    "type": "string"
+                },
+                "email": {
+                    "type": "string"
+                },
+                "full_name": {
+                    "type": "string"
+                },
+                "password": {
+                    "type": "string",
+                    "minLength": 6
+                },
+                "telephone_number": {
                     "type": "string"
                 }
             }
@@ -833,6 +864,9 @@
                 "is_verified": {
                     "type": "boolean"
                 },
+                "posts_limit": {
+                    "type": "integer"
+                },
                 "rating": {
                     "type": "number"
                 },
@@ -854,7 +888,7 @@
                     "type": "string"
                 },
                 "rating": {
-                    "type": "number"
+                    "type": "integer"
                 }
             }
         },

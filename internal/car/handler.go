@@ -61,7 +61,7 @@ func NewHandler(carRep car2.Storage, imgRep images_storage.ImageStorage, resRep 
 		reservationRep:  resRep,
 		userRep:         up,
 		// grpcClient:      grpcClient,
-		minioClient:     minioClient,
+		minioClient: minioClient,
 	}
 }
 
@@ -148,9 +148,32 @@ func (h *handler) CreateCar(ctx *gin.Context) {
 		return
 	}
 
-	userId := token["id"]
+	id := token["id"]
+	userID := fmt.Sprintf("%s", id)
 
-	err = h.carRepository.CreateCar(ctx, &formDto, fmt.Sprintf("%s", userId))
+	user, err := h.userRep.GetOneUserById(ctx, userID)
+	if err != nil {
+		log.Println(err)
+
+		ctx.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+
+		return
+	}
+
+	carsAmount, err := h.carRepository.GetAllUserCarsAmount(ctx, userID)
+	if err != nil {
+		return
+	}
+
+	if user.PostsLimit <= carsAmount {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"error": "car limit exceeded",
+		})
+
+		return
+	}
+
+	err = h.carRepository.CreateCar(ctx, &formDto, fmt.Sprintf("%s", userID))
 	if err != nil {
 		ctx.JSON(http.StatusBadRequest, gin.H{
 			"error": err.Error(),
