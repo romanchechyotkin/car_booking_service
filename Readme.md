@@ -1,3 +1,7 @@
+# Car booking service
+## The goal is to build and launch Airbnb from the cars world
+
+configuration
 ```env
     MINIO_HOST=minio
     MINIO_PORT=9000
