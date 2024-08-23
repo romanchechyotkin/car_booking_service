@@ -23,6 +23,3 @@ run
 
 
 Database scheme: https://dbdiagram.io/d/car-booking-service-6650e95bf84ecd1d2216d37a
-
-working with microservice through Kafka
-https://github.com/romanchechyotkin/email_sender_microservice
