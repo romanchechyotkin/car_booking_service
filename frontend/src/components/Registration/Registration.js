@@ -28,14 +28,13 @@ export const Registration = () => {
                 }
             ));
 
-            console.log(res);
             
             if (res.status) {
                 await loginUser(email, password, navigate, dispatch)
             }
 
         } catch (e) {
-            console.log("cqtch", e);
+        
             setError(e.response?.data.error);
         }
     };
