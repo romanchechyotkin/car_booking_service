@@ -373,3 +373,18 @@ ALTER TABLE ONLY public.roles
 -- PostgreSQL database dump complete
 --
 
+INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city) values (
+    'admin@gmail.com',
+    '$2a$04$432w7s77tqOQXGzlMEl2I.9UENyb3exU22axj3hmWCM6KHUTozTP.',
+    'admin',
+    '+',
+    true,
+    true,
+    'minsk'
+);
+
+INSERT INTO public.roles (role, user_id) 
+    SELECT 'ADMIN' as role, u.id as user_id
+    FROM public.users u
+    WHERE u.email = 'admin@gmail.com';
+    
