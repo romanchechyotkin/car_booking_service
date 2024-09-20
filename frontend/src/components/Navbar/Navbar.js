@@ -5,20 +5,53 @@ import {useDispatch, useSelector} from "react-redux";
 import {Link} from "react-router-dom";
 
 export const Navbar = () => {
-    const isAuth = useSelector((state) => state.user.isAuth)
-    const user = useSelector((state) => state.user.user)
     const dispatch = useDispatch();
+    const { isAuth, role } = useSelector((state) => state.user);
 
     const logout = () => {
-        localStorage.removeItem("access_token")
-        localStorage.removeItem("user")
-        dispatch(userActions.logout())
-    }
+        dispatch(userActions.logout());
+        localStorage.clear();
+    };
 
     return (
-        <nav className={"navbar"}>
-            {isAuth ? <button onClick={logout}>log out</button> : <Link to={"/login"}>login</Link>}
-            {user && <div>{user.email}</div>}
+        <nav className="navbar">
+            <div className="navbar_logo">
+                <Link to="/">CarBook</Link>
+            </div>
+            <ul className="navbar_links">
+                {isAuth && role !== "ADMIN" && (
+                    <>
+                        <li>
+                            <Link to="/feed">Feed</Link>
+                        </li>
+                        <li>
+                            <Link to="/verify">Verify</Link>
+                        </li>
+                    </>
+                )}
+                {isAuth && role === "ADMIN" && (
+                    <>
+                        <li>
+                            <Link to="/admin">Admin Panel</Link>
+                        </li>
+                    </>
+                )}
+                {!isAuth && (
+                    <>
+                        <li>
+                            <Link to="/login">Login</Link>
+                        </li>
+                        <li>
+                            <Link to="/registration">Register</Link>
+                        </li>
+                    </>
+                )}
+                {isAuth && (
+                    <li>
+                        <button onClick={logout}>Logout</button>
+                    </li>
+                )}
+            </ul>
         </nav>
-    )
+    );
 };
