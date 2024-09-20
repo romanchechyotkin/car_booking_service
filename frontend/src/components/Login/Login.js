@@ -2,8 +2,8 @@ import React, {useState} from 'react';
 import "./login.css"
 import {axiosInstance} from "../../axios/axios";
 import {useNavigate} from "react-router-dom";
-import {userActions} from "../../store/loginUserSlice";
 import {useDispatch} from "react-redux";
+import { loginUser } from '../SharedFunctions/login';
 
 
 export const Login = () => {
@@ -12,32 +12,8 @@ export const Login = () => {
     const dispatch = useDispatch();
     const navigate = useNavigate();
 
-    const login = async () => {
-        try {
-            const res = await axiosInstance.post("/auth/login", JSON.stringify(
-                {
-                    "email": email,
-                    "password": password,
-                }
-            ))
-
-            console.log(res)
-
-            localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
-            localStorage.setItem('refresh_token', JSON.stringify(res.data.refresh_token))
-            localStorage.setItem('user', JSON.stringify(res.data.user))
-
-            dispatch(userActions.setUser(res.data.user))
-            dispatch(userActions.setRole(res.data.user.role))
-            dispatch(userActions.setIsAuth())
-            if (res.data.user.is_verified === true) {
-                dispatch(userActions.setIsVerified())
-            }
-
-            navigate("/feed")
-        } catch (e) {
-            console.log(e)
-        }
+    const login = () => {
+        loginUser(email, password, navigate, dispatch)
     }
 
     return (

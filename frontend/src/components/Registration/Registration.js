@@ -2,6 +2,8 @@ import React, {useState} from 'react';
 import "./registration.css"
 import {axiosInstance} from "../../axios/axios";
 import {useNavigate} from "react-router-dom";
+import {useDispatch} from "react-redux";
+import { loginUser } from '../SharedFunctions/login';
 
 // "city": "string",
 // "email": "string",
@@ -16,7 +18,7 @@ export const Registration = () => {
     const [telephoneNumber, setTelephoneNumber] = useState("");
     const [city, setCity] = useState("");
     const navigate = useNavigate();
-
+    const dispatch = useDispatch();
 
     const registration = async () => {
         try {
@@ -31,8 +33,9 @@ export const Registration = () => {
             ))
 
             console.log(res)
-
-            navigate("/login")
+            if ( res.status === 201 ) {
+                await loginUser(email, password, navigate, dispatch)
+            }
         } catch (e) {
             console.log(e)
         }
