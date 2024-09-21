@@ -1,11 +1,18 @@
 package main
 
 import (
+	"bytes"
 	"context"
+	"encoding/json"
 	"fmt"
+	"io"
 	"log"
+	"mime/multipart"
 	"net/http"
+	"os"
 	"time"
+
+	carModel "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 
 	"github.com/gin-gonic/gin"
 	swaggerfiles "github.com/swaggo/files"
@@ -56,10 +63,8 @@ func main() {
 		cfg.Postgresql.Database,
 	)
 	pgClient := postgresql.NewClient(ctx, pgConfig)
-	
 	dbURL := fmt.Sprintf("postgresql://%s:%s@%s:%s/%s?sslmode=disable", cfg.Postgresql.User, cfg.Postgresql.Password, cfg.Postgresql.Host, cfg.Postgresql.Port, cfg.Postgresql.Database)
 	postgresql.Migrate(dbURL)
-	
 	repository := user.NewRepository(pgClient)
 	handler := user2.NewHandler(repository, client)
 	handler.Register(router)
@@ -82,6 +87,7 @@ func main() {
 	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, client)
 	carHandler.Register(router)
 
+
 	go func() {
 		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
 	}()
@@ -89,7 +95,7 @@ func main() {
 	router.GET("/health", health)
 
 	log.Println("http server init")
-	address := fmt.Sprintf("%s:%s", cfg.HTTP.Host,cfg.HTTP.Port)
+	address := fmt.Sprintf("%s:%s", cfg.HTTP.Host, cfg.HTTP.Port)
 	server := http.Server{
 		Handler:      router,
 		Addr:         address,
@@ -99,6 +105,9 @@ func main() {
 
 	log.Printf("server running http://%s/health\n", address)
 	log.Printf("docs http://%s/swagger/index.html\n", address)
+	
+	FillData()
+
 	log.Fatal(server.ListenAndServe())
 }
 
@@ -125,4 +134,194 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func FillData() error {
+	time.Sleep(5 * time.Second)
+	
+	requests := []struct {
+		car   carModel.CreateCarFormDto
+		image string
+	}{
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-1",
+				Brand:       "BMW",
+				Model:       "X3",
+				PricePerDay: 123,
+				Year:        2024,
+			},
+			image: "./data/image1.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-2",
+				Brand:       "Mercedes",
+				Model:       "wasd",
+				PricePerDay: 1,
+				Year:        2000,
+			},
+			image: "./data/image2.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-3",
+				Brand:       "BMW",
+				Model:       "X5",
+				PricePerDay: 1230,
+				Year:        2015,
+			},
+			image: "./data/image3.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-4",
+				Brand:       "Mercedes",
+				Model:       "wasd",
+				PricePerDay: 1000,
+				Year:        2005,
+			},
+			image: "./data/image4.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111BA-1",
+				Brand:       "BMW",
+				Model:       "X3",
+				PricePerDay: 123,
+				Year:        2024,
+			},
+			image: "./data/image5.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-5",
+				Brand:       "Mercedes",
+				Model:       "Lol",
+				PricePerDay: 11,
+				Year:        1999,
+			},
+			image: "./data/image6.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-6",
+				Brand:       "LAda",
+				Model:       "X5",
+				PricePerDay: 111,
+				Year:        2015,
+			},
+			image: "./data/image7.png",
+		},
+		{
+			car: carModel.CreateCarFormDto{
+				Id:          "1111AA-7",
+				Brand:       "Honda",
+				Model:       "wasd",
+				PricePerDay: 120,
+				Year:        2019,
+			},
+			image: "./data/image8.png",
+		},
+	}
+
+	for _, req := range requests {
+		body := &bytes.Buffer{}
+		writer := multipart.NewWriter(body)
+
+		mp3File, err := os.Open(req.image)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		defer mp3File.Close()
+
+		imageFile, err := os.Open(req.image)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		defer imageFile.Close()
+
+		mp3Part, err := writer.CreateFormFile("image", req.image)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		_, err = io.Copy(mp3Part, mp3File)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		writer.WriteField("id", req.car.Id)
+		writer.WriteField("brand", req.car.Brand)
+		writer.WriteField("model", req.car.Model)
+		writer.WriteField("price", fmt.Sprintf("%.2f", req.car.PricePerDay))
+		writer.WriteField("year", fmt.Sprintf("%d", req.car.Year))
+
+		err = writer.Close()
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		client := &http.Client{}
+
+		var loginBody = []byte(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "admin@gmail.com", "admin"))
+		r, err := http.NewRequest("POST", "http://localhost:8000/auth/login", bytes.NewReader(loginBody))
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		response, err := client.Do(r)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		defer response.Body.Close()
+
+		responseBody, err := io.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		var p struct {
+			AccessToken string `json:"access_token"`
+		}
+
+		if err := json.Unmarshal(responseBody, &p); err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		r, err = http.NewRequest("POST", "http://localhost:8000/cars", body)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		r.Header.Set("Content-Type", writer.FormDataContentType())
+		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.AccessToken))
+
+		response, err = client.Do(r)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+		defer response.Body.Close()
+
+		responseBody, err = io.ReadAll(response.Body)
+		if err != nil {
+			fmt.Println(err)
+			continue
+		}
+
+		fmt.Println(string(responseBody))
+	}
+
+	return nil
 }

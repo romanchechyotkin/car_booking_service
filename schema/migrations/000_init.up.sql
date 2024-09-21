@@ -373,14 +373,15 @@ ALTER TABLE ONLY public.roles
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city) values (
+INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city, posts_limit) values (
     'admin@gmail.com',
     '$2a$04$432w7s77tqOQXGzlMEl2I.9UENyb3exU22axj3hmWCM6KHUTozTP.',
     'admin',
     '+',
     true,
     true,
-    'minsk'
+    'minsk',
+    100
 );
 
 INSERT INTO public.roles (role, user_id) 
