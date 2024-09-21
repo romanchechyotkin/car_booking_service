@@ -96,12 +96,13 @@ export const Feed = () => {
                     {cars.length == 0 && <h1>Кажется, здесь пока что пусто..</h1>}
                     {cars && cars.map(c => (
                         <Link to={`/post/${c.car.id}`} key={c.car.id} className="link">
-                            <div className="post">
+                            <div >
                                 <CarPost car={c.car} user_id={c.user_id} />
                             </div>
                         </Link>
                     ))}
                 </div>
+                
             </div>
         </>
     );

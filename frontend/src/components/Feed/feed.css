@@ -1,100 +1,98 @@
 body {
     font-family: Arial, sans-serif;
-    background-color: #F6F7F9; /* Цвет фона страницы */
+    background-color: #F6F7F9; 
     margin: 0;
     padding: 20px;
 }
 
 h1 {
     text-align: center;
-    color: #333; /* Цвет заголовка */
+    color: #333; 
     margin-bottom: 20px;
 }
 
 h2 {
     text-align: center;
-    color: #d9534f; /* Цвет подзаголовка */
+    color: #d9534f; 
     margin: 10px 0;
 }
 
 .feed_sort {
     display: flex;
-    justify-content: center; /* Центрирование кнопок сортировки */
+    justify-content: center; 
     gap: 15px;
     margin-bottom: 15px;
 }
 
 .feed_sort div {
     padding: 10px 15px;
-    background-color: #3563E9; /* Цвет фона кнопок сортировки */
-    color: white; /* Цвет текста */
-    border-radius: 5px; /* Скругление углов */
-    cursor: pointer; /* Указатель курсора */
-    transition: background-color 0.3s; /* Плавный переход */
-    text-align: center; /* Центрирование текста */
+    background-color: #3563E9;
+    color: white; 
+    border-radius: 5px; 
+    cursor: pointer;
+    transition: background-color 0.3s;
+    text-align: center; 
 }
 
 .feed_sort div:hover {
-    background-color: #2f54eb; /* Цвет фона при наведении */
+    background-color: #2f54eb; 
 }
 
 .posts {
-    display: flex;
-    flex-wrap: wrap;
-    row-gap: 30px;
-    column-gap: 30px;
-    justify-content: center; /* Центрирование постов */
+    display: grid;
+    grid-template-columns: repeat(3, 1fr); 
+    gap: 20px; 
+    justify-items: center;
 }
 
 .post {
-    background-color: white; /* Цвет фона постов */
-    border-radius: 8px; /* Скругление углов */
-    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); /* Легкая тень */
+    background-color: white; 
+    border-radius: 8px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
     padding: 15px;
-    text-align: center; /* Центрирование текста в постах */
-    transition: transform 0.2s; /* Плавный переход */
+    text-align: center;
+    transition: transform 0.2s;
 }
 
+
 .post:hover {
-    transform: scale(1.02); /* Увеличение поста при наведении */
+    transform: scale(1.02); 
 }
 
 .link {
-    text-decoration: none; /* Убрать подчеркивание у ссылок */
-    color: inherit; /* Наследовать цвет текста */
+    text-decoration: none; 
+    color: inherit; 
 }
 
-.link:hover {
-    text-decoration: underline; /* Подчеркивание при наведении */
-}
+
 
 .verify-button {
     display: inline-block;
     padding: 10px 20px;
-    background-color: #28a745; /* Цвет фона кнопки */
-    color: white; /* Цвет текста */
-    border: none; /* Убрать границу */
-    border-radius: 5px; /* Скругление углов */
-    cursor: pointer; /* Указатель курсора */
-    text-align: center; /* Центрирование текста */
-    text-decoration: none; /* Убрать подчеркивание */
-    transition: background-color 0.3s, transform 0.2s; /* Плавный переход */
+    background-color: #28a745; 
+    color: white; 
+    border: none; 
+    border-radius: 5px; 
+    cursor: pointer; 
+    text-align: center; 
+    text-decoration: none; 
+    transition: background-color 0.3s, transform 0.2s;
 }
 
 .verify-button:hover {
-    background-color: #218838; /* Цвет фона при наведении */
-    transform: scale(1.05); /* Увеличение кнопки при наведении */
+    background-color: #218838; 
+    transform: scale(1.05); 
 }
 
 .verify-button:active {
-    transform: scale(0.95); /* Уменьшение кнопки при нажатии */
+    transform: scale(0.95); 
 }
 
 .card-container {
     display: flex;
     justify-content: space-around;
     gap: 40px;
-    padding-top: 50px;
+    padding-top: 30px;
 }
 
 .card-first {
@@ -158,7 +156,7 @@ h2 {
 .rent-button {
     background-color: #3563E9;
     color: white;
-   padding: 15px;
+    padding: 15px;
     text-decoration: none;
     border-radius: 5px;
     display: inline-block;
@@ -173,7 +171,7 @@ h2 {
 .rent-button-first {
     background-color: rgba(84, 166, 255, 1);
     color: white;
-   padding: 15px;
+    padding: 15px;
     text-decoration: none;
     border-radius: 5px;
     display: inline-block;
@@ -212,13 +210,15 @@ h2 {
 .filter-column {
     flex: 1;
     background-color: rgba(243, 245, 247, 1);
-    padding: 20px;
+    padding-left: 20px;
+    padding-top: 20px;
+    padding-right: 10px;
     border-radius: 2px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     position: sticky;
     top: 20px;
-    width: 15%;
-    max-width: 15%;
+    min-width: 14%;
+    max-width: 14%;
     margin: 40px;
 }
 
@@ -280,7 +280,7 @@ h2 {
     border-radius: 30%;
     
  
-    font-size: 10px; /* Маленькая галочка */
+    font-size: 10px; 
 
 }
 
