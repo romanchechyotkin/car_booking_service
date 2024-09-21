@@ -18,7 +18,7 @@ export const Login = () => {
 
     return (
         <div className={"login"}>
-            <h1>login form</h1>
+            <h1>Login here!</h1>
             <div className={"login_form"}>
                 <input type="text" placeholder={"email"} value={email} onChange={event => setEmail(event.target.value)} />
                 <input type="text" placeholder={"password"} value={password} onChange={event => setPassword(event.target.value)} />

@@ -4,6 +4,8 @@ import React, {useEffect, useState} from "react";
 import {axiosInstance, STATIC} from "../../axios/axios";
 import {Rate} from "../Rate/Rate";
 import {useSelector} from "react-redux";
+import Calendar from 'react-calendar';
+import 'react-calendar/dist/Calendar.css';
 
 export const CarPage = () => {
     const user = useSelector((state) => state.user.user)
@@ -16,7 +18,7 @@ export const CarPage = () => {
     const [reservations, setReservations] = useState([])
 
     const [startHour, setStartHour] = useState("")
-    const [endHour, setEnbHour] = useState("")
+    const [endHour, setEndHour] = useState("")
 
     const [startDate, setStartDate] = useState()
     const [endDate, setEndDate] = useState()
@@ -38,6 +40,9 @@ export const CarPage = () => {
             setRates(res.data)
         } catch (e) {
             console.log(e)
+            if (e.response?.status === 404) {
+                setRate("Пока что нет отзывов")
+            }
         }
     }
 
@@ -75,6 +80,7 @@ export const CarPage = () => {
         }
     }
 
+    
     const reserve = async () => {
         const start = new Date(startDate)
         const end = new Date(endDate)
@@ -105,54 +111,89 @@ export const CarPage = () => {
     }
 
     return (
-        <div className={"car_page"}>
-            <div className={"car_info"}>
-                {car !== null &&
-                    <>
-                        <h1>{car.brand} {car.model}, {car.year}</h1>
-                        <div className={"car_page__images"}>
-                            {car.images.map(i =>
-                                <img key={i} src={STATIC+i} alt="img"/>
-                            )}
+            <div className={"car_page"}>
+        {car !== null &&
+            <div className="car_page__content">
+                <div className="car_page__image">
+                    <img src={STATIC + car.images[0]} alt={`${car.brand} ${car.model}`} />
+                </div>
+
+                <div className="car_page__details">
+                    
+
+                    <div className="reservation">
+                    <h1>{car.brand} {car.model}</h1>
+                            <div className={"car_rates"}>
+                            {isAuth ? <div className={"rate_form"}>
+                            <h3>{rate}</h3>
+                            </div> : <div>to leave rate u need to be auth</div>}
+                            
                         </div>
-                        <div>{car.pricePerDay}$</div>
-                        <div>{car.rating}</div>
-                    </>
-                }
-                <div className={"car_rates"}>
-                    <h3>Car's rate</h3>
-                    {isAuth ? <div className={"rate_form"}>
-                        <input type="text" value={comment} onChange={e => setComment(e.target.value)}/>
-                        <input type="number" min={1} max={5} value={rate} onChange={e => setRate(Number.parseInt(e.target.value))}/>
-                        <button onClick={sendRate}>comment</button>
-                    </div> : <div>to leave rate u need to be auth</div>}
-                    {rates !== null && rates.map(r =>
-                        <Rate rate={r} />
-                    )}
+                        <p className="car_description">{car.description} Lorem  inputdsjfskhdfajd  odshflkahdjf hsh akdfh askh dkfhskd hfh sakh fksajhdjkf  hjfhsakldh fkahkshd fkahkshd shdakjlfaslkhdfj askh
+                            sdjafhlkjsahlkdfhsadkf hskjdlafha hfskhkhehu fhru. Hhfhejdke lopaskd ffjdl
+                        </p>
+
+                        <div className="year-container">
+                            <div className=""></div>
+                            <p> Год выпуска </p>
+                            <p className="year">
+                                
+                                    {car.year}
+                            </p>
+                        </div>
+                        <div className="footer">
+                            <div className="car_price">
+                                <span className="price">${car.pricePerDay}/day</span>
+                            </div>
+                            <button onClick={reserve}>OK</button>
+                        </div>
+                        {/* <div className="reservation_dates">
+                            <div className="reservation_start">
+                                <label htmlFor="start">Start date</label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={23}
+                                    onChange={e => setStartHour(e.target.value)}
+                                    placeholder="Hour"
+                                />
+                                <input
+                                    onChange={e => setStartDate(e.target.value)}
+                                    type="date"
+                                    id="start"
+                                />
+                            </div>
+                            <div className="reservation_end">
+                                <label htmlFor="end">End date</label>
+                                <input
+                                    type="number"
+                                    min={0}
+                                    max={23}
+                                    onChange={e => setEndHour(e.target.value)}
+                                    placeholder="Hour"
+                                />
+                                <input
+                                    onChange={e => setEndDate(e.target.value)}
+                                    type="date"
+                                    id="end"
+                                />
+                            </div>
+                            <div className="footer">
+                            <div className="car_price">
+                                <span className="price">${car.pricePerDay}/day</span>
+                                <span className="old_price">$100.00</span>
+                            </div>
+                            <button onClick={reserve}>OK</button>
+                            </div>
+                        </div> */}
+                    </div>
                 </div>
             </div>
-            <div className={"reservation"}>
-                <h2>reservation</h2>
-                <div className={"reservation_dates"}>       {/*    15 02.01.2006  */}
-                    <div className={"reservation_start"}>
-                        <label htmlFor={"start"}>start date</label>
-                        <input type="number" min={0} max={23} onChange={e => setStartHour(e.target.value)} />
-                        <input onChange={e => setStartDate(e.target.value)} type="date" id={"start"}/>
-                    </div>
-                    <div className={"reservation_end"}>
-                        <label htmlFor={"end"}>end date</label>
-                        <input type="number" min={0} max={23} onChange={e => setEnbHour(e.target.value)} />
-                        <input onChange={e => setEndDate(e.target.value)} type="date" id={"end"}/>
-                    </div>
-                    <button onClick={reserve}>ok</button>
-                </div>
-                {reservations !== "no reservations" ? reservations.map(r =>
-                        <div key={r.start_date}>Start:{r.start_date} End:{r.end_date}</div>)
-                    :
-                    <div>no reservations</div>
-                }
-            </div>
-        </div>
+        }
+        
+        
+    </div>
+
     )
 }
 

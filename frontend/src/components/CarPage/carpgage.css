@@ -1,42 +1,134 @@
 .car_page {
     display: flex;
-    gap: 50px;
+    justify-content: center;
+    padding: 20px;
+    background-color: #F6F7F9; 
 }
 
-.car_info {
-
-}
-
-.car_page__images {
+.car_page__content {
     display: flex;
-    flex-direction: row;
-    gap: 15px;
-    margin-bottom: 15px;
+   
+    gap: 20px; 
 }
 
-.car_page__images img {
-    height: 160px;
-    width: 220px;
+
+.car_page__image {
+    flex: 1; 
 }
 
-.car_rates {
+.car_page__image img {
+    width: 650px;
+    height: auto;
+    border-radius: 8px;
 }
 
-.rate_form {
+
+.car_page__details {
+    flex: 1.5; 
+}
+
+.car_page__details h1 {
+    font-size: 28px;
+    font-weight: bold;
     margin-bottom: 10px;
+}
+
+.car_description {
+    color: #4a4a4a;
+    margin-bottom: 20px;
+}
+
+.car_price {
+    display: flex;
+    align-items: center;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+.price {
+    color: #3563E9;
+    font-weight: bold;
+    margin-right: 10px;
+    font-size: 40px;
+}
+
+.old_price {
+    text-decoration: line-through;
+    color: #aaa;
+}
+
+.reservation {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.reservation h1 {
+    font-size: 28px;
+    margin-bottom: 20px;
+    justify-content: start;
+    text-align: left;
+}
+
+.reservation p {
+    line-height: 170%;
 }
 
 .reservation_dates {
     display: flex;
     flex-direction: column;
-    margin-bottom: 25px;
+    gap: 15px;
 }
 
-.reservation_dates div{
+.reservation_dates label {
+    margin-bottom: 5px;
+    font-size: 16px;
+}
+
+.reservation_dates input[type="date"],
+.reservation_dates input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    font-size: 16px;
+}
+
+.footer button {
+    background-color: #3563E9;
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 16px;
+    width: 100px;
+}
+
+.year {
+    color: rgba(144, 163, 191, 1);
+
+}
+
+.year-container {
     display: flex;
-    justify-content: space-between;
+    flex-direction: row;
+    gap: 10px;
+    margin-left:-10px;
 }
 
-.reservation_dates button{
-    margin-top: 5px;
+.car_page__details {
+    margin-left: 20px; 
 }
+
+.footer {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 40px;
+}
+

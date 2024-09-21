@@ -10,6 +10,7 @@ import {Admin} from "./components/Admin/Admin";
 import {Feed} from "./components/Feed/Feed";
 import {Verify} from "./components/Verify/Verify";
 import {CarPage} from "./components/CarPage/CarPage";
+import { CreateCarPage } from './components/CreateCarPage/CreateCarPage';
 
 export const App = () => {
     const isAuth = useSelector((state) => state.user.isAuth)
@@ -44,6 +45,7 @@ export const App = () => {
                         <Route path={"/feed"} element={<Feed />} />
                         <Route path={"/verify"} element={<Verify />} />
                         <Route path={"/post/:id"} element={<CarPage />} />
+                        <Route path={"/createCar"} element={<CreateCarPage />} />
                     </>
                 }
                 {role === "ADMIN" &&

@@ -4,10 +4,11 @@
     align-items: center; 
     gap: 20px;
     min-height: calc(100vh - 60px); 
-    background: linear-gradient(to right, #e0f7fa, #b3e5fc);
+    background: rgba(246, 247, 249, 1);
     color: #333;
     font-family: 'Arial', sans-serif;
     padding: 20px; 
+    overflow: hidden;
 }
 
 .registration h1 {

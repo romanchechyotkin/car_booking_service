@@ -42,7 +42,7 @@ export const Registration = () => {
     return (
         <div className={"registration"}>
             <ToastError error={error} />
-            <h1>registration form</h1>
+            <h1>Registration here!</h1>
             <div className={"registration_form"}>
                 <input type="text" placeholder={"email"} value={email} onChange={event => setEmail(event.target.value)} />
                 <input type="password" placeholder={"password"} value={password} onChange={event => setPassword(event.target.value)} />
