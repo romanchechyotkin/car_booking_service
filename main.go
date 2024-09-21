@@ -10,6 +10,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"sync"
 	"time"
 
 	carModel "github.com/romanchechyotkin/car_booking_service/internal/car/model"
@@ -105,10 +106,27 @@ func main() {
 
 	log.Printf("server running http://%s/health\n", address)
 	log.Printf("docs http://%s/swagger/index.html\n", address)
-	
-	FillData()
 
-	log.Fatal(server.ListenAndServe())
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			log.Fatalf("Server failed: %s", err)
+		}
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		err := FillData()
+		if err != nil {
+			log.Printf("Error in FillData: %v", err)
+		}
+	}()
+
+	wg.Wait()
 }
 
 // @Summary Health Check
@@ -137,8 +155,6 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func FillData() error {
-	time.Sleep(5 * time.Second)
-	
 	requests := []struct {
 		car   carModel.CreateCarFormDto
 		image string
