@@ -1,8 +1,8 @@
 body {
     margin: 0;
     font-family: Arial, sans-serif;
-    background-color: rgba(195, 212, 233, 0.4); /* Цвет фона сайта */
-    padding-top: 20px; /* Отступ для navbar */
+    background-color: rgba(195, 212, 233, 0.4); 
+    padding-top: 20px; 
 }
 
 .navbar {
@@ -54,4 +54,45 @@ body {
 
 .navbar_links button:hover {
     background-color: #2f54eb; 
+}
+
+
+.search-container {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.search-input {
+    padding: 8px 12px;
+    border: 1px solid #3563E9;
+    border-radius: 20px; 
+    font-size: 14px;
+    width: 400px;
+    outline: none;
+}
+
+.search-input:focus {
+    border-color: #2f54eb;
+}
+
+.search-icon {
+    position: absolute;
+    right: 10px;
+    color: #3563E9;
+    pointer-events: none; 
+}
+
+.clear-button {
+    position: absolute;
+    right: 40px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 14px;
+    color: #3563E9;
+}
+
+.clear-button:hover {
+    color: #2f54eb;
 }

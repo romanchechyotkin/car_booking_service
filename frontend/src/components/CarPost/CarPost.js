@@ -27,9 +27,10 @@ export const CarPost = (props) => {
             </div>
             <p className="car-type">{car.type}</p>
             <img
-                src={car.images[0]} 
+                src={STATIC+car.images[0]}
                 alt={`${car.brand} ${car.model}`}
-                className="car-image"
+            
+                className="car-image-box"
             />
             
             <div className="car-card-footer">
