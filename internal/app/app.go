@@ -29,6 +29,7 @@ func NewService() *fx.App {
 		fx.Invoke(
 			func(server *httpsrv.Server, lc fx.Lifecycle) {
 				lc.Append(HttpServerOnStart(server))
+				lc.Append(fillData(server))
 			},
 		),
 
@@ -46,5 +47,16 @@ func HttpServerOnStart(server HTTPServer) fx.Hook {
 			server.RegisterRoutes()
 			return nil
 		},
+	}
+}
+
+func fillData(p *httpsrv.Server) fx.Hook {
+	return fx.Hook{
+		OnStart: func(_ context.Context) error {
+			return p.FillData()
+		},
+		// OnStop: func(_ context.Context) error {
+		// 	return p.Cleanup()
+		// },
 	}
 }

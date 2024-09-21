@@ -38,3 +38,4 @@ func NewServer(cfg *config.Config, log *zap.Logger, minioClient *minioClient.Cli
 
 	return &instance, nil
 }
+
