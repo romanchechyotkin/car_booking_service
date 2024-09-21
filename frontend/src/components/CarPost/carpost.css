@@ -1,33 +1,26 @@
-.post {
-    display: flex;
-    flex-direction: column;
-}
-
 .post_images {
     display: flex;
-    gap: 10px;
+    gap: 5px;
 
-}
-
-.post_images img {
-    height: 160px;
-    width: 120px;
 }
 
 
 .car-card {
-    width: 280px;
+    width: 350px;
+    height: 300px;
     background-color: #fff;
     border-radius: 12px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    padding: 20px;
     text-align: center;
     font-family: 'Arial', sans-serif;
     transition: transform 0.2s ease;
+    padding: 15px; 
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1); 
 }
 
 .car-card:hover {
     transform: translateY(-5px);
+    
 }
 
 .car-card-header {
@@ -55,11 +48,15 @@
     margin-bottom: 15px;
 }
 
-.car-image {
-    width: 100%;
-    height: auto;
-    margin-bottom: 20px;
+.car-image-box {
+    min-width: 250px; 
+    max-width: 400px; 
+    min-height: 180px; 
+    max-height: 180px;
+    margin-top: 0px;
+    border-radius: 5px;
 }
+
 
 .car-info {
     display: flex;
@@ -80,27 +77,30 @@
 
 .car-card-footer {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
+    justify-content: space-between; /* Разместит цену и кнопку по краям */
+    align-items: center; /* Выравнивание по вертикали */
+    margin: 10px;
+    padding: 20px;
+    /* Отступ снизу */
+
 }
 
 .price {
-    font-size: 18px;
-    font-weight: bold;
-    color: #333;
+    font-size: 18px; /* Размер шрифта для цены */
+    font-weight: bold; /* Жирный шрифт для цены */
 }
 
 .rent-button {
-    background-color: #3563E9;
-    color: #fff;
-    padding: 10px 20px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 14px;
-    transition: background-color 0.3s ease;
+    background-color: #3563E9; /* Цвет фона кнопки */
+    color: white; /* Цвет текста кнопки */
+    border: none; /* Убираем границу */
+    padding: 10px 15px; /* Внутренние отступы кнопки */
+    border-radius: 5px; /* Скругленные углы кнопки */
+    cursor: pointer; /* Указатель курсора при наведении */
+    font-size: 16px; /* Размер текста */
 }
 
 .rent-button:hover {
-    background-color: #274bbf;
+    background-color: #2f54eb; /* Цвет фона при наведении */
 }
+
