@@ -1,9 +1,75 @@
 .verify {
     display: flex;
     flex-direction: column;
+    align-items: center;
+    justify-content: center;
     gap: 20px;
+    padding: 40px;
+    background-color: #f7f9fc;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    max-width: 400px;
+    margin: auto;
+    margin-top: 5%;
+}
+
+.verify h1 {
+    font-size: 24px;
+    color: #3563E9;
+}
+
+.verify input[type="file"] {
+    padding: 10px;
+    border: 2px solid #C3D4E9;
+    border-radius: 8px;
+    background-color: white;
+    cursor: pointer;
 }
 
 .verify button {
     width: 125px;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 8px;
+    background-color: #3563E9;
+    color: white;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s;
+}
+
+.verify button:disabled {
+    background-color: #c3c3c3;
+}
+
+.verify button:not(:disabled):hover {
+    background-color: #254ac9;
+}
+
+
+.file-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    border-radius: 8px;
+    background-color: #3563E9;
+    color: white;
+    padding: 10px 20px;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.file-upload:hover {
+    background-color: #254ac9;
+}
+
+.file-upload input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
 }

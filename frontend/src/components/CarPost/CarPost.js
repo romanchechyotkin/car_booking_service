@@ -34,7 +34,7 @@ export const CarPost = (props) => {
             />
             
             <div className="car-card-footer">
-                <div className="price">${car.pricePerDay}/day</div> 
+                <div className="price-feed">${car.pricePerDay}/day</div> 
                 <button className="rent-button">Арендовать</button>
             </div>
         </div>
