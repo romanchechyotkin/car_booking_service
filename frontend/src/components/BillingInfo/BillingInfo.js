@@ -263,7 +263,7 @@ export const BillingInfo = () => {
                             <p>No image available</p>
                         )}  
                         <div className="car-details">
-                            <h3>{car.}</h3>
+                            <h3>{car.brand} {car.model}</h3>
                             <div className="review-section">
                                 <span className="stars">★★★★☆</span>
                                 <span className="reviewer-info">440+ Reviewer</span>

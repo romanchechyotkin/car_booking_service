@@ -2,7 +2,6 @@ import React, {useEffect} from 'react';
 import {BrowserRouter, Navigate, Route, Routes} from "react-router-dom";
 import {useDispatch, useSelector} from "react-redux";
 import {userActions} from "./store/loginUserSlice";
-
 import {Registration} from "./components/Registration/Registration";
 import {Login} from "./components/Login/Login";
 import {Navbar} from "./components/Navbar/Navbar";

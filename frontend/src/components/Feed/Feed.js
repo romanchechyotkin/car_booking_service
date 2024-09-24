@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../axios/axios";
@@ -11,7 +10,6 @@ export const Feed = () => {
     const [cars, setCars] = useState([]);
     const [sortCriteria, setSortCriteria] = useState(null);
     
-
     const filters = [
         { id: "new", label: "Новые" },
         { id: "prc.a", label: "Сначала дешевле" },
