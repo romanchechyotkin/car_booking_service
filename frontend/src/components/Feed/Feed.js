@@ -4,14 +4,10 @@ import { useEffect, useState } from "react";
 import { axiosInstance } from "../../axios/axios";
 import { CarPost } from "../CarPost/CarPost";
 import "./feed.css";
-import firstImage from '../../img/first.png';
-import secondImage from '../../img/second.png';
 import carImage from '../../img/car.png';
 import firstCarImage from '../../img/car-first.png'
 
 export const Feed = () => {
-    const isVerified = useSelector((state) => state.user.isVerified);
-    const isAuth = useSelector((state) => state.user.isAuth);
     const [cars, setCars] = useState([]);
     const [sortCriteria, setSortCriteria] = useState(null);
     

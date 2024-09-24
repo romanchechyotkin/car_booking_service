@@ -1,11 +1,13 @@
 import "./carpgage.css"
-import {useParams} from "react-router-dom";
+import {Link, useParams} from "react-router-dom";
 import React, {useEffect, useState} from "react";
 import {axiosInstance, STATIC} from "../../axios/axios";
 import {Rate} from "../Rate/Rate";
 import {useSelector} from "react-redux";
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
+import { BillingInfo } from "../BillingInfo/BillingInfo";
+import {useNavigate} from "react-router-dom";
 
 export const CarPage = () => {
     const user = useSelector((state) => state.user.user)
@@ -22,7 +24,14 @@ export const CarPage = () => {
 
     const [startDate, setStartDate] = useState()
     const [endDate, setEndDate] = useState()
+   
+    const navigate = useNavigate();
 
+
+    const [marketingChecked, setMarketingChecked] = useState(false);
+    const [termsChecked, setTermsChecked] = useState(false);
+
+    
     const fetchCarInfo = async () => {
         try {
             const res = await axiosInstance.get(`/cars/${params.id}`)
@@ -80,7 +89,7 @@ export const CarPage = () => {
         }
     }
 
-    
+    //перенести функцию в биллинг
     const reserve = async () => {
         const start = new Date(startDate)
         const end = new Date(endDate)
@@ -109,6 +118,10 @@ export const CarPage = () => {
 
 
     }
+    const handleReserve = () => {
+        navigate(`/billing/${car.id}`);
+    };
+
 
     return (
             <div className={"car_page"}>
@@ -145,7 +158,14 @@ export const CarPage = () => {
                             <div className="car_price">
                                 <span className="price">${car.pricePerDay}/day</span>
                             </div>
-                            <button onClick={reserve}>OK</button>
+                            <div>
+                        <button onClick={handleReserve}>
+                            OK
+                        </button>
+
+            {/* Показываем BillingInfo только после нажатия */}
+            
+        </div>
                         </div>
                         {/* <div className="reservation_dates">
                             <div className="reservation_start">
