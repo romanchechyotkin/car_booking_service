@@ -3,18 +3,20 @@ import "./navbar.css";
 import { userActions } from "../../store/loginUserSlice";
 import { useDispatch, useSelector } from "react-redux";
 import { Link } from "react-router-dom";
+import logoImage from "../../img/logo.png"
 
 export const Navbar = () => {
     const dispatch = useDispatch();
-    const { isAuth, role } = useSelector((state) => state.user);
-
+    const { isAuth, role, isVerified } = useSelector((state) => state.user);
+   
+    
     const logout = () => {
         dispatch(userActions.logout());
         localStorage.clear();
     };
 
     const [searchText, setSearchText] = useState("");
-
+   
     const handleSearchChange = (e) => {
         setSearchText(e.target.value);
     };
@@ -26,10 +28,11 @@ export const Navbar = () => {
     return (
         <nav className="navbar">
             <div className="navbar_logo">
+                <img src={logoImage} alt="logo" className="logo"></img>
                 <Link to="/">CarBook</Link>
             </div>
             
-            {/* Добавляем поисковую строку */}
+    
             <div className="search-container">
                 <input 
                     type="text" 
@@ -47,16 +50,25 @@ export const Navbar = () => {
             </div>
 
             <ul className="navbar_links">
-                {isAuth && role !== "ADMIN" && (
+                {isAuth && role !== "ADMIN" && !isVerified && (
                     <>
                         <li>
-                            <Link to="/feed">Feed</Link>
+                            <Link to="/feed">На главную</Link>
                         </li>
                         <li>
-                            <Link to="/verify">Verify</Link>
+                            <Link to="/verify">Верифицируйтесь</Link>
                         </li>
                     </>
                 )}
+
+                {isAuth && role !== "ADMIN" && isVerified && (
+                    <>
+                       
+                            <Link to="/feed">На главную</Link>
+                      
+                    </>
+                )}
+
                 {isAuth && role === "ADMIN" && (
                     <>
                         <li>
@@ -79,6 +91,7 @@ export const Navbar = () => {
                         <button onClick={logout}>Logout</button>
                     </li>
                 )}
+                               
             </ul>
         </nav>
     );
