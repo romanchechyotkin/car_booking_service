@@ -1,0 +1,51 @@
+.create-post-container {
+    max-width: 600px;
+    margin: 20px auto;
+    padding: 20px;
+    border: 1px solid #ddd;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+}
+
+h2 {
+    text-align: center;
+    color: #000;
+}
+
+.post-form {
+    display: flex;
+    flex-direction: column;
+}
+
+.form-field {
+    margin-bottom: 15px;
+}
+
+label {
+    font-weight: bold;
+}
+
+input {
+    margin-top: 15px;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    width: 100%;
+}
+
+input[type="file"] {
+    padding: 0;
+}
+
+.submit-btn {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 10px;
+    border-radius: 5px;
+    cursor: pointer;
+}
+
+.submit-btn:disabled {
+    background-color: #ccc;
+}

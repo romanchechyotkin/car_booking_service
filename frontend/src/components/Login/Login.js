@@ -1,6 +1,5 @@
 import React, {useState} from 'react';
 import "./login.css"
-import {axiosInstance} from "../../axios/axios";
 import {useNavigate} from "react-router-dom";
 import {useDispatch} from "react-redux";
 import { loginUser } from '../SharedFunctions/login';
@@ -21,7 +20,7 @@ export const Login = () => {
             <h1>Login here!</h1>
             <div className={"login_form"}>
                 <input type="text" placeholder={"email"} value={email} onChange={event => setEmail(event.target.value)} />
-                <input type="text" placeholder={"password"} value={password} onChange={event => setPassword(event.target.value)} />
+                <input type="password" placeholder={"password"} value={password} onChange={event => setPassword(event.target.value)} />
                 <button onClick={login}>ok</button>
             </div>
         </div>
