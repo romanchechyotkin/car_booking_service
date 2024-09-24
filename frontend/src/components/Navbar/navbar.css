@@ -21,6 +21,9 @@ body {
 .navbar_logo {
     font-size: 1.5rem;
     font-weight: bold;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
 }
 
 .navbar_links {
@@ -95,4 +98,10 @@ body {
 
 .clear-button:hover {
     color: #2f54eb;
+}
+
+.logo {
+    size: 30px;
+    width:70px;
+    height: 70px;
 }

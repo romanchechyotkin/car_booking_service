@@ -11,11 +11,12 @@ import {Feed} from "./components/Feed/Feed";
 import {Verify} from "./components/Verify/Verify";
 import {CarPage} from "./components/CarPage/CarPage";
 import { CreateCarPage } from './components/CreateCarPage/CreateCarPage';
+import { BillingInfo } from './components/BillingInfo/BillingInfo';
 
 export const App = () => {
     const isAuth = useSelector((state) => state.user.isAuth)
     // const isVerified = useSelector((state) => state.user.isVerified)
-    const role = useSelector((state) => state.user.role)
+    const {role, isVerified} = useSelector((state) => state.user)
     const dispatch = useDispatch()
 
     useEffect(() => {
@@ -43,9 +44,10 @@ export const App = () => {
                         <Route path={"/login"} element={isAuth ? <Navigate to={"/"} /> : <Login />} />
                         <Route path={"/registration"} element={isAuth ? <Navigate to={"/"} /> : <Registration />} />
                         <Route path={"/feed"} element={<Feed />} />
-                        <Route path={"/verify"} element={<Verify />} />
+                        <Route path={"/verify"} element={isVerified ? <Navigate to={"/"} /> : <Verify />} />
                         <Route path={"/post/:id"} element={<CarPage />} />
                         <Route path={"/createCar"} element={<CreateCarPage />} />
+                        <Route path={"/billing/:id"} element={<BillingInfo />} />
                     </>
                 }
                 {role === "ADMIN" &&
