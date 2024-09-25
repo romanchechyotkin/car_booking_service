@@ -258,12 +258,12 @@ export const BillingInfo = () => {
 
                     <div className="car-info">
                     {car?.images?.length > 0 ? (
-                            <img src={STATIC + car.images[0]} alt="Nissan GT-R" className="car-image" />
+                            <img src={STATIC + car.images[0]} alt="Nissan GT-R" className="car-image-billing" />
                         ) : (
                             <p>No image available</p>
                         )}  
                         <div className="car-details">
-                            <h3>{car.brand} {car.model}</h3>
+                            <h2>{car.brand} {car.model}</h2>
                             <div className="review-section">
                                 <span className="stars">★★★★☆</span>
                                 <span className="reviewer-info">440+ Reviewer</span>
@@ -274,7 +274,7 @@ export const BillingInfo = () => {
                     <div className="price-details">
                         <div className="subtotal">
                             <span>Subtotal</span>
-                            <span>$80.00</span>
+                            <span> {car.pricePerDay} BYN/day</span>
                         </div>
                         <div className="tax">
                             <span>Tax</span>
@@ -297,7 +297,7 @@ export const BillingInfo = () => {
 
                     <div className="total-price">
                         <span>Total Rental Price</span>
-                        <span>$80.00</span>
+                        <span>{car.pricePerDay} BYN/day</span>
                     </div>
 
                     <p className="price-disclaimer">Overall price and includes rental discount</p>
