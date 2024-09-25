@@ -1,4 +1,3 @@
-import { useSelector } from "react-redux";
 import { Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { axiosInstance } from "../../axios/axios";
@@ -11,9 +10,8 @@ export const Feed = () => {
     const [cars, setCars] = useState([]);
     const [sortCriteria, setSortCriteria] = useState(null);
     
-
     const filters = [
-        { id: null, label: "Новые" },
+        { id: "new", label: "Новые" },
         { id: "prc.a", label: "Сначала дешевле" },
         { id: "prc.d", label: "Сначала дороже" },
         { id: "y.a", label: "Сначала старые" },
@@ -48,18 +46,18 @@ export const Feed = () => {
                         </Link>
                     </div>
                     
-                    <img src={firstCarImage} alt="White Sports Car" class="car-image"/>
+                    <img src={firstCarImage} alt="White Sports Car" className="car-image"/>
                     
                 </div>
-                <div class="card">
+                <div className="card">
                     <div className="card-text">
                     <h1>Легко арендовать!</h1>
                     <p>Выберите подходящую вам машину, дату и место для аренды и катайтесь!</p>
-                    <a href="#" class="rent-button">Арендовать</a>
+                    <a href="#" className="rent-button">Арендовать</a>
                     </div>
                 
                   
-                    <img src={carImage} alt="Silver Sports Car" class="car-image"/>
+                    <img src={carImage} alt="Silver Sports Car" className="car-image"/>
                 </div>
         </div>
 
