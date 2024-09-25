@@ -16,6 +16,7 @@ body {
     z-index: 1000;
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); 
     height: 40px;
+    vertical-align: middle;
 }
 
 .navbar_logo {
@@ -30,6 +31,7 @@ body {
     list-style-type: none;
     display: flex;
     gap: 15px; 
+    align-items: center;
 }
 
 .navbar_links li {
@@ -73,6 +75,8 @@ body {
     font-size: 14px;
     width: 400px;
     outline: none;
+    align-items: center;
+    margin-bottom: 5px;
 }
 
 .search-input:focus {
@@ -84,6 +88,7 @@ body {
     right: 10px;
     color: #3563E9;
     pointer-events: none; 
+    padding-top:10px;
 }
 
 .clear-button {
