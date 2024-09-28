@@ -3,8 +3,13 @@ body {
   padding: 0;
   overflow: scroll;
   background-color: rgba(246, 247, 249, 1);
+  font-family: "Source Sans 3", sans-serif;
+  font-style:inherit;
 }
 
+html {
+  scroll-behavior: smooth;
+}
 a {
   text-decoration: none;
   color: inherit;

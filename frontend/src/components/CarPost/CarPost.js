@@ -15,8 +15,8 @@ export const CarPost = (props) => {
     };
 
     const defaultOptions = {
-        loop: false, // анимация не повторяется
-        autoplay: false, // не запускается автоматически
+        loop: false, 
+        autoplay: false, 
         animationData: heartAnimation,
         rendererSettings: {
             preserveAspectRatio: 'xMidYMid slice',
@@ -32,11 +32,11 @@ export const CarPost = (props) => {
                         options={defaultOptions}
                         height={40}
                         width={50}
-                        isStopped={isStopped} // контролируем остановку анимации
+                        isStopped={isStopped} 
                         eventListeners={[
                             {
                                 eventName: 'complete',
-                                callback: () => setIsStopped(true), // останавливаем после завершения
+                                callback: () => setIsStopped(true), 
                             },
                         ]}
                     />

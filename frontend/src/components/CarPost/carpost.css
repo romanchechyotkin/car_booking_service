@@ -28,6 +28,7 @@
     justify-content: space-between;
     align-items: center;
     margin-bottom: 10px;
+  
 }
 
 .car-card-header h3 {
@@ -94,7 +95,7 @@
 
 .car-rent-button {
     display: block;
-    width: 80%;
+    width: 40%;
     padding: 15px;
     background-color: #007bff;
     border: none;
