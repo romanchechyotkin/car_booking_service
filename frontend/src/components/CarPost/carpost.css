@@ -44,6 +44,9 @@
     color: #ff4d4f;
     cursor: pointer;
     align-items: end;
+    border: none;
+    background: none;
+    height: 40px;
 }
 
 .car-type {
