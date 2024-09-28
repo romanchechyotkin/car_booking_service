@@ -57,6 +57,35 @@ export const BillingInfo = () => {
         }
     }
 
+    const reserve = async () => {
+        const start = new Date(startDate)
+        const end = new Date(endDate)
+
+        let startDay = start.getDate()
+        let startMonth = start.getMonth()
+        let startYear = start.getFullYear()
+        console.log(startHour, startDay, startMonth+1, startYear)
+
+        let endDay = end.getDate()
+        let endMonth = end.getMonth()
+        let endYear = end.getFullYear()
+        console.log(endHour, endDay, endMonth+1, endYear)
+
+        try {
+            const res = await axiosInstance.post(`/cars/${params.id}/rent`, JSON.stringify({
+                "start_date": `${addZero(startHour)} ${addZero(startDay)}.${addZero(startMonth+1)}.${startYear}`,
+                "end_date": `${addZero(endHour)} ${addZero(endDay)}.${addZero(endMonth+1)}.${endYear}`,
+            }))
+            console.log(res)
+            window.location.reload()
+        } catch (e) {
+            console.log(e)
+        }
+
+
+
+    }
+
     useEffect(() => {
         fetchCarInfo()
         fetchCarRates()
@@ -66,7 +95,7 @@ export const BillingInfo = () => {
         <div>
             <div className="main-billing-section">
                 <div className="left-section">
-                    <div class="billing-card">
+                    <div className="billing-card">
                         <div class="billing-header">
                         <h2>Billing Info</h2>
                         <span class="step">Step 1 of 4</span>
@@ -92,35 +121,35 @@ export const BillingInfo = () => {
                         </form>
                     </div>
 
-                    <div class="rental-info">
-                    <div class="header">
+                    <div className="rental-info">
+                    <div className="header">
                         <h2>Rental Info</h2>
                         <p>Please select your rental date</p>
                         <span>Step 2 of 4</span>
                     </div>
 
-                    <div class="form-section">
-                        <div class="radio-group">
+                    <div className="form-section">
+                        <div className="radio-group">
                             <input type="radio" id="pickup" name="rentalType" checked/>
                             <label for="pickup">Pick - Up</label>
                         </div>
 
-                        <div class="form-grid">
-                            <div class="form-field">
+                        <div className="form-grid">
+                            <div className="form-field">
                                 <label for="pickup-location">Locations</label>
                                 <select id="pickup-location">
                                     <option>Select your city</option>
                                 </select>
                             </div>
 
-                            <div class="form-field">
+                            <div className="form-field">
                                 <label for="pickup-date">Date</label>
                                 <select id="pickup-date">
                                     <option>Select your date</option>
                                 </select>
                             </div>
 
-                            <div class="form-field">
+                            <div className="form-field">
                                 <label for="pickup-time">Time</label>
                                 <select id="pickup-time">
                                     <option>Select your time</option>
@@ -128,30 +157,30 @@ export const BillingInfo = () => {
                             </div>
                         </div>
 
-                        <div class="radio-group">
+                        <div className="radio-group">
                             <input type="radio" id="dropoff" name="rentalType"/>
                             <label for="dropoff">Drop - Off</label>
                         </div>
 
-                        <div class="form-grid">
-                            <div class="form-field">
-                                <label for="dropoff-location">Locations</label>
+                        <div className="form-grid">
+                            <div className="form-field">
+                                <label for="dropoff-location">Место</label>
                                 <select id="dropoff-location">
-                                    <option>Select your city</option>
+                                    <option>Выберите свой город</option>
                                 </select>
                             </div>
 
-                            <div class="form-field">
-                                <label for="dropoff-date">Date</label>
+                            <div className="form-field">
+                                <label for="dropoff-date">Дата</label>
                                 <select id="dropoff-date">
-                                    <option>Select your date</option>
+                                    <option>Выберите дату</option>
                                 </select>
                             </div>
 
-                            <div class="form-field">
-                                <label for="dropoff-time">Time</label>
+                            <div className="form-field">
+                                <label for="dropoff-time">Время</label>
                                 <select id="dropoff-time">
-                                    <option>Select your time</option>
+                                    <option>Выберите время</option>
                                 </select>
                             </div>
                         </div>
@@ -159,49 +188,49 @@ export const BillingInfo = () => {
                     </div>
                 
             
-                    <div class="payment-method">
-                <div class="header">
-                    <h2>Payment Method</h2>
-                    <p>Please enter your payment method</p>
+                    <div className="payment-method">
+                <div className="header">
+                    <h2>Способ оплаты</h2>
+                    <p>Введите данные для оплаты</p>
                     <span>Step 3 of 4</span>
                 </div>
 
-                <div class="form-section">
-                    <div class="radio-group">
+                <div className="form-section">
+                    <div className="radio-group">
                         <input type="radio" id="credit-card" name="payment" checked/>
                         <label for="credit-card">Credit Card</label>
                         <img src= {visaImage} alt="Visa & Mastercard" class="card-logo"/>
                     </div>
 
-                    <div class="form-grid">
-                        <div class="form-field">
-                            <label for="card-number">Card Number</label>
+                    <div className="form-grid">
+                        <div className="form-field">
+                            <label for="card-number">Номер карты</label>
                             <input type="text" id="card-number" placeholder="Card number"/>
                         </div>
 
-                        <div class="form-field">
-                            <label for="expiration-date">Expiration Date</label>
+                        <div className="form-field">
+                            <label for="expiration-date">Срок действия</label>
                             <input type="text" id="expiration-date" placeholder="DD / MM / YY"/>
                         </div>
 
-                        <div class="form-field">
-                            <label for="card-holder">Card Holder</label>
+                        <div className="form-field">
+                            <label for="card-holder">Имя держателя</label>
                             <input type="text" id="card-holder" placeholder="Card holder"/>
                         </div>
 
-                        <div class="form-field">
+                        <div className="form-field">
                             <label for="cvc">CVC</label>
                             <input type="text" id="cvc" placeholder="CVC"/>
                         </div>
                     </div>
                     
-                    <div class="radio-group">
+                    <div className="radio-group">
                         <input type="radio" id="paypal" name="payment"/>
                         <label for="paypal">PayPal</label>
                         <img src={paypalImage} alt="PayPal" class="payment-logo"/>
                     </div>
 
-                    <div class="radio-group">
+                    <div className="radio-group">
                         <input type="radio" id="bitcoin" name="payment"/>
                         <label for="bitcoin">Bitcoin</label>
                         <img src={bitcoinImage} alt="Bitcoin" class="payment-logo"/>
@@ -305,4 +334,12 @@ export const BillingInfo = () => {
             </div> 
         </div>
     )
+}
+
+function addZero(num) {
+    if (String(num).length === 1) {
+        return `0${num}`
+    }
+
+    return `${num}`
 }
