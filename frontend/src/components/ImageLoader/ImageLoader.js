@@ -2,23 +2,34 @@ import React, { useState } from "react";
 import "./ImageUploader.css"; 
 
 export const ImageLoader = ({ files, setFiles }) => {
+    const [images, setLocalImages] = useState([]); 
+    
     const handleFilesChange = (e) => {
         const selectedFiles = Array.from(e.target.files);
         if (validateFiles(selectedFiles)) {
-            setFiles([...files, ...selectedFiles]);
+            const newFileCount = files.length + selectedFiles.length;
+            if (newFileCount > 5) {
+                alert("можно загрузить не более 5-ти изображений.");
+            } else {
+                const updatedFiles = [...files, ...selectedFiles];
+                setLocalImages(updatedFiles);
+                setFiles([...files, ...selectedFiles]);
+            }
         }
     };
 
     const handleDrop = (e) => {
         e.preventDefault();
-        if (files.length > 5) {
-            alert("Можно загрузить не более 5-ти изображений.");
-            return
-        }
-        
         const droppedFiles = Array.from(e.dataTransfer.files);
         if (validateFiles(droppedFiles)) {
-            setFiles([...files, ...droppedFiles]);
+            const newFileCount = files.length + droppedFiles.length;
+            if (newFileCount > 4) {
+                alert("You can only upload up to 4 photos.");
+            } else {
+                const updatedFiles = [...files, ...droppedFiles];
+                setLocalImages(updatedFiles);
+                setFiles(updatedFiles); 
+            }
         }
     };
 

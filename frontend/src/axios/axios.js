@@ -22,23 +22,54 @@ axiosInstance.interceptors.request.use(
         Promise.reject(error)
 });
 
-axiosInstance.interceptors.response.use((response) => {
-    return response
-}, async function (error) {
-    const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest._retry) {
-        originalRequest._retry = true;
-        const res = await refreshAccessToken();
-        localStorage.setItem('access_token', JSON.stringify(res.data.access_token))
-        localStorage.setItem('refresh_token', JSON.stringify(res.data.refresh_token))
-        axios.defaults.headers.common['Authorization'] = 'Bearer ' + res.data.access_token;
-        return axiosInstance(originalRequest);
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response; 
+    }, 
+    async function (error) {
+        const originalRequest = error.config;
+
+        if ((error.response.status === 401 || error.response.status === 403) && !originalRequest._retry) {
+            originalRequest._retry = true;
+
+            try {
+                const res = await refreshAccessToken(); 
+                
+                if (res.status === 200) {
+                    const newAccessToken = res.data.access_token;
+                    const newRefreshToken = res.data.refresh_token;
+
+                    localStorage.setItem('access_token', JSON.stringify(newAccessToken));
+                    localStorage.setItem('refresh_token', JSON.stringify(newRefreshToken));
+
+                    originalRequest.headers['Authorization'] = 'Bearer ' + newAccessToken;
+                    
+                    return axiosInstance(originalRequest);
+                }
+            } catch (err) {
+                console.error('Token refresh failed', err);
+            }
+        }
+
+        return Promise.reject(error); 
     }
-    return Promise.reject(error);
-});
+);
 
 const refreshAccessToken = async () => {
-    return await axiosInstance.post("/auth/refresh", JSON.stringify({
-        "refresh_token": JSON.parse(localStorage.getItem("refresh_token"))
-    }))
-}
+    const refreshToken = JSON.parse(localStorage.getItem('refresh_token')); 
+
+    if (!refreshToken) {
+        throw new Error("No refresh token available");
+    }
+
+    try {
+        const response = await axiosInstance.post("/auth/refresh", {
+            "refresh_token": refreshToken 
+        });
+        
+        return response;
+    } catch (error) {
+        console.error("Error refreshing access token", error); 
+        throw error;
+    }
+};

@@ -155,7 +155,7 @@ func CORSMiddleware() gin.HandlerFunc {
 }
 
 func FillData() error {
-	requests := []struct {
+	createCarsRequests := []struct {
 		car   carModel.CreateCarFormDto
 		image string
 	}{
@@ -241,7 +241,7 @@ func FillData() error {
 		},
 	}
 
-	for _, req := range requests {
+	for _, req := range createCarsRequests {
 		body := &bytes.Buffer{}
 		writer := multipart.NewWriter(body)
 
@@ -284,53 +284,30 @@ func FillData() error {
 		}
 
 		client := &http.Client{}
+        
+        token, err := loginRequest()
+        if err != nil {
+            log.Println(err)
+            continue
+        }
 
-		var loginBody = []byte(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "admin@gmail.com", "admin"))
-		r, err := http.NewRequest("POST", "http://localhost:8000/auth/login", bytes.NewReader(loginBody))
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		response, err := client.Do(r)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-		defer response.Body.Close()
-
-		responseBody, err := io.ReadAll(response.Body)
-		if err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		var p struct {
-			AccessToken string `json:"access_token"`
-		}
-
-		if err := json.Unmarshal(responseBody, &p); err != nil {
-			fmt.Println(err)
-			continue
-		}
-
-		r, err = http.NewRequest("POST", "http://localhost:8000/cars", body)
+        r, err := http.NewRequest("POST", "http://localhost:8000/cars", body)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 
 		r.Header.Set("Content-Type", writer.FormDataContentType())
-		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", p.AccessToken))
+		r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
 
-		response, err = client.Do(r)
+        response, err := client.Do(r)
 		if err != nil {
 			fmt.Println(err)
 			continue
 		}
 		defer response.Body.Close()
 
-		responseBody, err = io.ReadAll(response.Body)
+        responseBody, err := io.ReadAll(response.Body)
 		if err != nil {
 			fmt.Println(err)
 			continue
@@ -340,4 +317,37 @@ func FillData() error {
 	}
 
 	return nil
+}
+
+func loginRequest() (string, error) {
+	client := &http.Client{}
+
+    var loginBody = []byte(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "admin@gmail.com", "admin"))
+    r, err := http.NewRequest("POST", "http://localhost:8000/auth/login", bytes.NewReader(loginBody))
+    if err != nil {
+        return "", err 
+
+    }
+
+    response, err := client.Do(r)
+    if err != nil {
+        return "", err 
+
+    }
+    defer response.Body.Close()
+
+    responseBody, err := io.ReadAll(response.Body)
+    if err != nil {
+        return "", err 
+    }
+
+    var p struct {
+        AccessToken string `json:"access_token"`
+    }
+
+    if err := json.Unmarshal(responseBody, &p); err != nil {
+        return "", err 
+    }
+    
+    return p.AccessToken, nil
 }

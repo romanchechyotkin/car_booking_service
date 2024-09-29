@@ -373,7 +373,8 @@ ALTER TABLE ONLY public.roles
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city, posts_limit) values (
+INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city, posts_limit) values 
+(
     'admin@gmail.com',
     '$2a$04$432w7s77tqOQXGzlMEl2I.9UENyb3exU22axj3hmWCM6KHUTozTP.',
     'admin',
@@ -382,10 +383,58 @@ INSERT INTO public.users (email, password, full_name, telephone_number, is_premi
     true,
     'minsk',
     100
+),
+(
+    'user@gmail.com',
+    '$2a$04$kL//RXJLWtPDbS7jKeWKFOX02bm5P16rmOoKfFRDZqYm9tWznWOnq',
+    'user',
+    '+375333932056',
+    false,
+    false,
+    'Minsk',
+    2  
 );
 
+
 INSERT INTO public.roles (role, user_id) 
-    SELECT 'ADMIN' as role, u.id as user_id
-    FROM public.users u
-    WHERE u.email = 'admin@gmail.com';
-    
+    select 'ADMIN' as role, u.id as user_id
+    from public.users u
+    where u.email = 'admin@gmail.com';
+
+INSERT INTO public.roles (role, user_id) 
+    select 'USER' as role, u.id as user_id
+    from public.users u
+    where u.email = 'user@gmail.com';
+
+INSERT INTO public.users_ratings (rate, comment, user_id, rate_by_user) 
+    SELECT 
+        5.0 as rate, 
+        'все прекрасно' as comment, 
+        u.id as user_id, 
+        a.id as rate_by_user
+    FROM public.users u, public.users a
+    WHERE u.email = 'user@gmail.com'
+    AND a.email = 'admin@gmail.com';
+
+INSERT INTO public.users_ratings (rate, comment, user_id, rate_by_user) 
+    SELECT 
+        2.0 as rate, 
+        'все плохо' as comment, 
+        u.id as user_id, 
+        a.id as rate_by_user
+    FROM public.users u, public.users a
+    WHERE u.email = 'user@gmail.com'
+    AND a.email = 'admin@gmail.com';
+
+INSERT INTO public.users_ratings (rate, comment, user_id, rate_by_user) 
+    SELECT 
+        2.0 as rate, 
+        'все плохо' as comment, 
+        u.id as user_id, 
+        a.id as rate_by_user
+    FROM public.users u, public.users a
+    WHERE u.email = 'admin@gmail.com'
+    AND a.email = 'user@gmail.com';
+
+UPDATE public.users SET rating = 3.5 where email like 'user%';
+UPDATE public.users SET rating = 2.0 where email like 'admin%';

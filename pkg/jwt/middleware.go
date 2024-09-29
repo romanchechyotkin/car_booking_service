@@ -33,6 +33,8 @@ func Middleware(h gin.HandlerFunc) gin.HandlerFunc {
 			return
 		}
 
+		log.Println(headers[1])
+
 		token, err := ParseAccessToken(headers[1])
 		log.Println(token)
 		if err != nil {
@@ -41,6 +43,7 @@ func Middleware(h gin.HandlerFunc) gin.HandlerFunc {
 			})
 			return
 		}
+
 		h(ctx)
 	}
 }
