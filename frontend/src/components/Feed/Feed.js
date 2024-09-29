@@ -5,6 +5,8 @@ import { CarPost } from "../CarPost/CarPost";
 import "./feed.css";
 import carImage from '../../img/car.png';
 import firstCarImage from '../../img/car-first.png'
+import strelkiImage from '../../img/feed/strelki.png'
+
 
 export const Feed = () => {
     const [cars, setCars] = useState([]);
@@ -59,7 +61,7 @@ export const Feed = () => {
             </div>
     
             <div id="main-content" className="main-content">
-                <div className="filter-column">
+                {/* <div className="filter-column">
                     <h1>Фильтр</h1>
                     <ul className="filter-list">
                         {filters.map(filter => (
@@ -75,7 +77,75 @@ export const Feed = () => {
                             </li>
                         ))}
                     </ul>
-                </div>
+                </div> */}
+
+                    <div className="main-header-rental-container">
+                        <div className="main-header-rental-start">
+                        <div className="main-header-radio-group">
+                            <input type="radio" id="start" name="rental" checked/>
+                            <label for="start">Старт аренды</label>
+                        </div>
+
+                            <div class="main-header-rental-fields">
+                                <div class="main-header-field">
+                                    <label>Место</label>
+                                    <select>
+                                        <option>Выбери город</option>
+                                    </select>
+                                </div>
+                                <div className="main-header-divider"></div>
+                                <div class="main-header-field">
+                                    <label>Дата</label>
+                                    <select>
+                                        <option>Выбери дату</option>
+                                    </select>
+                                </div>
+                                <div className="main-header-divider"></div>
+                                <div class="main-header-field">
+                                    <label>Время</label>
+                                    <select>
+                                        <option>Выбери время</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div className="main-header-swap-button">
+                            <button>
+                                <img src={strelkiImage}/>
+                            </button>
+                        </div>
+
+                        <div class="main-header-rental-end">
+                        <div className="main-header-radio-group">
+                            <input type="radio" id="end" name="rental"/>
+                            <label for="end">Конец аренды</label>
+                            </div>
+                            <div class="main-header-rental-fields">
+                                <div class="main-header-field">
+                                    <label>Место</label>
+                                    <select>
+                                        <option>Выбери город</option>
+                                    </select>
+                                </div>
+                                <div className="main-header-divider"></div>
+                                <div class="main-header-field">
+                                    <label>Дата</label>
+                                    <select>
+                                        <option>Выбери дату</option>
+                                    </select>
+                                </div>
+                                <div className="main-header-divider"></div>
+                                <div class="main-header-field">
+                                    <label>Время</label>
+                                    <select>
+                                        <option>Выбери время</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
     
                 <div className="posts">
                     {cars.length === 0 && <h1>Кажется, здесь пока что пусто..</h1>}
