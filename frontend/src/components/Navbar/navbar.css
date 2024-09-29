@@ -10,7 +10,7 @@
     border-bottom: 1px solid rgba(231, 238, 246, 1);
     height: 60px;
     vertical-align: middle;
-    font-family: "Plus Jakarta Sans", sans-serif;
+    font-family: "Montserrat", sans-serif;
     position: sticky; 
     top: 0; 
     z-index: 1000;
@@ -51,9 +51,13 @@
     font-size: 1rem;
 }
 
-
+.navbar_links a {
+  transition: all 0.3s ease-in-out;
+}
 .navbar_links a:hover {
-    text-decoration: underline;
+  text-decoration: none;
+  transform: scale(1.1);
+  color: #3563E9;
 }
 
 .navbar_links button {
@@ -103,6 +107,7 @@
     box-sizing: border-box; 
     display: flex;
     align-items: center;
+    font-family: "Montserrat", sans-serif;
   }
   
   .search-img,
