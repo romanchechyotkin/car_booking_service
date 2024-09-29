@@ -7,11 +7,11 @@ import heartAnimation from "../../animations/heart1.json"
 export const CarPost = (props) => {
     const { car, user_id } = props;
     const [isLiked, setIsLiked] = useState(false);
-    const [isStopped, setIsStopped] = useState(true); // анимация изначально остановлена
+    const [isStopped, setIsStopped] = useState(true); 
 
     const handleLikeClick = () => {
         setIsLiked(!isLiked);
-        setIsStopped(false); // запускаем анимацию при нажатии
+        setIsStopped(false); 
     };
 
     const defaultOptions = {
@@ -27,12 +27,16 @@ export const CarPost = (props) => {
         <div className="car-card">
             <div className="car-card-header">
                 <h2>{car.brand} {car.model}</h2>
-                <div className="favorite-icon" onClick={handleLikeClick}>
+                <button className="favorite-icon" onClick={(event) => {
+                    event.stopPropagation();
+                    event.preventDefault();
+                   
+                }}>
                     <Lottie 
                         options={defaultOptions}
-                        height={40}
+                        isStopped={isStopped}
                         width={50}
-                        isStopped={isStopped} 
+                        height={50}
                         eventListeners={[
                             {
                                 eventName: 'complete',
@@ -40,7 +44,7 @@ export const CarPost = (props) => {
                             },
                         ]}
                     />
-                </div>
+                </button>
             </div>
             <p className="car-type">{car.type}</p>
             <img

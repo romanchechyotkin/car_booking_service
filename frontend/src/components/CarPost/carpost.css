@@ -6,7 +6,7 @@
 
 
 .car-card {
-    width: 340px;
+    width: 300px;
     height: 320px;
     background-color: #fff;
     border-radius: 12px;
@@ -44,6 +44,9 @@
     color: #ff4d4f;
     cursor: pointer;
     align-items: end;
+    border: none;
+    background: none;
+    height: 40px;
 }
 
 .car-type {
@@ -53,14 +56,19 @@
 }
 
 .car-image-box {
-    min-width: 340px; 
-    max-width: 400px; 
-    min-height: 180px; 
-    max-height: 180px;
-    margin-top: 0px;
+    width: 100%; 
+    height: auto;
+    max-height: 180px; 
     border-radius: 5px;
+    overflow: hidden;
 }
 
+.car-image-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover; 
+    border-radius: 5px;
+}
 
 .car-info {
     display: flex;
