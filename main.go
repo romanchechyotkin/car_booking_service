@@ -120,10 +120,7 @@ func main() {
 	wg.Add(1)
 	go func() {
 		defer wg.Done()
-		err := FillData()
-		if err != nil {
-			log.Printf("Error in FillData: %v", err)
-		}
+		FillData()
 	}()
 
 	wg.Wait()
@@ -154,7 +151,12 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
-func FillData() error {
+func FillData() {
+    createCars()
+    createComments()
+}
+
+func createCars() {
 	createCarsRequests := []struct {
 		car   carModel.CreateCarFormDto
 		image string
@@ -285,7 +287,7 @@ func FillData() error {
 
 		client := &http.Client{}
         
-        token, err := loginRequest()
+        token, err := loginRequest("admin")
         if err != nil {
             log.Println(err)
             continue
@@ -315,14 +317,119 @@ func FillData() error {
 
 		fmt.Println(string(responseBody))
 	}
-
-	return nil
 }
 
-func loginRequest() (string, error) {
+func createComments() {
+    cars, err := getAllCars()
+    if err != nil {
+        log.Println(err)
+        return
+    }
+
+    token, err := loginRequest("user")
+    if err != nil {
+        log.Println(err)
+        return
+    }
+
+    rates := []struct{
+        Comment string `json:"comment"`
+        Rating int `json:"rating"`
+    }{
+        {
+            Comment: "все прекрасно",
+            Rating: 5,
+        },
+        {
+            Comment: "все плохо",
+            Rating: 2,
+        },
+
+    }
+
+    for _, car := range cars {
+        for _, rate := range rates {
+            client := &http.Client{}
+            
+            jsonData, err := json.Marshal(rate)
+            if err != nil {
+                log.Fatalf("Error marshaling JSON: %v", err)
+                continue
+            }
+
+            url := fmt.Sprintf("http://localhost:8000/cars/%s/rate", car.Car.Id)
+            r, err := http.NewRequest(http.MethodPost, url, bytes.NewBuffer(jsonData)) 
+            if err != nil {
+                log.Println(err) 
+                continue 
+            }
+
+            r.Header.Set("Authorization", fmt.Sprintf("Bearer %s", token))
+
+            response, err := client.Do(r)
+            if err != nil {
+                log.Println(err) 
+                continue
+            }
+            defer response.Body.Close()
+
+            responseBody, err := io.ReadAll(response.Body)
+            if err != nil {
+                log.Println(err) 
+                continue 
+            }
+
+            log.Println(string(responseBody))
+        }
+    }
+}
+
+func getAllCars() ([]carModel.GetCarDto, error) {
+	client := &http.Client{}
+    
+    r, err := http.NewRequest(http.MethodGet, "http://localhost:8000/cars", nil) 
+    if err != nil {
+        log.Println(err) 
+        return nil, err
+    }
+
+    response, err := client.Do(r)
+    if err != nil {
+        log.Println(err) 
+        return nil, err
+    }
+    defer response.Body.Close()
+
+    responseBody, err := io.ReadAll(response.Body)
+    if err != nil {
+        log.Println(err) 
+        return nil, err
+    }
+    
+    log.Println(string(responseBody))
+
+    var p struct {
+        Cars []carModel.GetCarDto `json:"cars"`
+    }
+
+    if err := json.Unmarshal(responseBody, &p); err != nil {
+        log.Println(err)
+        return nil, err
+    }
+    
+    return p.Cars, nil
+}
+
+func loginRequest(user string) (string, error) {
 	client := &http.Client{}
 
-    var loginBody = []byte(fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "admin@gmail.com", "admin"))
+    var s string
+    if user == "user" {
+        s = fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "user@gmail.com", "user")
+    } else {
+        s = fmt.Sprintf(`{"email": "%s", "password": "%s"}`, "admin@gmail.com", "admin")
+    }
+    var loginBody = []byte(s)
     r, err := http.NewRequest("POST", "http://localhost:8000/auth/login", bytes.NewReader(loginBody))
     if err != nil {
         return "", err 

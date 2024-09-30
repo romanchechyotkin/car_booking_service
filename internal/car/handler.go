@@ -272,7 +272,9 @@ func (h *handler) GetAllCars(ctx *gin.Context) {
 		return
 	}
 
-	ctx.JSON(http.StatusOK, cars)
+	ctx.JSON(http.StatusOK, gin.H{
+        "cars": cars,
+    })
 }
 
 // GetCar godoc
@@ -541,15 +543,8 @@ func (h *handler) GetAllCarRatings(ctx *gin.Context) {
 
 	ratings, err := h.carRepository.GetAllCarRatings(ctx, carId)
 	if err != nil {
-		ctx.JSON(http.StatusBadRequest, gin.H{
+		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"error": err.Error(),
-		})
-		return
-	}
-
-	if len(ratings) == 0 {
-		ctx.JSON(http.StatusNotFound, gin.H{
-			"msg": "no ratings",
 		})
 		return
 	}
