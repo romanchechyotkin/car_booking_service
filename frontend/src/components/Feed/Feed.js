@@ -25,7 +25,7 @@ export const Feed = () => {
             const sortQuery = sortCriteria ? `?sort=${sortCriteria}` : "";
             const res = await axiosInstance.get(`/cars${sortQuery}`);
             if (res.data) {
-                setCars(res.data);
+                setCars(res.data.cars);
             }
         } catch (e) {
             console.log(e);

@@ -263,13 +263,13 @@ func (r *Repository) GetAllUserCarsAmount(ctx context.Context, userID string) (i
 
 func (r *Repository) GetCar(ctx context.Context, id string) (c car.Car, err error) {
 	carQuery := `
-		SELECT id, brand, model, price_per_day, year, is_available, rating, seats, is_automatic, created_at
+		SELECT id, brand, model, price_per_day, year, is_available, rating, location, seats, is_automatic, created_at
 		FROM public.cars
 		WHERE id = $1
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carQuery))
-	err = r.client.QueryRow(ctx, carQuery, id).Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating, &c.Seats, &c.IsAutomatic, &c.CreatedAt)
+	err = r.client.QueryRow(ctx, carQuery, id).Scan(&c.Id, &c.Brand, &c.Model, &c.PricePerDay, &c.Year, &c.IsAvailable, &c.Rating, &c.Location, &c.Seats, &c.IsAutomatic, &c.CreatedAt)
 	if err != nil {
 		log.Println(err)
 		return c, err

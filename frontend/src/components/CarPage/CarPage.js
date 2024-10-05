@@ -35,8 +35,8 @@ export const CarPage = () => {
     const fetchCarInfo = async () => {
         try {
             const res = await axiosInstance.get(`/cars/${params.id}`)
-            setCar(res.data)
             console.log(res.data)
+            setCar(res.data)
         } catch (e) {
             console.log(e)
         }

@@ -11,7 +11,6 @@ export const Registration = () => {
     const [password, setPassword] = useState("");
     const [fullName, setFullName] = useState("");
     const [telephoneNumber, setTelephoneNumber] = useState("");
-    const [city, setCity] = useState("");
     const [error, setError] = useState("");
     const navigate = useNavigate();
     const dispatch = useDispatch();
@@ -24,7 +23,6 @@ export const Registration = () => {
                     password,
                     full_name: fullName,
                     telephone_number: telephoneNumber,
-                    city,
                 }
             ));
 
@@ -47,7 +45,6 @@ export const Registration = () => {
                 <input type="password" placeholder={"password"} value={password} onChange={event => setPassword(event.target.value)} />
                 <input type="text" placeholder={"full name"} value={fullName} onChange={event => setFullName(event.target.value)} />
                 <input type="tel" placeholder={"telephone number"} value={telephoneNumber} onChange={event => setTelephoneNumber(event.target.value)} />
-                <input type="text" placeholder={"city"} value={city} onChange={event => setCity(event.target.value)} />
                 <button onClick={registration}>ok</button>
             </div>
         </div>
