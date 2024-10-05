@@ -31,7 +31,7 @@ import (
 	"github.com/romanchechyotkin/car_booking_service/pkg/config"
 
 	// grpc "github.com/romanchechyotkin/car_booking_service/pkg/grpc/client"
-	"github.com/romanchechyotkin/car_booking_service/pkg/metrics"
+	// "github.com/romanchechyotkin/car_booking_service/pkg/metrics"
 	min "github.com/romanchechyotkin/car_booking_service/pkg/minio"
 )
 
@@ -88,10 +88,11 @@ func main() {
 	carHandler := car.NewHandler(carRepository, imgRep, reservationRep, repository, client)
 	carHandler.Register(router)
 
-
-	go func() {
-		log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
-	}()
+	//
+	// go func() {
+	// 	log.Fatal(metrics.ListenMetrics("127.0.0.1:5001"))
+	// }()
+	//
 
 	router.GET("/health", health)
 

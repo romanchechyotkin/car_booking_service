@@ -7,7 +7,6 @@ RUN CGO_ENABLED=0 GOOS=linux go build -a -o bin main.go
 
 FROM alpine
 WORKDIR /app
-COPY --from=builder /app/.env .
 COPY --from=builder /app/ .
-EXPOSE 5000
+EXPOSE 8000
 CMD ["/app/bin"]

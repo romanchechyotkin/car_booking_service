@@ -30,27 +30,28 @@ services:
     ports:
       - "5432:5432"
 
-  # server:
-  #   build:
-  #     context: .
-  #   environment:
-  #     MINIO_HOST: "minio"
-  #     MINIO_PORT: "9000"
-  #     MINIO_USER: "minio"
-  #     MINIO_PASSWORD: "minio123"
-
-  #     POSTGRES_HOST: "postgres"
-  #     POSTGRES_PORT: "5432"
-  #     POSTGRES_USER: "postgres"
-  #     POSTGRES_PASSWORD: "5432"
-  #     POSTGRES_DATABASE: "car_booking_service"
-
-    # depends_on:
-    #   - postgres
-    #   - minio
-    # ports:
-    #   - "5000:5000"
-    # restart: always
+  server:
+    container_name: server 
+    build:
+      context: .
+    environment:
+      HOST: "0.0.0.0"
+      PORT: "8000"
+      MINIO_HOST: "minio"
+      MINIO_PORT: "9000"
+      MINIO_USER: "minio"
+      MINIO_PASSWORD: "minio123"
+      POSTGRES_HOST: "postgres"
+      POSTGRES_PORT: "5432"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "5432"
+      POSTGRES_DATABASE: "car_booking_service"
+    depends_on:
+      - postgres
+      - minio
+    ports:
+      - "8000:8000"
+    restart: always
 
 volumes:
   data:
