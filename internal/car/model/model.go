@@ -10,6 +10,7 @@ type Car struct {
 	Year        int        `json:"year"`
 	IsAvailable bool       `json:"-"`
 	Rating      float32    `json:"rating"`
+    Location    string     `json:"location"`
     Seats       int        `json:"seats"`
     IsAutomatic bool       `json:"is_automatic"`
 	Images      []string   `json:"images"`

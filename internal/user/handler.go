@@ -34,7 +34,7 @@ func NewHandler(repository *user.Repository, client *minio.Client) *handler {
 }
 
 func (h *handler) Register(router *gin.Engine) {
-	router.Handle(http.MethodGet, "/users", h.GetALlUsers)
+	router.Handle(http.MethodGet, "/users", h.GetAllUsers)
 	//router.Handle(http.MethodPost, "/users", h.CreateUser)
 	router.Handle(http.MethodGet, "/users/:id", h.GetOneUserById)
 
@@ -59,7 +59,7 @@ func (h *handler) Register(router *gin.Engine) {
 // @Produce application/json
 // @Success 200 {object} []user.GetUsersDto{}
 // @Router /users [get]
-func (h *handler) GetALlUsers(ctx *gin.Context) {
+func (h *handler) GetAllUsers(ctx *gin.Context) {
 	start := time.Now()
 	status := http.StatusOK
 	defer func() {

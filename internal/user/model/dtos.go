@@ -5,7 +5,6 @@ type CreateUserDto struct {
 	Password        string `json:"password" binding:"required"`
 	FullName        string `json:"full_name" binding:"required"`
 	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
-	City            string
 }
 
 type GetUsersDto struct {
@@ -16,7 +15,6 @@ type GetUsersDto struct {
 	TelephoneNumber string  `json:"telephone_number"`
 	IsPremium       bool    `json:"is_premium"`
 	PostsLimit      int     `json:"posts_limit"`
-	City            string  `json:"city"`
 	Rating          float32 `json:"rating"`
 	IsVerified      bool    `json:"is_verified"`
 	Role            string  `json:"role"`
@@ -27,7 +25,6 @@ type UpdateUserDto struct {
 	Password        string `json:"password"`
 	FullName        string `json:"full_name"`
 	TelephoneNumber string `json:"telephone_number" binding:"e164"`
-	City            string `json:"city"`
 }
 
 type RateDto struct {

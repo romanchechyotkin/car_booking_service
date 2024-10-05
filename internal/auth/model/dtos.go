@@ -7,7 +7,6 @@ type RegistrationDto struct {
 	Password        string `json:"password" binding:"required,min=6"`
 	FullName        string `json:"full_name" binding:"required"`
 	TelephoneNumber string `json:"telephone_number" binding:"required,e164"`
-	City            string `json:"city"`
 }
 
 type LoginDto struct {

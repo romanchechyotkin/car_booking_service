@@ -74,6 +74,7 @@ CREATE TABLE public.cars (
     model text,
     year numeric(4,0),
     price_per_day numeric(10,2),
+    location text not null,
     is_available boolean DEFAULT true,
     rating numeric(3,2) DEFAULT 0.0,
     seats int NOT NULL,
@@ -169,7 +170,6 @@ CREATE TABLE public.users (
     telephone_number text NOT NULL,
     is_premium boolean DEFAULT false,
     posts_limit integer DEFAULT 2,
-    city text,
     rating numeric(3,2) DEFAULT 0,
     is_verified boolean DEFAULT false
 );
@@ -373,7 +373,7 @@ ALTER TABLE ONLY public.roles
 -- PostgreSQL database dump complete
 --
 
-INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, city, posts_limit) values 
+INSERT INTO public.users (email, password, full_name, telephone_number, is_premium, is_verified, posts_limit) values 
 (
     'admin@gmail.com',
     '$2a$04$432w7s77tqOQXGzlMEl2I.9UENyb3exU22axj3hmWCM6KHUTozTP.',
@@ -381,7 +381,6 @@ INSERT INTO public.users (email, password, full_name, telephone_number, is_premi
     '+',
     true,
     true,
-    'minsk',
     100
 ),
 (
@@ -391,10 +390,8 @@ INSERT INTO public.users (email, password, full_name, telephone_number, is_premi
     '+375333932056',
     false,
     false,
-    'Minsk',
     2  
 );
-
 
 INSERT INTO public.roles (role, user_id) 
     select 'ADMIN' as role, u.id as user_id

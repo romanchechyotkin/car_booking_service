@@ -62,8 +62,8 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	}()
 
 	carsQuery := `
-		INSERT INTO public.cars (id, brand, model, year, price_per_day, is_automatic, seats) 
-		VALUES ($1, $2, $3, $4, $5, $6, $7)
+		INSERT INTO public.cars (id, brand, model, year, price_per_day, location, is_automatic, seats) 
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
 	`
 
 	carsUsersQuery := `
@@ -72,7 +72,7 @@ func (r *Repository) CreateCar(ctx context.Context, car *car.CreateCarFormDto, u
 	`
 
 	log.Printf("SQL query: %s", postgresql.FormatQuery(carsQuery))
-	row, err := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay, car.IsAutomatic, car.Seats)
+	row, err := tx.Exec(ctx, carsQuery, car.Id, car.Brand, car.Model, car.Year, car.PricePerDay, car.Location, car.IsAutomatic, car.Seats)
 	if err != nil {
 		return err
 	}
@@ -100,35 +100,35 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 	switch orderBy {
 	case SORT_BY_ASC_PRICE:
 		query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY price_per_day
 	`
 	case SORT_BY_DESC_PRICE:
 		query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY price_per_day DESC 
 	`
 	case SORT_BY_ASC_YEAR:
 		query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY year
 	`
 	case SORT_BY_DESC_YEAR:
 		query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY year DESC 
 	`
 	default:
 		query = `
-		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
+		SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at, cu.user_id
 		FROM public.cars
 		INNER JOIN cars_users cu on cars.id = cu.car_id		
 		ORDER BY created_at 
@@ -147,7 +147,7 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 	cars := make([]car.GetCarDto, 0)
 	for rows.Next() {
 		var c car.GetCarDto
-		err = rows.Scan(&c.Car.Id, &c.Car.Brand, &c.Car.Model, &c.Car.PricePerDay, &c.Car.Year, &c.Car.IsAvailable, &c.Car.Rating, &c.Car.Seats, &c.Car.IsAutomatic, &c.Car.CreatedAt, &c.UserId)
+		err = rows.Scan(&c.Car.Id, &c.Car.Brand, &c.Car.Model, &c.Car.PricePerDay, &c.Car.Year, &c.Car.IsAvailable, &c.Car.Rating, &c.Car.Location, &c.Car.Seats, &c.Car.IsAutomatic, &c.Car.CreatedAt, &c.UserId)
 		if err != nil {
 			log.Println(err)
 			return nil, err

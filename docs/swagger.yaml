@@ -13,6 +13,8 @@ definitions:
         type: array
       is_automatic:
         type: boolean
+      location:
+        type: string
       model:
         type: string
       pricePerDay:
@@ -32,6 +34,8 @@ definitions:
         type: string
       is_automatic:
         type: boolean
+      location:
+        type: string
       model:
         type: string
       price:
@@ -80,8 +84,6 @@ definitions:
     type: object
   github_com_romanchechyotkin_car_booking_service_internal_auth_model.RegistrationDto:
     properties:
-      city:
-        type: string
       email:
         type: string
       full_name:
@@ -278,12 +280,17 @@ paths:
         name: price
         required: true
         type: number
+      - description: location
+        in: formData
+        name: location
+        required: true
+        type: string
       - description: is_automatic
         in: formData
         name: is_automatic
         required: true
         type: boolean
-      - description: seats
+      - description: year
         in: formData
         name: seats
         required: true

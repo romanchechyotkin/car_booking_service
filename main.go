@@ -170,6 +170,7 @@ func createCars() {
 				Year:        2024,
                 IsAutomatic: false,
                 Seats: 4,
+                Location: "Минск",
 			},
 			image: "./data/image1.png",
 		},
@@ -182,6 +183,7 @@ func createCars() {
 				Year:        2000,
                 IsAutomatic: true,
                 Seats: 4,
+                Location: "Солигорск",
 			},
 			image: "./data/image2.png",
 		},
@@ -194,6 +196,7 @@ func createCars() {
 				Year:        2015,
                 IsAutomatic: false,
                 Seats: 4,
+                Location: "Брест",
 			},
 			image: "./data/image3.png",
 		},
@@ -206,6 +209,7 @@ func createCars() {
 				Year:        2005,
                 IsAutomatic: true,
                 Seats: 4,
+                Location: "Минск",
 			},
 			image: "./data/image4.png",
 		},
@@ -218,6 +222,7 @@ func createCars() {
 				Year:        2024,
                 Seats: 2,
                 IsAutomatic: true,
+                Location: "Гродно",
 			},
 			image: "./data/image5.png",
 		},
@@ -230,6 +235,7 @@ func createCars() {
 				Year:        2004,
                 IsAutomatic: false,
                 Seats: 4,
+                Location: "Гомель",
 			},
 			image: "./data/image6.png",
 		},
@@ -242,6 +248,7 @@ func createCars() {
 				Year:        2015,
                 IsAutomatic: false,
                 Seats: 4,
+                Location: "Барановичи",
 			},
 			image: "./data/image7.png",
 		},
@@ -254,6 +261,7 @@ func createCars() {
 				Year:        2019,
                 IsAutomatic: true,
                 Seats: 4,
+                Location: "Гродно",
 			},
 			image: "./data/image8.png",
 		},
@@ -292,6 +300,7 @@ func createCars() {
 		writer.WriteField("id", req.car.Id)
 		writer.WriteField("brand", req.car.Brand)
 		writer.WriteField("model", req.car.Model)
+		writer.WriteField("location", req.car.Location)
 		writer.WriteField("price", fmt.Sprintf("%.2f", req.car.PricePerDay))
 		writer.WriteField("year", fmt.Sprintf("%d", req.car.Year))
 		writer.WriteField("seats", fmt.Sprintf("%d", req.car.Seats))

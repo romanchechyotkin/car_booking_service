@@ -176,6 +176,13 @@
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "location",
+                        "name": "location",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "boolean",
                         "description": "is_automatic",
                         "name": "is_automatic",
@@ -184,7 +191,7 @@
                     },
                     {
                         "type": "integer",
-                        "description": "seats",
+                        "description": "year",
                         "name": "seats",
                         "in": "formData",
                         "required": true
@@ -703,6 +710,9 @@
                 "is_automatic": {
                     "type": "boolean"
                 },
+                "location": {
+                    "type": "string"
+                },
                 "model": {
                     "type": "string"
                 },
@@ -731,6 +741,9 @@
                 },
                 "is_automatic": {
                     "type": "boolean"
+                },
+                "location": {
+                    "type": "string"
                 },
                 "model": {
                     "type": "string"
@@ -812,9 +825,6 @@
                 "telephone_number"
             ],
             "properties": {
-                "city": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },

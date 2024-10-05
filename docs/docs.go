@@ -187,6 +187,13 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "string",
+                        "description": "location",
+                        "name": "location",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "boolean",
                         "description": "is_automatic",
                         "name": "is_automatic",
@@ -195,7 +202,7 @@ const docTemplate = `{
                     },
                     {
                         "type": "integer",
-                        "description": "seats",
+                        "description": "year",
                         "name": "seats",
                         "in": "formData",
                         "required": true
@@ -714,6 +721,9 @@ const docTemplate = `{
                 "is_automatic": {
                     "type": "boolean"
                 },
+                "location": {
+                    "type": "string"
+                },
                 "model": {
                     "type": "string"
                 },
@@ -742,6 +752,9 @@ const docTemplate = `{
                 },
                 "is_automatic": {
                     "type": "boolean"
+                },
+                "location": {
+                    "type": "string"
                 },
                 "model": {
                     "type": "string"
@@ -823,9 +836,6 @@ const docTemplate = `{
                 "telephone_number"
             ],
             "properties": {
-                "city": {
-                    "type": "string"
-                },
                 "email": {
                     "type": "string"
                 },
@@ -962,8 +972,6 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
-	LeftDelim:        "{{",
-	RightDelim:       "}}",
 }
 
 func init() {

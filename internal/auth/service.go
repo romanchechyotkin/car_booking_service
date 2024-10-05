@@ -41,7 +41,6 @@ func (s *service) Registration(ctx *gin.Context, dto auth.RegistrationDto) error
 		Password:        hashedPassword,
 		FullName:        dto.FullName,
 		TelephoneNumber: dto.TelephoneNumber,
-		City:            dto.City,
 	}
 
 	createErr := s.repository.CreateUser(ctx, &cu)
