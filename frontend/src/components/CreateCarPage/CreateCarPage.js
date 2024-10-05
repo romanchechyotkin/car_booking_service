@@ -10,6 +10,9 @@ export const CreateCarPage =() => {
     const [model, setModel] = useState("");
     const [price, setPrice] = useState("");
     const [year, setYear] = useState("");
+    const [location, setLocation] = useState("");
+    const [isAutomatic, setIsAutomatic] = useState("");
+    const [seats, setSeats] = useState("");
     const [photo, setPhoto] = useState([]);
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
@@ -23,6 +26,9 @@ export const CreateCarPage =() => {
         formData.append("model", model);
         formData.append("price", price);
         formData.append("year", year);
+        formData.append("location", location);
+        formData.append("is_automatic", isAutomatic);
+        formData.append("seats", seats);
 
         photo.forEach((file, index) => {
             formData.append(`image`, file);
@@ -109,6 +115,44 @@ export const CreateCarPage =() => {
                         placeholder="Ввести год выпуска"
                         required
                     />
+                </div>
+
+                <div className="form-field">
+                    <label htmlFor="location">Месторасположение</label>
+                    <input
+                        type="text"
+                        id="location"
+                        value={location}
+                        onChange={(e) => setLocation(e.target.value)}
+                        placeholder="Ввести месторасположение"
+                        required
+                    />
+                </div>
+
+                <div className="form-field">
+                    <label htmlFor="seats">Количество мест</label>
+                    <input
+                        type="number"
+                        id="seats"
+                        value={seats}
+                        onChange={(e) => setSeats(e.target.value)}
+                        placeholder="Ввести количество мест в автомобиле"
+                        required
+                    />
+                </div>
+
+               <div className="form-field">
+                    <label htmlFor="is_automatic">Автоматическая коробка передач</label>
+                    <select
+                        id="is_automatic"
+                        value={isAutomatic}
+                        onChange={(e) => setIsAutomatic(e.target.value)} // Set the value to true or false
+                        required
+                    >
+                        <option value="">Выберите</option> {/* Default placeholder option */}
+                        <option value="true">Да</option>  {/* Yes option (true) */}
+                        <option value="false">Нет</option> {/* No option (false) */}
+                    </select>
                 </div>
 
                 <ImageLoader files={photo} setFiles={setPhoto} />
