@@ -10,6 +10,8 @@ type Car struct {
 	Year        int        `json:"year"`
 	IsAvailable bool       `json:"-"`
 	Rating      float32    `json:"rating"`
+    Seats       int        `json:"seats"`
+    IsAutomatic bool       `json:"is_automatic"`
 	Images      []string   `json:"images"`
 	CreatedAt   *time.Time `json:"createdAt"`
 }

@@ -1,5 +1,4 @@
---
--- PostgreSQL database dump
+--/-- PostgreSQL database dump
 --
 
 -- Dumped from database version 15.1
@@ -77,9 +76,10 @@ CREATE TABLE public.cars (
     price_per_day numeric(10,2),
     is_available boolean DEFAULT true,
     rating numeric(3,2) DEFAULT 0.0,
+    seats int NOT NULL,
+    is_automatic boolean NOT NULL,
     created_at timestamp default now()
 );
-
 
 
 --

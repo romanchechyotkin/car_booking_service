@@ -176,6 +176,20 @@
                         "required": true
                     },
                     {
+                        "type": "boolean",
+                        "description": "is_automatic",
+                        "name": "is_automatic",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "seats",
+                        "name": "seats",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "year",
                         "name": "year",
@@ -686,6 +700,9 @@
                         "type": "string"
                     }
                 },
+                "is_automatic": {
+                    "type": "boolean"
+                },
                 "model": {
                     "type": "string"
                 },
@@ -694,6 +711,9 @@
                 },
                 "rating": {
                     "type": "number"
+                },
+                "seats": {
+                    "type": "integer"
                 },
                 "year": {
                     "type": "integer"
@@ -709,11 +729,17 @@
                 "id": {
                     "type": "string"
                 },
+                "is_automatic": {
+                    "type": "boolean"
+                },
                 "model": {
                     "type": "string"
                 },
                 "price": {
                     "type": "number"
+                },
+                "seats": {
+                    "type": "integer"
                 },
                 "year": {
                     "type": "integer"

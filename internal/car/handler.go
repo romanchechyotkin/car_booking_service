@@ -87,6 +87,8 @@ func (h *handler) Register(router *gin.Engine) {
 // @Param brand formData string true "brand"
 // @Param model formData string true "model"
 // @Param price formData float64 true "price"
+// @Param is_automatic formData bool true "is_automatic"
+// @Param seats formData int true "seats"
 // @Param year formData int true "year"
 // @Param image formData file true "Image file"
 // @Success 201 {object} car.CreateCarFormDto{}

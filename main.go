@@ -164,10 +164,12 @@ func createCars() {
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-1",
-				Brand:       "BMW",
-				Model:       "X3",
+				Brand:       "Volkswagen",
+				Model:       "Polo",
 				PricePerDay: 123,
 				Year:        2024,
+                IsAutomatic: false,
+                Seats: 4,
 			},
 			image: "./data/image1.png",
 		},
@@ -175,69 +177,83 @@ func createCars() {
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-2",
 				Brand:       "Mercedes",
-				Model:       "wasd",
+				Model:       "Q6",
 				PricePerDay: 1,
 				Year:        2000,
+                IsAutomatic: true,
+                Seats: 4,
 			},
 			image: "./data/image2.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-3",
-				Brand:       "BMW",
-				Model:       "X5",
+				Brand:       "Москвич",
+				Model:       "9",
 				PricePerDay: 1230,
 				Year:        2015,
+                IsAutomatic: false,
+                Seats: 4,
 			},
 			image: "./data/image3.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-4",
-				Brand:       "Mercedes",
-				Model:       "wasd",
+				Brand:       "Nissan",
+				Model:       "Teana",
 				PricePerDay: 1000,
 				Year:        2005,
+                IsAutomatic: true,
+                Seats: 4,
 			},
 			image: "./data/image4.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111BA-1",
-				Brand:       "BMW",
-				Model:       "X3",
+				Brand:       "Dodge",
+				Model:       "Challenger",
 				PricePerDay: 123,
 				Year:        2024,
+                Seats: 2,
+                IsAutomatic: true,
 			},
 			image: "./data/image5.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-5",
-				Brand:       "Mercedes",
-				Model:       "Lol",
+				Brand:       "BWM",
+				Model:       "X3",
 				PricePerDay: 11,
-				Year:        1999,
+				Year:        2004,
+                IsAutomatic: false,
+                Seats: 4,
 			},
 			image: "./data/image6.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-6",
-				Brand:       "LAda",
-				Model:       "X5",
+				Brand:       "Lada",
+				Model:       "Vesta",
 				PricePerDay: 111,
 				Year:        2015,
+                IsAutomatic: false,
+                Seats: 4,
 			},
 			image: "./data/image7.png",
 		},
 		{
 			car: carModel.CreateCarFormDto{
 				Id:          "1111AA-7",
-				Brand:       "Honda",
-				Model:       "wasd",
+				Brand:       "Audi",
+				Model:       "A5",
 				PricePerDay: 120,
 				Year:        2019,
+                IsAutomatic: true,
+                Seats: 4,
 			},
 			image: "./data/image8.png",
 		},
@@ -278,6 +294,8 @@ func createCars() {
 		writer.WriteField("model", req.car.Model)
 		writer.WriteField("price", fmt.Sprintf("%.2f", req.car.PricePerDay))
 		writer.WriteField("year", fmt.Sprintf("%d", req.car.Year))
+		writer.WriteField("seats", fmt.Sprintf("%d", req.car.Seats))
+		writer.WriteField("is_automatic", fmt.Sprintf("%t", req.car.IsAutomatic))
 
 		err = writer.Close()
 		if err != nil {

@@ -187,6 +187,20 @@ const docTemplate = `{
                         "required": true
                     },
                     {
+                        "type": "boolean",
+                        "description": "is_automatic",
+                        "name": "is_automatic",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "seats",
+                        "name": "seats",
+                        "in": "formData",
+                        "required": true
+                    },
+                    {
                         "type": "integer",
                         "description": "year",
                         "name": "year",
@@ -697,6 +711,9 @@ const docTemplate = `{
                         "type": "string"
                     }
                 },
+                "is_automatic": {
+                    "type": "boolean"
+                },
                 "model": {
                     "type": "string"
                 },
@@ -705,6 +722,9 @@ const docTemplate = `{
                 },
                 "rating": {
                     "type": "number"
+                },
+                "seats": {
+                    "type": "integer"
                 },
                 "year": {
                     "type": "integer"
@@ -720,11 +740,17 @@ const docTemplate = `{
                 "id": {
                     "type": "string"
                 },
+                "is_automatic": {
+                    "type": "boolean"
+                },
                 "model": {
                     "type": "string"
                 },
                 "price": {
                     "type": "number"
+                },
+                "seats": {
+                    "type": "integer"
                 },
                 "year": {
                     "type": "integer"
@@ -936,6 +962,8 @@ var SwaggerInfo = &swag.Spec{
 	Description:      "",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
+	LeftDelim:        "{{",
+	RightDelim:       "}}",
 }
 
 func init() {

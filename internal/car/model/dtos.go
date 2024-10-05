@@ -8,6 +8,8 @@ type CreateCarFormDto struct {
 	Model       string  `form:"model" json:"model"`
 	PricePerDay float64 `form:"price" json:"price"`
 	Year        int     `form:"year" json:"year"`
+    Seats       int     `form:"seats" json:"seats"`
+    IsAutomatic bool    `form:"is_automatic" json:"is_automatic"`   
 }
 
 type GetCarDto struct {

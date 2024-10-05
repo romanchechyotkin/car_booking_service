@@ -11,12 +11,16 @@ definitions:
         items:
           type: string
         type: array
+      is_automatic:
+        type: boolean
       model:
         type: string
       pricePerDay:
         type: number
       rating:
         type: number
+      seats:
+        type: integer
       year:
         type: integer
     type: object
@@ -26,10 +30,14 @@ definitions:
         type: string
       id:
         type: string
+      is_automatic:
+        type: boolean
       model:
         type: string
       price:
         type: number
+      seats:
+        type: integer
       year:
         type: integer
     type: object
@@ -270,6 +278,16 @@ paths:
         name: price
         required: true
         type: number
+      - description: is_automatic
+        in: formData
+        name: is_automatic
+        required: true
+        type: boolean
+      - description: seats
+        in: formData
+        name: seats
+        required: true
+        type: integer
       - description: year
         in: formData
         name: year
