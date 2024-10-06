@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"log"
@@ -13,6 +14,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	carModel "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 
 	"github.com/gin-gonic/gin"
@@ -124,6 +126,11 @@ func main() {
 		FillData()
 	}()
 
+    wg.Add(1)
+    go func() {
+        elastic(carRepository)
+    }()
+    
 	wg.Wait()
 }
 
@@ -150,6 +157,33 @@ func CORSMiddleware() gin.HandlerFunc {
 
 		c.Next()
 	}
+}
+
+func elastic(carRepo *car2.Repository) {
+    ticker := time.NewTicker(6 * time.Second)
+
+    for {
+        select {
+            case <-ticker.C: 
+                log.Println("elk running")
+
+                cars, err := carRepo.GetAllCarsWithOffset(context.Background())
+                if err != nil {
+                    if errors.Is(err, pgx.ErrNoRows) {
+                        log.Println("no rows")
+                        continue
+                    }
+        
+                    log.Println(err)
+                    continue
+                }
+
+                for _, car := range cars {
+                    log.Println(car.Car.Id, car.Car.Brand)
+                }
+                // TODO: insert into ELK
+        }
+    }
 }
 
 func FillData() {

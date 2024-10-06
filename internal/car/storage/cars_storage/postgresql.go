@@ -2,13 +2,16 @@ package cars_storage
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
+	"time"
 
 	car "github.com/romanchechyotkin/car_booking_service/internal/car/model"
 	user "github.com/romanchechyotkin/car_booking_service/internal/user/model"
 	"github.com/romanchechyotkin/car_booking_service/pkg/client/postgresql"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 )
 
@@ -179,6 +182,74 @@ func (r *Repository) GetAllCars(ctx context.Context, opt ...string) ([]car.GetCa
 		c.Car.Images = images
 		cars = append(cars, c)
 	}
+
+	return cars, err
+}
+
+func (r *Repository) GetAllCarsWithOffset(ctx context.Context) ([]car.GetCarDto, error) {
+    offsetQuery := "SELECT last_at FROM elastic_offset"
+    
+    var lastAt *time.Time
+    if err := r.client.QueryRow(ctx, offsetQuery).Scan(&lastAt); err != nil {
+        if errors.Is(err, pgx.ErrNoRows) {
+            log.Println(err)        
+        } else {
+            log.Println(err)
+            return nil, err 
+        }
+    }
+
+    log.Println(lastAt)
+    var query string  
+    if lastAt != nil {
+        query = `
+            SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at
+            FROM public.cars
+            WHERE created_at > $1
+        `
+    } else {
+        query = `
+            SELECT cars.id, cars.brand, cars.model, cars.price_per_day, cars.year, cars.is_available, cars.rating, cars.location, cars.seats, cars.is_automatic, cars.created_at
+            FROM public.cars
+        `
+    }
+
+	log.Println(query)
+
+	rows, err := r.client.Query(ctx, query, lastAt)
+	if err != nil {
+        if errors.Is(err, pgx.ErrNoRows) {
+            log.Println("no rows")
+            return nil, err    
+        }
+
+		log.Println(err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	cars := make([]car.GetCarDto, 0)
+	for rows.Next() {
+		var c car.GetCarDto
+		err = rows.Scan(&c.Car.Id, &c.Car.Brand, &c.Car.Model, &c.Car.PricePerDay, &c.Car.Year, &c.Car.IsAvailable, &c.Car.Rating, &c.Car.Location, &c.Car.Seats, &c.Car.IsAutomatic, &c.Car.CreatedAt)
+		if err != nil {
+			log.Println(err)
+			return nil, err
+		}
+
+        cars = append(cars, c)
+	}
+    
+    if len(cars) == 0 {
+        return nil, pgx.ErrNoRows
+    }
+
+    go func() {
+        if _, err := r.client.Exec(ctx, "UPDATE elastic_offset SET last_at = $1", cars[len(cars)-1].Car.CreatedAt); err != nil {
+            log.Println(err)
+        }
+        log.Println("updated offset")
+    }()
 
 	return cars, err
 }

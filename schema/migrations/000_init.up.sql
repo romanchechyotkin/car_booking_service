@@ -29,7 +29,11 @@ CREATE TABLE public.applications (
     is_visited boolean DEFAULT false
 );
 
+CREATE TABLE public.elastic_offset (
+    last_at timestamp --- linking to last inserted car in elastic, then overwrites 
+);
 
+INSERT INTO public.elastic_offset (last_at) values (TIMESTAMP 'epoch');
 
 --
 -- Name: car_images; Type: TABLE; Schema: public; Owner: postgres
