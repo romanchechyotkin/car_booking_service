@@ -1,5 +1,32 @@
 services:
 
+  elasticsearch:
+    image: mirror.gcr.io/library/elasticsearch:7.17.1
+    environment:
+      - discovery.type=single-node
+      - cluster.name=docker-cluster
+      - bootstrap.memory_lock=true
+      - xpack.security.enabled=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    ports:
+      - "9200:9200"
+      - "9300:9300"
+
+  kibana:
+    container_name: kibana
+    image: kibana:7.4.0
+    restart: always
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
+
   minio:
     image: minio/minio:latest
     container_name: minio
@@ -20,7 +47,7 @@ services:
 
   postgres:
     container_name: postgres
-    image: postgres
+    image: postgres:16.3
     environment:
       POSTGRES_USER: "postgres"
       POSTGRES_PASSWORD: "5432"
@@ -52,6 +79,3 @@ services:
     ports:
       - "8000:8000"
     restart: always
-
-volumes:
-  data:

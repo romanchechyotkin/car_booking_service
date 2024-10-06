@@ -7,3 +7,4 @@ frontend/node_modules
 .vscode
 app_pg_data
 minio-storage
+elasticsearch-data
